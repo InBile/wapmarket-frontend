@@ -277,5 +277,46 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
 .hidden {
   display: none;
 }
+/* =========================
+   USER TOPBAR (saludo/login)
+   ========================= */
+
+#userSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#userSection .user-greeting {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+#userSection .logout-btn {
+  background: #e63946;
+  border: none;
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+#userSection .logout-btn:hover {
+  background: #d62828;
+}
+
+#userSection a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #2a9d8f;
+  transition: color 0.2s ease;
+}
+
+#userSection a:hover {
+  color: #21867a;
+}
 
 
