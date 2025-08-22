@@ -261,4 +261,28 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   .auth-divider { display: none; }
   .auth-modal { padding: 1rem; }
 }
+/* Login/Signup moderno */
+.auth section {
+  background: #fff;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: .75rem;
+}
+.auth h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.auth button[type="submit"]{
+  margin-top: .5rem;
+  padding: .65rem .9rem;
+  border: none;
+  border-radius: .5rem;
+  background: #131921;
+  color: #fff;
+  font-weight: 600;
+}
+.auth input {
+  border-radius: .5rem;
+}
 
