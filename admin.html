@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — WapMarket</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<script>
+  // Protección de acceso solo para admin
+  (function(){
+    const user = localStorage.getItem('wap_user');
+    const token = localStorage.getItem('wap_token');
+    let role = null;
+    try { role = JSON.parse(user||'null')?.role; } catch {}
+    if(!user || !token || role !== 'admin') {
+      window.location.href = 'login.html';
+    }
+  })();
+</script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">WapMarket</div>
+    <nav class="nav">
+      <a href="index.html">Inicio</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>Panel de administrador</h2>
+    <p>Usa esta página para crear cuentas de vendedores (con su tienda).</p>
+    <form id="createSellerForm" class="card">
+      <div class="grid">
+        <label>Nombre del dueño<input name="name" required/></label>
+        <label>Email del vendedor<input name="email" type="email" required/></label>
+      </div>
+      <div class="grid">
+        <label>Contraseña inicial<input name="password" type="password" required/></label>
+        <label>Nombre de la tienda<input name="store_name" required/></label>
+      </div>
+      <div class="grid">
+        <label>Ciudad<input name="city" value="Malabo"/></label>
+        <label>Descripción<input name="description"/></label>
+      </div>
+      <button type="submit">Crear vendedor</button>
+    </form>
+
+    <section class="card" style="margin-top:1rem;">
+      <h3>Usuarios</h3>
+      <button id="refreshUsers">Refrescar</button>
+      <div id="usersTable"></div>
+    </section>
+  </main>
+
+  <footer class="footer"><span>© WapMarket</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

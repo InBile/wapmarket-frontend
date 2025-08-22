@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WapMarket — Conecta negocios y clientes</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">WapMarket</div>
+    <div class="search">
+      <input id="searchInput" type="text" placeholder="Buscar productos..." />
+      <button id="searchBtn">Buscar</button>
+    </div>
+    <nav class="nav">
+      <a href="login.html">Entrar</a>
+      <button id="cartBtn">Carrito (<span id="cartCount">0</span>)</button>
+    </nav>
+  </header>
+
+
+  <div class="main-layout">
+    <!-- Sidebar: Negocios y Filtros -->
+    <aside class="sidebar">
+      <section class="businesses" id="businessesSection">
+        <!-- Aquí se cargarán los negocios dinámicamente -->
+      </section>
+      <section class="filters">
+        <h3>Filtros</h3>
+        <label>Categoría
+          <select id="categoryFilter">
+            <option value="">Todas las categorías</option>
+          </select>
+        </label>
+        <label>Precio mínimo
+          <input type="number" min="0" value="0" id="minPriceFilter" />
+        </label>
+        <label>Precio máximo
+          <input type="number" min="0" value="100000" id="maxPriceFilter" />
+        </label>
+      </section>
+    </aside>
+
+    <!-- Contenido principal: Productos -->
+    <main class="products-area">
+      <div class="products-header">
+        <h2 id="productsTitle">Productos Disponibles</h2>
+      </div>
+      <div class="products-list" id="productsList">
+        <!-- Los productos se cargarán dinámicamente aquí -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Carrito Drawer -->
+  <div id="cartDrawer" class="drawer hidden">
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h3>Tu carrito</h3>
+        <button id="closeCart">✕</button>
+      </div>
+      <div id="cartItems"></div>
+      <div class="drawer-footer">
+        <div class="totals">
+          <div>Subtotal: <strong id="subtotalXAF">0</strong> XAF</div>
+        </div>
+        <button id="checkoutOpen">Proceder al pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal (sin autenticación permitido) -->
+  <div id="checkoutModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Finalizar pedido</h3>
+        <button id="closeCheckout">✕</button>
+      </div>
+      <form id="checkoutForm">
+        <div class="grid">
+          <label>Nombre (si no has iniciado sesión)
+            <input name="guest_name" placeholder="Tu nombre" />
+          </label>
+          <label>Teléfono
+            <input name="guest_phone" placeholder="+240..." />
+          </label>
+        </div>
+        <div class="grid">
+          <label>Tipo de entrega
+            <select name="fulfillment_type" id="fulfillmentType">
+              <option value="pickup">Recoger en tienda</option>
+              <option value="delivery">Entrega a domicilio (+2000 XAF)</option>
+            </select>
+          </label>
+          <label>Dirección (si es entrega)
+            <input name="address" placeholder="Barrio / calle / referencia" />
+          </label>
+        </div>
+        <div class="summary">
+          <div>Subtotal: <span id="coSubtotal">0</span> XAF</div>
+          <div>Envío: <span id="coDelivery">0</span> XAF</div>
+          <div class="total">Total: <strong id="coTotal">0</strong> XAF</div>
+        </div>
+        <button type="submit">Confirmar pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>© WapMarket</span>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>

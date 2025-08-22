@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendedor — WapMarket</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<script>
+  // Protección de acceso solo para vendedor
+  (function(){
+    const user = localStorage.getItem('wap_user');
+    const token = localStorage.getItem('wap_token');
+    let role = null;
+    try { role = JSON.parse(user||'null')?.role; } catch {}
+    if(!user || !token || role !== 'seller') {
+      window.location.href = 'login.html';
+    }
+  })();
+</script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">WapMarket</div>
+    <nav class="nav">
+      <a href="index.html">Inicio</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>Panel del vendedor</h2>
+
+    <form id="newProductForm" class="card">
+      <div class="grid">
+        <label>Título<input name="title" required/></label>
+        <label>Precio (XAF)<input name="price_xaf" type="number" required/></label>
+      </div>
+      <div class="grid">
+        <label>Imagen (URL)<input name="image_url"/></label>
+        <label>Stock<input name="stock" type="number" value="10"/></label>
+      </div>
+      <label>Descripción<textarea name="description"></textarea></label>
+      <button type="submit">Añadir producto</button>
+    </form>
+
+    <section class="card">
+      <h3>Tus productos</h3>
+      <div id="sellerProducts" class="grid-4"></div>
+    </section>
+
+    <section class="card">
+      <h3>Tus pedidos</h3>
+      <div id="sellerOrders"></div>
+    </section>
+  </main>
+
+  <footer class="footer"><span>© WapMarket</span></footer>
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
