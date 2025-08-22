@@ -392,5 +392,67 @@ html, body {
     align-self: flex-end;
   }
 }
+/* ---------- RESPONSIVE ---------- */
 
+/* Tablets y pantallas medianas */
+@media (max-width: 1024px) {
+  .title {
+    font-size: 5rem;
+  }
+  .subtitle {
+    font-size: 0.95rem;
+  }
+  header {
+    margin-top: 25vh;
+  }
+}
+
+/* Smartphones grandes (ej. iPhone Pro, Galaxy S) */
+@media (max-width: 768px) {
+  .title {
+    font-size: 3.5rem;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    margin-top: 10px;
+  }
+  .buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .button {
+    width: 80%;
+    max-width: 280px;
+  }
+  header {
+    margin-top: 20vh;
+  }
+}
+
+/* Smartphones pequeños (ej. iPhone SE, gama baja) */
+@media (max-width: 480px) {
+  .title {
+    font-size: 2.5rem;
+  }
+  .subtitle {
+    font-size: 0.75rem;
+  }
+  .info-link {
+    font-size: 0.9rem;
+    margin-top: 20px;
+  }
+  .modal-content {
+    max-width: 95%;
+    font-size: 0.9rem;
+    padding: 20px;
+  }
+  footer {
+    font-size: 0.6rem;
+    padding: 10px;
+  }
+  .legal-links a {
+    font-size: 0.65rem;
+    margin: 0 5px;
+  }
+}
 
