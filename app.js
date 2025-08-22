@@ -1,500 +1,400 @@
-/* WapMarket — Frontend glue code (robusto a varias formas de respuesta)
-   Conecta index.html, login.html, seller.html y admin.html al backend.
-   Adaptado para endpoints que devuelven { products: [...] }, { data: [...] }, { items: [...] } o arrays.  */
+/* app.js — WapMarket (frontend conectado al backend)
+   Coloca este archivo en la raíz del repo (junto a index.html, login.html, seller.html, admin.html, styles.css)
+*/
 
-/* =========================
-   Config
-========================== */
-const API = "https://backend-wapmarket-production.up.railway.app/api";
+const API_BASE = "https://backend-wapmarket-production.up.railway.app/api";
 
-const PATHS = {
-  login: "/auth/login",
-  signup: "/auth/signup",
-  businesses: "/businesses",
-  products: "/products",
-  orders: "/orders",
-  adminCreateSeller: "/admin/sellers",
-  adminUsers: "/admin/users",
-  sellerProducts: "/seller/products",
-  sellerOrders: "/seller/orders",
-};
+// ---------------------- Utilidades básicas ----------------------
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-/* =========================
-   Utilidades
-========================== */
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-
-function getArray(payload, keys = []) {
-  if (!payload) return [];
-  if (Array.isArray(payload)) return payload;
-  for (const k of keys) {
-    if (Array.isArray(payload?.[k])) return payload[k];
-  }
-  // fallback comunes
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.items)) return payload.items;
-  return [];
-}
-
-async function fetchJson(url, opts = {}) {
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    let detail = "";
-    try {
-      detail = await res.text();
-    } catch (_) {}
-    throw new Error(`HTTP ${res.status} ${res.statusText} — ${detail}`);
-  }
-  // Algunos endpoints pueden devolver 204
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
+function getAuth() {
+  const token = localStorage.getItem("wap_token");
+  const userRaw = localStorage.getItem("wap_user");
+  let user = null;
+  try { user = JSON.parse(userRaw || "null"); } catch {}
+  return { token, user };
 }
 
 function authHeaders(extra = {}) {
-  const token = localStorage.getItem("wap_token");
-  const base = { "Content-Type": "application/json", ...extra };
-  return token ? { ...base, Authorization: `Bearer ${token}` } : base;
+  const { token } = getAuth();
+  const headers = { "Content-Type": "application/json", ...extra };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
 }
 
-function readUser() {
-  try {
-    return JSON.parse(localStorage.getItem("wap_user") || "null");
-  } catch {
-    return null;
+async function tryFetch(url, opts = {}, fallbacks = []) {
+  // Intenta url y, si falla, prueba rutas alternativas
+  const sequence = [url, ...fallbacks];
+  let lastErr;
+  for (const u of sequence) {
+    try {
+      const res = await fetch(u, opts);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return await res.json().catch(() => ({}));
+    } catch (e) {
+      lastErr = e;
+    }
   }
+  throw lastErr;
 }
 
-function saveUser(user, token) {
-  localStorage.setItem("wap_user", JSON.stringify(user || null));
-  if (token) localStorage.setItem("wap_token", token);
-}
-
-function logout() {
-  localStorage.removeItem("wap_user");
-  localStorage.removeItem("wap_token");
-  window.location.href = "index.html";
-}
-
-/* =========================
-   Estado
-========================== */
-let productsCache = [];
-let cart = loadCart();
-
+// ---------------------- Carrito (guest-friendly) ----------------------
 function loadCart() {
-  try {
-    return JSON.parse(localStorage.getItem("wap_cart") || "[]");
-  } catch {
-    return [];
+  try { return JSON.parse(localStorage.getItem("wap_cart") || "[]"); } catch { return []; }
+}
+function saveCart(items) {
+  localStorage.setItem("wap_cart", JSON.stringify(items));
+  updateCartCount();
+}
+function clearCart() { saveCart([]); }
+function addToCart(product) {
+  const cart = loadCart();
+  const idx = cart.findIndex(i => i.id === product.id);
+  if (idx >= 0) cart[idx].qty += 1;
+  else cart.push({ id: product.id, title: product.title || product.name, price_xaf: product.price_xaf ?? product.price, image_url: product.image_url, qty: 1 });
+  saveCart(cart);
+}
+function updateCartCount() {
+  const el = $("#cartCount");
+  if (el) el.textContent = loadCart().reduce((s, i) => s + i.qty, 0);
+}
+function cartSubtotalXAF() {
+  return loadCart().reduce((s, i) => s + (Number(i.price_xaf || 0) * Number(i.qty || 0)), 0);
+}
+
+// ---------------------- API helpers ----------------------
+const api = {
+  // Productos listados públicamente
+  async products() {
+    const data = await tryFetch(`${API_BASE}/products`, { headers: authHeaders() });
+    // backend devuelve {products:[...]} según tu ejemplo
+    return Array.isArray(data) ? data : (data.products || []);
+  },
+
+  // Tiendas/negocios (sidebar). Si no existe endpoint, simplemente no se muestra.
+  async stores() {
+    try {
+      const data = await tryFetch(`${API_BASE}/stores`, { headers: authHeaders() }, [
+        `${API_BASE}/businesses`,
+        `${API_BASE}/shops`
+      ]);
+      return Array.isArray(data) ? data : (data.stores || data.businesses || data.shops || []);
+    } catch {
+      return [];
+    }
+  },
+
+  // Pedido (sin login permitido)
+  async createOrder(payload) {
+    return await tryFetch(`${API_BASE}/orders`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    }, [
+      `${API_BASE}/checkout`
+    ]);
+  },
+
+  // Auth
+  async login(email, password) {
+    const data = await tryFetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ email, password })
+    }, [
+      `${API_BASE}/login`
+    ]);
+    return data;
+  },
+  async register(user) {
+    const data = await tryFetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(user)
+    }, [
+      `${API_BASE}/register`
+    ]);
+    return data;
+  },
+
+  // Seller
+  seller: {
+    async myProducts() {
+      const data = await tryFetch(`${API_BASE}/seller/products`, { headers: authHeaders() }, [
+        `${API_BASE}/products?mine=1`
+      ]);
+      return Array.isArray(data) ? data : (data.products || []);
+    },
+    async newProduct(p) {
+      return await tryFetch(`${API_BASE}/seller/products`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(p)
+      }, [
+        `${API_BASE}/products`
+      ]);
+    },
+    async myOrders() {
+      const data = await tryFetch(`${API_BASE}/seller/orders`, { headers: authHeaders() }, [
+        `${API_BASE}/orders?mine=1`
+      ]);
+      return Array.isArray(data) ? data : (data.orders || []);
+    }
+  },
+
+  // Admin
+  admin: {
+    async createSeller(payload) {
+      return await tryFetch(`${API_BASE}/admin/create-seller`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      }, [
+        `${API_BASE}/admin/sellers`
+      ]);
+    },
+    async users() {
+      const data = await tryFetch(`${API_BASE}/admin/users`, { headers: authHeaders() }, [
+        `${API_BASE}/users`
+      ]);
+      return Array.isArray(data) ? data : (data.users || []);
+    }
   }
-}
-function saveCart() {
-  localStorage.setItem("wap_cart", JSON.stringify(cart));
-  updateCartBadge();
-}
+};
 
-/* =========================
-   Render en la barra (usuario)
-========================== */
-function renderUserInNav() {
-  const nav = $(".nav");
-  if (!nav) return;
-  const user = readUser();
-
-  // Encontrar el enlace "Entrar" si existe
-  const loginLink = Array.from(nav.querySelectorAll("a")).find(a =>
-    (a.getAttribute("href") || "").toLowerCase().includes("login.html")
-  );
-
-  if (user) {
-    // Reemplazar por saludo + salir
-    const wrapper = document.createElement("div");
-    wrapper.style.display = "flex";
-    wrapper.style.gap = ".6rem";
-    wrapper.style.alignItems = "center";
-
-    const hello = document.createElement("span");
-    hello.textContent = `Hola, ${user.name || user.email || "usuario"}`;
-
-    const dashLinks = document.createElement("div");
-    dashLinks.style.display = "flex";
-    dashLinks.style.gap = ".5rem";
-
-    // Accesos rápidos según rol
-    if (user.role === "admin") {
-      const a = document.createElement("a");
-      a.href = "admin.html";
-      a.textContent = "Admin";
-      dashLinks.appendChild(a);
-    }
-    if (user.role === "seller") {
-      const a = document.createElement("a");
-      a.href = "seller.html";
-      a.textContent = "Vendedor";
-      dashLinks.appendChild(a);
-    }
-
-    const outBtn = document.createElement("button");
-    outBtn.textContent = "Salir";
-    outBtn.onclick = logout;
-
-    wrapper.appendChild(hello);
-    if (dashLinks.children.length) wrapper.appendChild(dashLinks);
-    wrapper.appendChild(outBtn);
-
-    if (loginLink) {
-      loginLink.replaceWith(wrapper);
-    } else {
-      nav.appendChild(wrapper);
-    }
-  } else {
-    // Si no hay usuario, aseguramos que exista "Entrar"
-    if (!loginLink) {
-      const a = document.createElement("a");
-      a.href = "login.html";
-      a.textContent = "Entrar";
-      nav.insertBefore(a, nav.firstChild);
-    }
-  }
-}
-
-/* =========================
-   Productos + Negocios (Home)
-========================== */
-async function loadProducts() {
-  const list = $("#productsList");
-  if (!list) return;
-  try {
-    const data = await fetchJson(`${API}${PATHS.products}`);
-    // Adaptado a {products: [...]}, {data: [...]}, {items: [...]}, o array directo
-    productsCache = getArray(data, ["products"]);
-    // Normalizar campos mínimos
-    productsCache = productsCache.map(p => ({
-      id: p.id,
-      title: p.title || p.name || "Producto",
-      price_xaf: p.price_xaf ?? p.price ?? 0,
-      image_url: p.image_url || "",
-      stock: p.stock ?? 0,
-      category: p.category || "",
-      raw: p,
-    }));
-    renderProducts(productsCache);
-    loadCategories(productsCache);
-  } catch (e) {
-    console.error("Products error:", e);
-    list.innerHTML = "<p>No se pudieron cargar los productos.</p>";
-  }
-}
-
-function renderProducts(items) {
-  const list = $("#productsList");
-  if (!list) return;
-  if (!items?.length) {
-    list.innerHTML = "<p>No hay productos para mostrar.</p>";
+// ---------------------- Render helpers (Index) ----------------------
+function renderProducts(list, container) {
+  container.innerHTML = "";
+  if (!list.length) {
+    container.innerHTML = `<div style="color:#666">No hay productos disponibles.</div>`;
     return;
   }
-  list.innerHTML = items
-    .map(
-      (p) => `
-      <div class="product-card">
-        <img src="${p.image_url || "https://via.placeholder.com/220x160?text=Producto"}" alt="${escapeHtml(p.title)}"/>
-        <div class="product-info">
-          <div class="product-title">${escapeHtml(p.title)}</div>
-          <div class="product-price">${fmtXAF(p.price_xaf)} XAF</div>
-          <button class="product-btn" data-id="${p.id}">Añadir</button>
-        </div>
-      </div>
-    `
-    )
-    .join("");
-
-  // Bind botones "Añadir"
-  $$("#productsList .product-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = Number(btn.dataset.id);
-      const prod = productsCache.find((x) => x.id === id);
-      if (!prod) return;
-      addToCart(prod);
-      openCart();
-    });
-  });
-}
-
-async function loadBusinesses() {
-  const container = $("#businessesSection");
-  if (!container) return;
-  try {
-    const data = await fetchJson(`${API}${PATHS.businesses}`);
-    const businesses = getArray(data, ["businesses", "stores"]);
-    if (!businesses.length) {
-      container.innerHTML = "";
-      return;
-    }
-    container.innerHTML = `
-      <h3>Negocios</h3>
-      <div class="business-list">
-        ${businesses
-          .map(
-            (b) => `
-          <div class="business-item">
-            <img src="${b.logo_url || "https://via.placeholder.com/32"}" alt="">
-            <div class="business-name">${escapeHtml(b.name || "Tienda")}</div>
-            <div class="business-category">${escapeHtml(b.category || "")}</div>
-          </div>
-        `
-          )
-          .join("")}
+  for (const p of list) {
+    const title = p.title || p.name || "Producto";
+    const price = Number(p.price_xaf ?? p.price ?? 0);
+    const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.innerHTML = `
+      <img src="${img}" alt="${title}"/>
+      <div class="product-info">
+        <div class="product-title">${title}</div>
+        <div class="product-price">${price.toLocaleString()} XAF</div>
+        <button class="product-btn">Añadir</button>
       </div>
     `;
-  } catch (e) {
-    // Si el endpoint no existe o es privado, no rompemos la UI.
-    console.warn("Businesses error (no bloqueante):", e.message);
-    container.innerHTML = "";
-  }
-}
-
-function loadCategories(list) {
-  const sel = $("#categoryFilter");
-  if (!sel) return;
-  const cats = Array.from(
-    new Set(list.map((p) => (p.category || "").trim()).filter(Boolean))
-  );
-  sel.innerHTML = `<option value="">Todas las categorías</option>` +
-    cats.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
-}
-
-/* =========================
-   Filtros + Búsqueda (Home)
-========================== */
-function setupFilters() {
-  const searchInput = $("#searchInput");
-  const searchBtn = $("#searchBtn");
-  const cat = $("#categoryFilter");
-  const min = $("#minPriceFilter");
-  const max = $("#maxPriceFilter");
-  if (!$("#productsList")) return;
-
-  function apply() {
-    let q = (searchInput?.value || "").toLowerCase().trim();
-    let c = (cat?.value || "").toLowerCase();
-    let minV = Number(min?.value || 0) || 0;
-    let maxV = Number(max?.value || 0) || Number.MAX_SAFE_INTEGER;
-
-    let filtered = productsCache.filter((p) => {
-      const okQ =
-        !q ||
-        (p.title || "").toLowerCase().includes(q);
-      const okC = !c || (p.category || "").toLowerCase() === c;
-      const okPrice = p.price_xaf >= minV && p.price_xaf <= maxV;
-      return okQ && okC && okPrice;
+    $("button", card).addEventListener("click", () => {
+      addToCart({ id: p.id, title, price_xaf: price, image_url: img });
     });
-    renderProducts(filtered);
+    container.appendChild(card);
   }
-
-  searchBtn?.addEventListener("click", apply);
-  searchInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") apply();
-  });
-  cat?.addEventListener("change", apply);
-  min?.addEventListener("input", apply);
-  max?.addEventListener("input", apply);
 }
 
-/* =========================
-   Carrito + Checkout (Home)
-========================== */
-function updateCartBadge() {
-  const el = $("#cartCount");
-  if (el) el.textContent = String(cart.reduce((a, c) => a + c.qty, 0));
-}
-
-function addToCart(prod) {
-  const idx = cart.findIndex((c) => c.id === prod.id);
-  if (idx >= 0) {
-    cart[idx].qty++;
-  } else {
-    cart.push({ id: prod.id, title: prod.title, price: prod.price_xaf, qty: 1 });
+function renderBusinesses(list, container) {
+  // Estructura simple, solo si hay endpoint
+  if (!container) return;
+  container.innerHTML = `
+    <h3>Negocios</h3>
+    <div class="business-list"></div>
+  `;
+  const wrap = $(".business-list", container);
+  if (!list.length) {
+    wrap.innerHTML = `<div style="color:#666">Sin negocios</div>`;
+    return;
   }
-  saveCart();
-  renderCart();
-}
-
-function removeFromCart(id) {
-  cart = cart.filter((c) => c.id !== id);
-  saveCart();
-  renderCart();
-}
-
-function setQty(id, qty) {
-  const it = cart.find((c) => c.id === id);
-  if (!it) return;
-  it.qty = Math.max(1, Number(qty) || 1);
-  saveCart();
-  renderCart();
-}
-
-function cartSubtotal() {
-  return cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  for (const s of list) {
+    const item = document.createElement("div");
+    item.className = "business-item";
+    const logo = s.logo_url || "https://via.placeholder.com/64?text=tienda";
+    item.innerHTML = `
+      <img src="${logo}" alt="${s.name || "Tienda"}"/>
+      <div>
+        <div class="business-name">${s.name || "Tienda"}</div>
+        <div class="business-category">${s.category || ""}</div>
+      </div>
+    `;
+    wrap.appendChild(item);
+  }
 }
 
 function renderCart() {
-  const itemsEl = $("#cartItems");
-  const sub = $("#subtotalXAF");
-  if (!itemsEl) return;
-  if (!cart.length) {
-    itemsEl.innerHTML = "<p>Tu carrito está vacío.</p>";
-  } else {
-    itemsEl.innerHTML = cart
-      .map(
-        (c) => `
-      <div class="cart-row">
-        <div class="cart-title">${escapeHtml(c.title)}</div>
-        <div class="cart-controls">
-          <input type="number" min="1" value="${c.qty}" data-id="${c.id}" class="qty-input" />
-          <div class="cart-price">${fmtXAF(c.price * c.qty)} XAF</div>
-          <button class="remove-item" data-id="${c.id}">Eliminar</button>
-        </div>
+  const drawer = $("#cartDrawer"); // :contentReference[oaicite:5]{index=5}
+  const list = $("#cartItems");
+  const subtotalEl = $("#subtotalXAF");
+  const items = loadCart();
+
+  list.innerHTML = "";
+  for (const it of items) {
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = ".5rem";
+    row.style.margin = ".35rem 0";
+    row.innerHTML = `
+      <img src="${it.image_url || "https://via.placeholder.com/64"}" alt="" style="width:48px;height:48px;object-fit:cover;background:#eee"/>
+      <div style="flex:1">
+        <div style="font-weight:600">${it.title}</div>
+        <div style="font-size:.9rem;color:#555">${Number(it.price_xaf).toLocaleString()} XAF × ${it.qty}</div>
       </div>
-    `
-      )
-      .join("");
-    // Bind
-    $$("#cartItems .qty-input").forEach((inp) => {
-      inp.addEventListener("input", () => {
-        setQty(Number(inp.dataset.id), Number(inp.value));
-      });
+      <div style="display:flex;gap:.35rem;align-items:center">
+        <button class="minus">−</button>
+        <span>${it.qty}</span>
+        <button class="plus">+</button>
+        <button class="remove" title="Quitar">✕</button>
+      </div>
+    `;
+    $(".minus", row).addEventListener("click", () => { it.qty = Math.max(1, it.qty - 1); saveCart(items); renderCart(); });
+    $(".plus", row).addEventListener("click", () => { it.qty += 1; saveCart(items); renderCart(); });
+    $(".remove", row).addEventListener("click", () => {
+      const left = items.filter(x => x.id !== it.id);
+      saveCart(left); renderCart();
     });
-    $$("#cartItems .remove-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        removeFromCart(Number(btn.dataset.id));
-      });
-    });
+    list.appendChild(row);
   }
-  if (sub) sub.textContent = fmtXAF(cartSubtotal());
+  if (subtotalEl) subtotalEl.textContent = cartSubtotalXAF().toLocaleString();
   updateCheckoutSummary();
-}
-
-function openCart() {
-  $("#cartDrawer")?.classList.remove("hidden");
-}
-function closeCart() {
-  $("#cartDrawer")?.classList.add("hidden");
-}
-function openCheckout() {
-  $("#checkoutModal")?.classList.remove("hidden");
-  updateCheckoutSummary();
-}
-function closeCheckout() {
-  $("#checkoutModal")?.classList.add("hidden");
-}
-
-function setupCartUI() {
-  $("#cartBtn")?.addEventListener("click", openCart);
-  $("#closeCart")?.addEventListener("click", closeCart);
-  $("#checkoutOpen")?.addEventListener("click", () => {
-    closeCart();
-    openCheckout();
-  });
-  $("#closeCheckout")?.addEventListener("click", closeCheckout);
-  renderCart();
-}
-
-/* ===== Checkout ===== */
-function deliveryFee() {
-  const sel = $("#fulfillmentType");
-  const type = sel?.value || "pickup";
-  return type === "delivery" ? 2000 : 0;
+  if (drawer && drawer.classList.contains("hidden")) {
+    // no auto abrir
+  }
 }
 
 function updateCheckoutSummary() {
-  const sub = cartSubtotal();
-  const del = deliveryFee();
-  const total = sub + del;
-  const eSub = $("#coSubtotal");
-  const eDel = $("#coDelivery");
-  const eTot = $("#coTotal");
-  if (eSub) eSub.textContent = fmtXAF(sub);
-  if (eDel) eDel.textContent = fmtXAF(del);
-  if (eTot) eTot.textContent = fmtXAF(total);
+  const subtotal = cartSubtotalXAF();
+  const typeSel = $("#fulfillmentType"); // :contentReference[oaicite:6]{index=6}
+  const deliveryFee = (typeSel && typeSel.value === "delivery") ? 2000 : 0;
+  const coSubtotal = $("#coSubtotal");
+  const coDelivery = $("#coDelivery");
+  const coTotal = $("#coTotal");
+  if (coSubtotal) coSubtotal.textContent = subtotal.toLocaleString();
+  if (coDelivery) coDelivery.textContent = deliveryFee.toLocaleString();
+  if (coTotal) coTotal.textContent = (subtotal + deliveryFee).toLocaleString();
 }
 
-function setupCheckoutForm() {
-  if (!$("#checkoutForm")) return;
-  $("#fulfillmentType")?.addEventListener("change", updateCheckoutSummary);
+// ---------------------- Pages bootstrap ----------------------
+document.addEventListener("DOMContentLoaded", () => {
+  updateCartCount();
 
-  $("#checkoutForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!cart.length) {
-      alert("Tu carrito está vacío.");
-      return;
-    }
-    const fd = new FormData(e.target);
-    const user = readUser();
+  const isIndex = !!$("#productsList");               // :contentReference[oaicite:7]{index=7}
+  const isLogin = !!$("#loginForm") || !!$("#signupForm"); // :contentReference[oaicite:8]{index=8}
+  const isSeller = !!$("#newProductForm");            // :contentReference[oaicite:9]{index=9}
+  const isAdmin = !!$("#createSellerForm");           // :contentReference[oaicite:10]{index=10}
 
-    const payload = {
-      items: cart.map((c) => ({ product_id: c.id, quantity: c.qty })),
-      fulfillment_type: fd.get("fulfillment_type") || "pickup",
-      address: fd.get("address") || "",
-      contact_name: (fd.get("guest_name") || user?.name || "").toString(),
-      contact_phone: (fd.get("guest_phone") || user?.phone || "").toString(),
-      // En caso de que el backend espere totales, los incluimos:
-      subtotal_xaf: cartSubtotal(),
-      delivery_xaf: deliveryFee(),
-      total_xaf: cartSubtotal() + deliveryFee(),
-    };
+  if (isIndex) bootIndex();
+  if (isLogin) bootLogin();
+  if (isSeller) bootSeller();
+  if (isAdmin) bootAdmin();
+});
 
-    try {
-      const res = await fetchJson(`${API}${PATHS.orders}`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(payload),
-      });
+// ---------------------- Index ----------------------
+async function bootIndex() {
+  // Cargar productos
+  const productsContainer = $("#productsList"); // :contentReference[oaicite:11]{index=11}
+  const businessesSection = $("#businessesSection"); // :contentReference[oaicite:12]{index=12}
 
-      alert("¡Pedido confirmado! Gracias por tu compra.");
-      cart = [];
-      saveCart();
-      renderCart();
-      closeCheckout();
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo crear el pedido. Revisa tus datos e inténtalo de nuevo.");
-    }
-  });
+  try {
+    const [prods, stores] = await Promise.all([api.products(), api.stores()]);
+    renderProducts(prods, productsContainer);
+    renderBusinesses(stores, businessesSection);
+  } catch (e) {
+    productsContainer.innerHTML = `<div style="color:#c00">Error cargando productos</div>`;
+    console.error(e);
+  }
+
+  // Búsqueda y filtros (locales)
+  const searchInput = $("#searchInput");
+  const searchBtn = $("#searchBtn");
+  let currentProducts = [];
+  try { currentProducts = await api.products(); } catch {}
+
+  const applyFilters = () => {
+    const q = (searchInput?.value || "").toLowerCase().trim();
+    const min = Number($("#minPriceFilter")?.value || 0);
+    const max = Number($("#maxPriceFilter")?.value || 999999999);
+    const cat = $("#categoryFilter")?.value || "";
+
+    const filtered = currentProducts.filter(p => {
+      const t = (p.title || p.name || "").toLowerCase();
+      const price = Number(p.price_xaf ?? p.price ?? 0);
+      const c = (p.category || "").toLowerCase();
+      return (!q || t.includes(q)) && price >= min && price <= max && (!cat || c === cat.toLowerCase());
+    });
+    renderProducts(filtered, productsContainer);
+  };
+  if (searchBtn) searchBtn.addEventListener("click", applyFilters);
+  if (searchInput) searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+
+  // Drawer carrito
+  const cartBtn = $("#cartBtn");
+  const cartDrawer = $("#cartDrawer");
+  const closeCart = $("#closeCart");
+  if (cartBtn) cartBtn.addEventListener("click", () => { renderCart(); cartDrawer?.classList.remove("hidden"); });
+  if (closeCart) closeCart.addEventListener("click", () => cartDrawer?.classList.add("hidden"));
+
+  // Checkout modal
+  const checkoutOpen = $("#checkoutOpen");
+  const checkoutModal = $("#checkoutModal");
+  const closeCheckout = $("#closeCheckout");
+  const fulfillmentType = $("#fulfillmentType");
+  if (checkoutOpen) checkoutOpen.addEventListener("click", () => { renderCart(); checkoutModal?.classList.remove("hidden"); });
+  if (closeCheckout) closeCheckout.addEventListener("click", () => checkoutModal?.classList.add("hidden"));
+  if (fulfillmentType) fulfillmentType.addEventListener("change", updateCheckoutSummary);
+
+  const checkoutForm = $("#checkoutForm"); // :contentReference[oaicite:13]{index=13}
+  if (checkoutForm) {
+    checkoutForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const items = loadCart();
+      if (!items.length) { alert("Tu carrito está vacío"); return; }
+
+      const fd = new FormData(checkoutForm);
+      const payload = {
+        items: items.map(i => ({ product_id: i.id, quantity: i.qty })),
+        fulfillment_type: fd.get("fulfillment_type") || "pickup",
+        address: fd.get("address") || null,
+        guest_name: fd.get("guest_name") || null,
+        guest_phone: fd.get("guest_phone") || null,
+      };
+
+      try {
+        await api.createOrder(payload); // sin necesidad de token
+        alert("¡Pedido enviado con éxito!");
+        clearCart();
+        checkoutModal?.classList.add("hidden");
+        renderCart();
+      } catch (err) {
+        console.error(err);
+        alert("No se pudo enviar el pedido.");
+      }
+    });
+  }
 }
 
-/* =========================
-   Login / Signup (login.html)
-========================== */
-function setupAuth() {
-  const loginForm = $("#loginForm");
-  const signupForm = $("#signupForm");
+// ---------------------- Login/Registro ----------------------
+function bootLogin() {
+  const loginForm = $("#loginForm");   // :contentReference[oaicite:14]{index=14}
+  const signupForm = $("#signupForm"); // :contentReference[oaicite:15]{index=15}
+
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(loginForm);
-      const body = {
-        email: (fd.get("email") || "").toString().trim(),
-        password: (fd.get("password") || "").toString(),
-      };
+      const email = fd.get("email");
+      const password = fd.get("password");
       try {
-        const data = await fetchJson(`${API}${PATHS.login}`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify(body),
-        });
-        // Esperamos { token, user }
-        const token = data?.token;
-        const user = data?.user || null;
-        if (!token || !user) throw new Error("Respuesta de login inesperada.");
-        saveUser(user, token);
-        window.location.href = "index.html";
+        const data = await api.login(email, password);
+        // Se guardan token y usuario devueltos por el backend
+        if (data?.token) localStorage.setItem("wap_token", data.token);
+        if (data?.user) localStorage.setItem("wap_user", JSON.stringify(data.user));
+
+        // Redirección por rol:
+        const role = data?.user?.role || "user";
+        if (role === "seller") window.location.href = "seller.html";
+        else if (role === "admin") window.location.href = "admin.html";
+        else window.location.href = "index.html";
       } catch (err) {
         console.error(err);
-        alert("No se pudo iniciar sesión. Verifica tus credenciales.");
+        alert("Credenciales inválidas");
       }
     });
   }
@@ -503,255 +403,159 @@ function setupAuth() {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(signupForm);
-      const body = {
-        name: (fd.get("name") || "").toString().trim(),
-        phone: (fd.get("phone") || "").toString().trim(),
-        email: (fd.get("email") || "").toString().trim(),
-        password: (fd.get("password") || "").toString(),
+      const payload = {
+        name: fd.get("name"),
+        email: fd.get("email"),
+        password: fd.get("password"),
+        phone: fd.get("phone")
       };
       try {
-        const data = await fetchJson(`${API}${PATHS.signup}`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify(body),
-        });
-        // Si el backend devuelve {token, user} tras registrarse:
-        if (data?.token && data?.user) {
-          saveUser(data.user, data.token);
-          window.location.href = "index.html";
-          return;
-        }
-        // si no devuelve token, pedimos hacer login
-        alert("Registro correcto. Ahora puedes iniciar sesión.");
-        window.location.href = "login.html";
+        const data = await api.register(payload);
+        if (data?.token) localStorage.setItem("wap_token", data.token);
+        if (data?.user) localStorage.setItem("wap_user", JSON.stringify(data.user));
+        const role = data?.user?.role || "user";
+        if (role === "seller") window.location.href = "seller.html";
+        else if (role === "admin") window.location.href = "admin.html";
+        else window.location.href = "index.html";
       } catch (err) {
         console.error(err);
-        alert("No se pudo registrar. Revisa los datos.");
+        alert("No se pudo crear la cuenta");
       }
     });
   }
 }
 
-/* =========================
-   Vendedor (seller.html)
-========================== */
-async function sellerLoadProducts() {
-  const box = $("#sellerProducts");
-  if (!box) return;
-  try {
-    const data = await fetchJson(`${API}${PATHS.sellerProducts}`, {
-      headers: authHeaders(),
-    });
-    const arr = getArray(data, ["products"]);
-    if (!arr.length) {
-      box.innerHTML = "<p>No tienes productos aún.</p>";
-      return;
-    }
-    box.innerHTML = arr
-      .map((p) => {
-        const price = p.price_xaf ?? p.price ?? 0;
-        return `
-        <div class="product-card">
-          <img src="${p.image_url || "https://via.placeholder.com/220x160"}" />
-          <div class="product-info">
-            <div class="product-title">${escapeHtml(p.title || p.name || "Producto")}</div>
-            <div class="product-price">${fmtXAF(price)} XAF</div>
-            <div>Stock: ${p.stock ?? 0}</div>
-          </div>
-        </div>
-      `;
-      })
-      .join("");
-  } catch (e) {
-    console.error("seller products:", e);
-    $("#sellerProducts").innerHTML = "<p>Error al cargar productos.</p>";
-  }
-}
+// ---------------------- Seller Dashboard ----------------------
+async function bootSeller() {
+  const productsGrid = $("#sellerProducts"); // :contentReference[oaicite:16]{index=16}
+  const ordersBox = $("#sellerOrders");      // :contentReference[oaicite:17]{index=17}
+  const form = $("#newProductForm");         // :contentReference[oaicite:18]{index=18}
 
-async function sellerLoadOrders() {
-  const box = $("#sellerOrders");
-  if (!box) return;
-  try {
-    const data = await fetchJson(`${API}${PATHS.sellerOrders}`, {
-      headers: authHeaders(),
-    });
-    const arr = getArray(data, ["orders"]);
-    if (!arr.length) {
-      box.innerHTML = "<p>No tienes pedidos aún.</p>";
-      return;
-    }
-    box.innerHTML = `
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Cliente</th><th>Teléfono</th><th>Total</th><th>Estado</th></tr>
-        </thead>
-        <tbody>
-          ${arr
-            .map(
-              (o) => `
-            <tr>
-              <td>${o.id ?? ""}</td>
-              <td>${escapeHtml(o.contact_name || "")}</td>
-              <td>${escapeHtml(o.contact_phone || "")}</td>
-              <td>${fmtXAF(o.total_xaf ?? 0)} XAF</td>
-              <td>${escapeHtml(o.status || "")}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    console.error("seller orders:", e);
-    box.innerHTML = "<p>Error al cargar pedidos.</p>";
-  }
-}
-
-function setupSellerForm() {
-  const form = $("#newProductForm");
-  if (!form) return;
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    const body = {
-      title: (fd.get("title") || "").toString().trim(),
-      price_xaf: Number(fd.get("price_xaf") || 0),
-      image_url: (fd.get("image_url") || "").toString().trim(),
-      stock: Number(fd.get("stock") || 0),
-      description: (fd.get("description") || "").toString().trim(),
-    };
+  async function refresh() {
     try {
-      await fetchJson(`${API}${PATHS.sellerProducts}`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(body),
-      });
-      form.reset();
-      await sellerLoadProducts();
-      alert("Producto añadido.");
-    } catch (e2) {
-      console.error(e2);
-      alert("No se pudo añadir el producto.");
+      const [myProds, myOrders] = await Promise.all([api.seller.myProducts(), api.seller.myOrders()]);
+      // Productos
+      productsGrid.innerHTML = "";
+      for (const p of myProds) {
+        const card = document.createElement("div");
+        card.className = "product";
+        const title = p.title || p.name || "Producto";
+        const price = Number(p.price_xaf ?? p.price ?? 0);
+        const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
+        card.innerHTML = `
+          <img src="${img}" alt="${title}"/>
+          <div class="title">${title}</div>
+          <div class="price">${price.toLocaleString()} XAF</div>
+        `;
+        productsGrid.appendChild(card);
+      }
+      // Pedidos
+      ordersBox.innerHTML = "";
+      if (!myOrders.length) {
+        ordersBox.innerHTML = `<div style="color:#666">Sin pedidos por ahora.</div>`;
+      } else {
+        const tbl = document.createElement("table");
+        tbl.innerHTML = `
+          <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Items</th><th>Total</th></tr></thead>
+          <tbody></tbody>
+        `;
+        for (const o of myOrders) {
+          const tr = document.createElement("tr");
+          const total = Number(o.total_xaf ?? o.total ?? 0);
+          const when = (o.created_at || "").replace("T"," ").slice(0,16);
+          const buyer = o.buyer_name || o.customer_name || o.guest_name || "";
+          const itemsTxt = (o.items || []).map(i => `${i.title || i.name} × ${i.quantity}`).join(", ");
+          tr.innerHTML = `<td>${o.id || ""}</td><td>${when}</td><td>${buyer}</td><td>${itemsTxt}</td><td>${total.toLocaleString()} XAF</td>`;
+          $("tbody", tbl).appendChild(tr);
+        }
+        ordersBox.appendChild(tbl);
+      }
+    } catch (e) {
+      console.error(e);
+      productsGrid.innerHTML = `<div style="color:#c00">Error cargando tus productos</div>`;
     }
-  });
-}
+  }
 
-/* =========================
-   Admin (admin.html)
-========================== */
-function setupAdmin() {
-  const form = $("#createSellerForm");
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      const body = {
-        name: (fd.get("name") || "").toString().trim(),
-        email: (fd.get("email") || "").toString().trim(),
-        password: (fd.get("password") || "").toString(),
-        store_name: (fd.get("store_name") || "").toString().trim(),
-        city: (fd.get("city") || "").toString().trim(),
-        description: (fd.get("description") || "").toString().trim(),
+      const payload = {
+        title: fd.get("title"),
+        price_xaf: Number(fd.get("price_xaf") || 0),
+        stock: Number(fd.get("stock") || 0),
+        image_url: fd.get("image_url") || null,
+        description: fd.get("description") || null
       };
       try {
-        await fetchJson(`${API}${PATHS.adminCreateSeller}`, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify(body),
-        });
-        alert("Vendedor creado con su tienda.");
+        await api.seller.newProduct(payload);
         form.reset();
-      } catch (e2) {
-        console.error(e2);
-        alert("No se pudo crear el vendedor.");
+        await refresh();
+        alert("Producto añadido");
+      } catch (err) {
+        console.error(err);
+        alert("No se pudo crear el producto");
       }
     });
   }
 
-  $("#refreshUsers")?.addEventListener("click", loadUsersAdmin);
+  refresh();
 }
 
-async function loadUsersAdmin() {
-  const box = $("#usersTable");
-  if (!box) return;
-  try {
-    const data = await fetchJson(`${API}${PATHS.adminUsers}`, {
-      headers: authHeaders(),
-    });
-    const users = getArray(data, ["users"]);
-    if (!users.length) {
-      box.innerHTML = "<p>Sin usuarios.</p>";
-      return;
+// ---------------------- Admin ----------------------
+function bootAdmin() {
+  const form = $("#createSellerForm"); // :contentReference[oaicite:19]{index=19}
+  const refreshBtn = $("#refreshUsers");  // :contentReference[oaicite:20]{index=20}
+  const usersWrap = $("#usersTable");     // :contentReference[oaicite:21]{index=21}
+
+  async function renderUsers() {
+    usersWrap.innerHTML = "Cargando...";
+    try {
+      const list = await api.admin.users();
+      const tbl = document.createElement("table");
+      tbl.innerHTML = `<thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Tienda</th></tr></thead><tbody></tbody>`;
+      for (const u of list) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.name || ""}</td>
+          <td>${u.email || ""}</td>
+          <td>${u.role || ""}</td>
+          <td>${u.store?.name || u.store_name || ""}</td>
+        `;
+        $("tbody", tbl).appendChild(tr);
+      }
+      usersWrap.innerHTML = "";
+      usersWrap.appendChild(tbl);
+    } catch (e) {
+      console.error(e);
+      usersWrap.innerHTML = `<div style="color:#c00">No se pudieron cargar los usuarios</div>`;
     }
-    box.innerHTML = `
-      <table>
-        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th></tr></thead>
-        <tbody>
-          ${users
-            .map(
-              (u) => `
-            <tr>
-              <td>${u.id ?? ""}</td>
-              <td>${escapeHtml(u.name || "")}</td>
-              <td>${escapeHtml(u.email || "")}</td>
-              <td>${escapeHtml(u.role || "")}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    console.error(e);
-    box.innerHTML = "<p>Error al cargar usuarios.</p>";
   }
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        name: fd.get("name"),
+        email: fd.get("email"),
+        password: fd.get("password"),
+        store_name: fd.get("store_name"),
+        city: fd.get("city"),
+        description: fd.get("description")
+      };
+      try {
+        await api.admin.createSeller(payload);
+        alert("Vendedor creado");
+        form.reset();
+        renderUsers();
+      } catch (e1) {
+        console.error(e1);
+        alert("No se pudo crear el vendedor");
+      }
+    });
+  }
+
+  if (refreshBtn) refreshBtn.addEventListener("click", renderUsers);
+  renderUsers();
 }
-
-/* =========================
-   Helpers varios
-========================== */
-function fmtXAF(n) {
-  const v = Number(n || 0);
-  return v.toLocaleString("es-GQ");
-}
-function escapeHtml(s) {
-  return (s ?? "").toString().replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[m]);
-}
-
-/* =========================
-   Boot
-========================== */
-document.addEventListener("DOMContentLoaded", () => {
-  renderUserInNav();
-
-  // Home (index.html) — IDs presentes en el archivo
-  if ($("#productsList")) { // products grid existe -> estamos en Home
-    loadProducts();        // lee {products:[...]} del backend
-    loadBusinesses();      // silencioso si falla
-    setupFilters();
-    setupCartUI();
-    setupCheckoutForm();
-  }
-
-  // Login page
-  if ($("#loginForm") || $("#signupForm")) {
-    setupAuth();
-  }
-
-  // Seller page
-  if ($("#newProductForm") || $("#sellerProducts") || $("#sellerOrders")) {
-    setupSellerForm();
-    sellerLoadProducts();
-    sellerLoadOrders();
-  }
-
-  // Admin page
-  if ($("#createSellerForm")) {
-    setupAdmin();
-    loadUsersAdmin();
-  }
-});
