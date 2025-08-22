@@ -43,13 +43,31 @@ function authHeaders(extra = {}) {
 async function httpJson(path, opts = {}, fallbacks = []) {
   const urls = [API_BASE + path, ...fallbacks.map(f => API_BASE + f)];
   let lastErr;
+
   for (const u of urls) {
     try {
       const res = await fetch(u, opts);
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+      // Intentamos parsear el cuerpo como JSON siempre
       const txt = await res.text();
-      return txt ? JSON.parse(txt) : {};
-    } catch (e) { lastErr = e; }
+      let data;
+      try {
+        data = txt ? JSON.parse(txt) : {};
+      } catch {
+        data = { raw: txt };
+      }
+
+      // Si la respuesta no es OK, devolvemos el error del backend
+      if (!res.ok) {
+        const msg = data.error || data.message || `${res.status} ${res.statusText}`;
+        throw new Error(msg);
+      }
+
+      // Si es OK, devolvemos los datos
+      return data;
+    } catch (e) {
+      lastErr = e;
+    }
   }
   throw lastErr;
 }
