@@ -1,245 +1,842 @@
-// ================== CONFIG ==================
-const API = "https://backend-wapmarket-production.up.railway.app";
-const PATHS = {
-  products: "/api/products",
-  stores: "/api/stores",
-  orders: "/api/orders",
+/* app.js — WapMarket: Frontend conectado a tu backend
+   - Productos públicos (guest checkout)
+   - Filtro por negocios (stores)
+   - Carrito con cierre por click-afuera / ESC / vaciado
+   - Checkout invitado + render de factura
+   - Seller dashboard (productos propios + pedidos + acciones de estado)
+   - Admin (usuarios + crear vendedor/tienda)
+*/
+
+const API_BASE = "https://backend-wapmarket-production.up.railway.app/api";
+
+/* ==========================
+   Utilidades generales
+========================== */
+const $  = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+
+const currency = (n) => Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 }) + " XAF";
+
+function getAuth() {
+  const token = localStorage.getItem("wap_token");
+  const userRaw = localStorage.getItem("wap_user");
+  let user = null;
+  try { user = JSON.parse(userRaw || "null"); } catch {}
+  return { token, user };
+}
+function setAuth({ token, user }) {
+  if (token) localStorage.setItem("wap_token", token);
+  if (user)  localStorage.setItem("wap_user", JSON.stringify(user));
+}
+function clearAuth() {
+  localStorage.removeItem("wap_token");
+  localStorage.removeItem("wap_user");
+}
+
+function authHeaders(extra = {}) {
+  const { token } = getAuth();
+  const headers = { "Content-Type": "application/json", ...extra };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+async function httpJson(path, opts = {}, fallbacks = []) {
+  const urls = [API_BASE + path, ...fallbacks.map(f => API_BASE + f)];
+  let lastErr;
+  for (const u of urls) {
+    try {
+      const res = await fetch(u, opts);
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const txt = await res.text();
+      return txt ? JSON.parse(txt) : {};
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
+}
+
+/* ==========================
+   Estado global (frontend)
+========================== */
+let SELECTED_STORE_ID = null; // Para filtro de productos por negocio
+
+/* ==========================
+   Carrito (guest-friendly)
+========================== */
+function loadCart() {
+  try { return JSON.parse(localStorage.getItem("wap_cart") || "[]"); } catch { return []; }
+}
+function saveCart(items) {
+  localStorage.setItem("wap_cart", JSON.stringify(items));
+  updateCartCount();
+}
+function clearCart() { saveCart([]); }
+function addToCart(product) {
+  const cart = loadCart();
+  const idx = cart.findIndex(i => i.id === product.id);
+  if (idx >= 0) cart[idx].qty += 1;
+  else cart.push({
+    id: product.id,
+    title: product.title || product.name || "Producto",
+    price_xaf: Number(product.price_xaf ?? product.price ?? 0),
+    image_url: product.image_url || null,
+    qty: 1
+  });
+  saveCart(cart);
+}
+function cartSubtotal() {
+  return loadCart().reduce((s, i) => s + Number(i.price_xaf || 0) * Number(i.qty || 0), 0);
+}
+function updateCartCount() {
+  const el = $("#cartCount");
+  if (el) el.textContent = loadCart().reduce((s, i) => s + i.qty, 0);
+}
+
+/* ==========================
+   API client
+========================== */
+const api = {
+  /* Auth */
+  async login(email, password) {
+    return await httpJson("/auth/login", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ email, password })
+    }, ["/login"]);
+  },
+  async signup(payload) {
+    return await httpJson("/auth/signup", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    }, ["/register"]);
+  },
+  async profile() {
+    return await httpJson("/profile", { headers: authHeaders() });
+  },
+
+  /* Stores */
+  async stores() {
+    try {
+      const data = await httpJson("/stores", { headers: authHeaders() }, ["/businesses", "/shops", "/negocios"]);
+      return Array.isArray(data) ? data : (data.stores || []);
+    } catch { return []; }
+  },
+
+  /* Products */
+  async products({ store_id = null } = {}) {
+    const qs = store_id ? `?store_id=${encodeURIComponent(store_id)}` : "";
+    const data = await httpJson(`/products${qs}`, { headers: authHeaders() });
+    return Array.isArray(data) ? data : (data.products || []);
+  },
+  async product(id) {
+    return await httpJson(`/products/${id}`, { headers: authHeaders() });
+  },
+
+  /* Orders */
+  async createOrder(payload) {
+    return await httpJson("/orders", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    }, ["/checkout"]);
+  },
+
+  /* Seller */
+  seller: {
+    async mineProducts() {
+      const data = await httpJson("/seller/products", { headers: authHeaders() });
+      return Array.isArray(data) ? data : (data.products || []);
+    },
+    async createProduct(p) {
+      return await httpJson("/seller/products", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(p)
+      });
+    },
+    async orders() {
+      const data = await httpJson("/seller/orders", { headers: authHeaders() });
+      return Array.isArray(data) ? data : (data.orders || []);
+    },
+    async setOrderStatus(orderId, status) {
+      return await httpJson(`/seller/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ status })
+      });
+    }
+  },
+
+  /* Admin */
+  admin: {
+    async users() {
+      const data = await httpJson("/admin/users", { headers: authHeaders() });
+      return Array.isArray(data) ? data : (data.users || []);
+    },
+    async createSeller(payload) {
+      return await httpJson("/admin/create-seller", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+    }
+  }
 };
 
-// ================== ESTADO ==================
-let productsCache = [];
-let cart = JSON.parse(localStorage.getItem("wap_cart") || "[]");
-
-// ================== HELPERS ==================
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-
-function saveCart() {
-  localStorage.setItem("wap_cart", JSON.stringify(cart));
-  updateCartUI();
-}
-
-// ================== PRODUCTOS ==================
-async function loadProducts(storeId = null) {
-  const list = $("#productsList");
-  if (!list) return;
-  list.innerHTML = "<p>Cargando productos...</p>";
-  try {
-    const url = storeId
-      ? `${API}${PATHS.products}?store_id=${storeId}`
-      : `${API}${PATHS.products}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    productsCache = data.products || [];
-    renderProducts(productsCache);
-    loadCategories(productsCache);
-  } catch (err) {
-    console.error("Error productos:", err);
-    list.innerHTML = "<p>No se pudieron cargar productos.</p>";
-  }
-}
-
-function renderProducts(products) {
-  const list = $("#productsList");
-  if (!list) return;
-  if (!products.length) {
-    list.innerHTML = "<p>No hay productos disponibles</p>";
+/* ==========================
+   Render helpers (Index)
+========================== */
+function renderProducts(list, container) {
+  if (!container) return;
+  container.innerHTML = "";
+  if (!list.length) {
+    container.innerHTML = `<div class="muted">No hay productos disponibles.</div>`;
     return;
   }
-  list.innerHTML = products
-    .map(
-      (p) => `
-      <div class="product-card">
-        <h4>${p.name}</h4>
-        <p>${p.price_xaf} XAF</p>
-        <button data-id="${p.id}" class="addCartBtn">Añadir</button>
-      </div>`
-    )
-    .join("");
-  $$(".addCartBtn").forEach((btn) =>
-    btn.addEventListener("click", () => addToCart(btn.dataset.id))
-  );
+
+  for (const p of list) {
+    const title = p.title || p.name || "Producto";
+    const price = Number(p.price_xaf ?? p.price ?? 0);
+    const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.innerHTML = `
+      <img class="product-thumb" src="${img}" alt="${title}">
+      <div class="product-info">
+        <div class="product-title">${title}</div>
+        <div class="product-price">${currency(price)}</div>
+        <button class="product-btn">Añadir</button>
+      </div>
+    `;
+    $(".product-btn", card).addEventListener("click", () => {
+      addToCart({ id: p.id, title, price_xaf: price, image_url: img });
+      toast("Producto añadido al carrito");
+    });
+    container.appendChild(card);
+  }
 }
 
-// ================== NEGOCIOS ==================
-async function loadStores() {
-  const sec = $("#businessesSection");
-  if (!sec) return;
-  sec.innerHTML = "<p>Cargando negocios...</p>";
+function renderStores(list, container) {
+  if (!container) return;
+  container.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "businesses-header";
+  head.innerHTML = `<h3>Negocios</h3><button class="link-btn" id="clearStoreFilter">Todos</button>`;
+  container.appendChild(head);
+
+  const wrap = document.createElement("div");
+  wrap.className = "business-list";
+  container.appendChild(wrap);
+
+  if (!list.length) {
+    wrap.innerHTML = `<div class="muted">Sin negocios</div>`;
+    return;
+  }
+
+  for (const s of list) {
+    const item = document.createElement("button");
+    item.className = "business-item";
+    item.dataset.storeId = s.id;
+    item.innerHTML = `
+      <div class="avatar">${(s.name || "Tienda").slice(0,1).toUpperCase()}</div>
+      <div class="business-meta">
+        <div class="business-name">${s.name || "Tienda"}</div>
+        <div class="business-sub">${(s.product_count ?? 0)} productos</div>
+      </div>
+    `;
+    item.addEventListener("click", async () => {
+      SELECTED_STORE_ID = s.id;
+      highlightActiveStore(s.id);
+      await reloadProducts();
+      toast(`Filtrado por: ${s.name}`);
+    });
+    wrap.appendChild(item);
+  }
+
+  $("#clearStoreFilter")?.addEventListener("click", async () => {
+    SELECTED_STORE_ID = null;
+    highlightActiveStore(null);
+    await reloadProducts();
+  });
+}
+
+function highlightActiveStore(storeId) {
+  $$(".business-item").forEach(btn => {
+    btn.classList.toggle("active", Number(btn.dataset.storeId) === Number(storeId));
+  });
+}
+
+async function reloadProducts() {
+  const container = $("#productsList");
+  if (!container) return;
+  container.innerHTML = `<div class="muted">Cargando productos…</div>`;
   try {
-    const res = await fetch(`${API}${PATHS.stores}`);
-    const data = await res.json();
-    const stores = data.stores || [];
-    if (!stores.length) {
-      sec.innerHTML = "<p>No hay negocios registrados.</p>";
-      return;
-    }
-    sec.innerHTML = stores
-      .map(
-        (s) => `
-        <div class="store-card">
-          <button class="storeBtn" data-id="${s.id}">
-            ${s.name} (${s.product_count})
-          </button>
-        </div>`
-      )
-      .join("");
-    $$(".storeBtn").forEach((btn) =>
-      btn.addEventListener("click", () => {
-        $("#productsTitle").textContent = `Productos de ${btn.textContent}`;
-        loadProducts(btn.dataset.id);
-      })
-    );
+    const prods = await api.products({ store_id: SELECTED_STORE_ID });
+    renderProducts(prods, container);
   } catch (e) {
-    sec.innerHTML = "<p>Error al cargar negocios</p>";
+    console.error(e);
+    container.innerHTML = `<div class="error">Error cargando productos</div>`;
   }
 }
 
-// ================== CARRITO ==================
-function addToCart(productId) {
-  const p = productsCache.find((x) => x.id == productId);
-  if (!p) return;
-  const existing = cart.find((c) => c.id == productId);
-  if (existing) existing.qty++;
-  else cart.push({ id: p.id, title: p.name, price_xaf: p.price_xaf, qty: 1 });
-  saveCart();
-}
-
-function removeFromCart(productId) {
-  cart = cart.filter((c) => c.id != productId);
-  saveCart();
-}
-
-function updateCartUI() {
-  $("#cartCount").textContent = cart.reduce((s, i) => s + i.qty, 0);
-  const itemsDiv = $("#cartItems");
-  if (!itemsDiv) return;
-  if (!cart.length) {
-    itemsDiv.innerHTML = "<p>Carrito vacío</p>";
-    $("#subtotalXAF").textContent = "0";
-    return;
+/* ==========================
+   Carrito UI / Checkout
+========================== */
+function toast(msg) {
+  let t = $("#toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.position = "fixed";
+    t.style.bottom = "20px";
+    t.style.left = "50%";
+    t.style.transform = "translateX(-50%)";
+    t.style.padding = "10px 14px";
+    t.style.background = "rgba(0,0,0,.8)";
+    t.style.color = "#fff";
+    t.style.borderRadius = "10px";
+    t.style.fontSize = ".95rem";
+    t.style.zIndex = "9999";
+    document.body.appendChild(t);
   }
-  itemsDiv.innerHTML = cart
-    .map(
-      (c) => `
-    <div class="cart-item">
-      ${c.title} (${c.qty}) - ${c.price_xaf * c.qty} XAF
-      <button class="removeBtn" data-id="${c.id}">Quitar</button>
-    </div>`
-    )
-    .join("");
-  $$(".removeBtn").forEach((b) =>
-    b.addEventListener("click", () => removeFromCart(b.dataset.id))
-  );
-  const subtotal = cart.reduce((s, i) => s + i.price_xaf * i.qty, 0);
-  $("#subtotalXAF").textContent = subtotal;
+  t.textContent = msg;
+  t.style.opacity = "1";
+  setTimeout(() => { t.style.opacity = "0"; }, 1400);
 }
-updateCartUI();
 
-// ================== DRAWER CARRITO ==================
-const cartDrawer = $("#cartDrawer");
-$("#cartBtn")?.addEventListener("click", () => {
-  cartDrawer.classList.remove("hidden");
-});
-$("#closeCart")?.addEventListener("click", () =>
-  cartDrawer.classList.add("hidden")
-);
-cartDrawer?.addEventListener("click", (e) => {
-  if (e.target.id === "cartDrawer") cartDrawer.classList.add("hidden");
-});
+function openDrawer() { $("#cartDrawer")?.classList.remove("hidden"); }
+function closeDrawer() { $("#cartDrawer")?.classList.add("hidden"); }
 
-// ================== CHECKOUT ==================
-$("#checkoutOpen")?.addEventListener("click", () => {
-  $("#checkoutModal").classList.remove("hidden");
+function wireDrawerDismiss() {
+  const drawer = $("#cartDrawer");
+  if (!drawer) return;
+
+  // Cerrar por click fuera: si el overlay es #cartDrawer y el panel es .drawer-panel
+  drawer.addEventListener("click", (e) => {
+    const panel = $(".drawer-panel", drawer) || $("#cartPanel") || null;
+    if (panel && !panel.contains(e.target)) closeDrawer();
+    else if (!panel) closeDrawer(); // fallback si no existe panel
+  });
+
+  // Cerrar por tecla ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDrawer();
+  });
+}
+
+function renderCart() {
+  const list = $("#cartItems");
+  const subtotalEl = $("#subtotalXAF");
+  if (!list) return;
+
+  const items = loadCart();
+  list.innerHTML = "";
+
+  for (const it of items) {
+    const row = document.createElement("div");
+    row.className = "cart-row";
+    row.innerHTML = `
+      <img class="cart-thumb" src="${it.image_url || "https://via.placeholder.com/64"}" alt="">
+      <div class="cart-meta">
+        <div class="cart-title">${it.title}</div>
+        <div class="cart-sub">${currency(it.price_xaf)} × ${it.qty}</div>
+      </div>
+      <div class="cart-qty">
+        <button class="qty minus">−</button>
+        <span class="qty-value">${it.qty}</span>
+        <button class="qty plus">+</button>
+        <button class="remove" title="Quitar">✕</button>
+      </div>
+    `;
+    $(".minus", row).addEventListener("click", () => {
+      it.qty = Math.max(1, it.qty - 1);
+      saveCart(items);
+      renderCart();
+    });
+    $(".plus", row).addEventListener("click", () => {
+      it.qty += 1;
+      saveCart(items);
+      renderCart();
+    });
+    $(".remove", row).addEventListener("click", () => {
+      const next = items.filter(x => x.id !== it.id);
+      saveCart(next);
+      renderCart();
+      if (!next.length) {
+        closeDrawer();
+        toast("Carrito vacío");
+      }
+    });
+    list.appendChild(row);
+  }
+
+  if (subtotalEl) subtotalEl.textContent = currency(cartSubtotal());
   updateCheckoutSummary();
-});
-$("#closeCheckout")?.addEventListener("click", () =>
-  $("#checkoutModal").classList.add("hidden")
-);
+}
 
 function updateCheckoutSummary() {
-  const subtotal = cart.reduce((s, i) => s + i.price_xaf * i.qty, 0);
-  const delivery =
-    $("#fulfillmentType")?.value === "delivery" ? 2000 : 0;
-  $("#coSubtotal").textContent = subtotal;
-  $("#coDelivery").textContent = delivery;
-  $("#coTotal").textContent = subtotal + delivery;
+  const subtotal = cartSubtotal();
+  const typeSel = $("#fulfillmentType");
+  const deliveryFee = (typeSel && typeSel.value === "delivery") ? 2000 : 0;
+
+  const coSubtotal = $("#coSubtotal");
+  const coDelivery = $("#coDelivery");
+  const coTotal = $("#coTotal");
+  if (coSubtotal) coSubtotal.textContent = currency(subtotal);
+  if (coDelivery) coDelivery.textContent = currency(deliveryFee);
+  if (coTotal)     coTotal.textContent = currency(subtotal + deliveryFee);
 }
 
-$("#fulfillmentType")?.addEventListener("change", updateCheckoutSummary);
+function renderInvoice({ order, submittedItems, buyer }) {
+  // Crea una factura sencilla dentro del modal de checkout
+  const wrap = $("#invoiceBox");
+  if (!wrap) return;
 
-$("#checkoutForm")?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!cart.length) return alert("Carrito vacío");
-  const form = new FormData(e.target);
-  const payload = {
-    items: cart.map((c) => ({ productId: c.id, quantity: c.qty })),
-    fulfillment_type: form.get("fulfillment_type"),
-    guest_name: form.get("guest_name"),
-    guest_phone: form.get("guest_phone"),
-    address: form.get("address"),
-  };
-  try {
-    const res = await fetch(`${API}${PATHS.orders}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || "Error en pedido");
-    alert("✅ Pedido realizado con ID: " + data.order_id);
-    generateInvoicePDF(data.order);
-    cart = [];
-    saveCart();
-    $("#checkoutModal").classList.add("hidden");
-  } catch (err) {
-    console.error(err);
-    alert("Error creando pedido");
-  }
+  const date = new Date(order.created_at || Date.now());
+  const itemsHtml = submittedItems.map(i => `
+    <tr>
+      <td>${i.title}</td>
+      <td style="text-align:center">${i.quantity}</td>
+      <td style="text-align:right">${currency(i.unit_price_xaf || i.price_xaf)}</td>
+    </tr>
+  `).join("");
+
+  wrap.innerHTML = `
+    <div class="invoice">
+      <div class="invoice-head">
+        <div>
+          <h3>Factura</h3>
+          <div class="muted">Pedido #${order.id}</div>
+        </div>
+        <div class="muted" style="text-align:right">
+          ${date.toLocaleDateString()} ${date.toLocaleTimeString().slice(0,5)}
+        </div>
+      </div>
+      <div class="invoice-meta">
+        <div><strong>Cliente:</strong> ${buyer?.name || buyer?.guest_name || "Invitado"}</div>
+        <div><strong>Teléfono:</strong> ${buyer?.phone || buyer?.guest_phone || "-"}</div>
+        ${order.fulfillment_type === "delivery" ? `<div><strong>Dirección:</strong> ${buyer?.address || "-"}</div>` : ""}
+        <div><strong>Entrega:</strong> ${order.fulfillment_type.toUpperCase()}</div>
+        <div><strong>Estado:</strong> ${order.status}</div>
+      </div>
+      <table class="invoice-table">
+        <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th></tr></thead>
+        <tbody>${itemsHtml}</tbody>
+      </table>
+      <div class="invoice-total">
+        <div><span>Total</span><strong>${currency(order.total_xaf)}</strong></div>
+      </div>
+      <div class="invoice-actions">
+        <button id="invoicePrint">Imprimir</button>
+        <button id="invoiceClose">Cerrar</button>
+      </div>
+    </div>
+  `;
+
+  $("#invoicePrint")?.addEventListener("click", () => {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(`
+      <html><head><title>Factura #${order.id}</title>
+      <style>
+        body{font-family:system-ui,Segoe UI,Arial,sans-serif;padding:20px;}
+        h3{margin:0 0 8px}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th,td{border:1px solid #ddd;padding:8px}
+        th{text-align:left;background:#f7f7f7}
+        .right{text-align:right}
+      </style></head>
+      <body>
+        ${$("#invoiceBox").innerHTML}
+      </body></html>
+    `);
+    w.document.close();
+    w.focus();
+    w.print();
+  });
+  $("#invoiceClose")?.addEventListener("click", () => {
+    const modal = $("#checkoutModal");
+    modal?.classList.add("hidden");
+  });
+}
+
+/* ==========================
+   Inicialización por página
+========================== */
+document.addEventListener("DOMContentLoaded", () => {
+  updateCartCount();
+
+  const isIndex  = !!$("#productsList");
+  const isLogin  = !!$("#loginForm") || !!$("#signupForm");
+  const isSeller = !!$("#sellerOrders") || !!$("#newProductForm");
+  const isAdmin  = !!$("#createSellerForm");
+
+  if (isIndex)  bootIndexPage();
+  if (isLogin)  bootAuthPage();
+  if (isSeller) bootSellerPage();
+  if (isAdmin)  bootAdminPage();
 });
 
-// ================== FACTURA PDF ==================
-function generateInvoicePDF(order) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("Factura WapMarket", 10, 10);
-  doc.text("Pedido #" + order.id, 10, 20);
-  doc.text("Total: " + order.total_xaf + " XAF", 10, 30);
-  doc.text("Estado: " + order.status, 10, 40);
-  doc.save("factura_" + order.id + ".pdf");
+/* ==========================
+   Página: Index (tienda)
+========================== */
+async function bootIndexPage() {
+  // Cargar stores + productos
+  const businessesSection = $("#businessesSection");
+  const productsContainer = $("#productsList");
+
+  try {
+    const [stores, prods] = await Promise.all([api.stores(), api.products()]);
+    renderStores(stores, businessesSection);
+    renderProducts(prods, productsContainer);
+  } catch (e) {
+    console.error(e);
+    productsContainer.innerHTML = `<div class="error">Error cargando productos</div>`;
+  }
+
+  // Búsqueda / filtros locales (si tienes inputs en el HTML)
+  const searchInput = $("#searchInput");
+  const searchBtn   = $("#searchBtn");
+  let currentProducts = [];
+  try { currentProducts = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
+
+  const applyFilters = async () => {
+    const q   = (searchInput?.value || "").toLowerCase().trim();
+    const min = Number($("#minPriceFilter")?.value || 0);
+    const max = Number($("#maxPriceFilter")?.value || 1e12);
+    const cat = ($("#categoryFilter")?.value || "").toLowerCase();
+
+    const list = await api.products({ store_id: SELECTED_STORE_ID });
+    const filtered = list.filter(p => {
+      const t = (p.title || p.name || "").toLowerCase();
+      const price = Number(p.price_xaf ?? p.price ?? 0);
+      const c = (p.category || "").toLowerCase();
+      return (!q || t.includes(q)) && price >= min && price <= max && (!cat || c === cat);
+    });
+    renderProducts(filtered, productsContainer);
+  };
+  if (searchBtn)   searchBtn.addEventListener("click", applyFilters);
+  if (searchInput) searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+
+  // Drawer carrito
+  const cartBtn   = $("#cartBtn");
+  const closeCart = $("#closeCart");
+  cartBtn?.addEventListener("click", () => { renderCart(); openDrawer(); });
+  closeCart?.addEventListener("click", closeDrawer);
+  wireDrawerDismiss();
+
+  // Checkout modal
+  const checkoutOpen  = $("#checkoutOpen");
+  const checkoutModal = $("#checkoutModal");
+  const closeCheckout = $("#closeCheckout");
+  const fulfillmentType = $("#fulfillmentType");
+
+  checkoutOpen?.addEventListener("click", () => {
+    renderCart();
+    $("#invoiceBox") && ($("#invoiceBox").innerHTML = ""); // limpiar factura previa
+    checkoutModal?.classList.remove("hidden");
+  });
+  closeCheckout?.addEventListener("click", () => checkoutModal?.classList.add("hidden"));
+  fulfillmentType?.addEventListener("change", updateCheckoutSummary);
+
+  // Checkout submit
+  const checkoutForm = $("#checkoutForm");
+  checkoutForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const items = loadCart();
+    if (!items.length) { alert("Tu carrito está vacío"); closeDrawer(); return; }
+
+    const fd = new FormData(checkoutForm);
+    const fulfillment_type = fd.get("fulfillment_type") || "pickup";
+    const payload = {
+      guest_name:  fd.get("guest_name")  || null,
+      guest_phone: fd.get("guest_phone") || null,
+      address:     fd.get("address")     || null,
+      fulfillment_type,
+      // Compat: el backend acepta productId o product_id
+      items: items.map(i => ({
+        product_id: i.id,
+        productId:  i.id,
+        quantity:   i.qty
+      }))
+    };
+
+    try {
+      const resp = await api.createOrder(payload);
+      // Render de factura con datos retornados
+      const submittedItems = items.map(i => ({
+        title: i.title, quantity: i.qty, price_xaf: i.price_xaf
+      }));
+      clearCart();
+      renderCart(); // se vacía UI
+      // Si el carrito queda vacío, cerrar drawer automáticamente
+      closeDrawer();
+      toast("¡Pedido enviado con éxito!");
+
+      // Render factura
+      renderInvoice({
+        order: resp.order || { id: resp.order_id, total_xaf: 0, status: "CREATED", fulfillment_type },
+        submittedItems,
+        buyer: {
+          name: fd.get("guest_name") || null,
+          phone: fd.get("guest_phone") || null,
+          address: fd.get("address") || null
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo crear el pedido");
+    }
+  });
 }
 
-// ================== FILTROS ==================
-function applyFilters() {
-  let filtered = [...productsCache];
-  const cat = $("#categoryFilter")?.value;
-  const min = Number($("#minPriceFilter")?.value) || 0;
-  const max = Number($("#maxPriceFilter")?.value) || Infinity;
-  const q = $("#searchInput")?.value.toLowerCase();
-  if (cat) filtered = filtered.filter((p) => p.category === cat);
-  filtered = filtered.filter(
-    (p) => p.price_xaf >= min && p.price_xaf <= max
-  );
-  if (q) filtered = filtered.filter((p) =>
-    p.name.toLowerCase().includes(q)
-  );
-  renderProducts(filtered);
-}
-$("#searchBtn")?.addEventListener("click", applyFilters);
-$("#categoryFilter")?.addEventListener("change", applyFilters);
-$("#minPriceFilter")?.addEventListener("input", applyFilters);
-$("#maxPriceFilter")?.addEventListener("input", applyFilters);
+/* ==========================
+   Página: Login / Signup
+========================== */
+function bootAuthPage() {
+  const loginForm  = $("#loginForm");
+  const signupForm = $("#signupForm");
 
-// ================== CATEGORÍAS ==================
-function loadCategories(products) {
-  const sel = $("#categoryFilter");
-  if (!sel) return;
-  const cats = [...new Set(products.map((p) => p.category).filter(Boolean))];
-  sel.innerHTML =
-    '<option value="">Todas las categorías</option>' +
-    cats.map((c) => `<option value="${c}">${c}</option>`).join("");
+  loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(loginForm);
+    const email = fd.get("email");
+    const password = fd.get("password");
+
+    try {
+      const data = await api.login(email, password);
+      if (data?.token) setAuth({ token: data.token, user: data.user });
+      const role = data?.user?.role || (data?.user?.is_admin ? "admin" : "buyer");
+
+      if (role === "seller")      window.location.href = "seller.html";
+      else if (role === "admin")  window.location.href = "admin.html";
+      else                        window.location.href = "index.html";
+    } catch (e1) {
+      console.error(e1);
+      alert("Credenciales inválidas");
+    }
+  });
+
+  signupForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(signupForm);
+    const payload = {
+      name:     fd.get("name"),
+      email:    fd.get("email"),
+      password: fd.get("password"),
+      phone:    fd.get("phone") || null
+    };
+    try {
+      const data = await api.signup(payload);
+      // El backend de signup no devuelve token por defecto; opcionalmente forzamos login posterior
+      // Para mantener UX simple, intentamos login automático:
+      if (payload.email && payload.password) {
+        const autologin = await api.login(payload.email, payload.password);
+        if (autologin?.token) setAuth({ token: autologin.token, user: autologin.user });
+        const role = autologin?.user?.role || (autologin?.user?.is_admin ? "admin" : "buyer");
+        if (role === "seller")     window.location.href = "seller.html";
+        else if (role === "admin") window.location.href = "admin.html";
+        else                       window.location.href = "index.html";
+      } else {
+        window.location.href = "index.html";
+      }
+    } catch (e1) {
+      console.error(e1);
+      alert("No se pudo crear la cuenta");
+    }
+  });
 }
 
-// ================== INIT ==================
-loadStores();
-loadProducts();
+/* ==========================
+   Página: Seller
+========================== */
+function bootSellerPage() {
+  const productsGrid = $("#sellerProducts");
+  const ordersBox    = $("#sellerOrders");
+  const newProdForm  = $("#newProductForm");
+
+  async function refreshProducts() {
+    productsGrid && (productsGrid.innerHTML = `<div class="muted">Cargando…</div>`);
+    try {
+      const list = await api.seller.mineProducts();
+      if (!productsGrid) return;
+      productsGrid.innerHTML = "";
+      if (!list.length) {
+        productsGrid.innerHTML = `<div class="muted">Aún no tienes productos.</div>`;
+        return;
+      }
+      for (const p of list) {
+        const title = p.title || p.name || "Producto";
+        const price = Number(p.price_xaf ?? p.price ?? 0);
+        const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
+        const card = document.createElement("div");
+        card.className = "product";
+        card.innerHTML = `
+          <img src="${img}" alt="${title}">
+          <div class="title">${title}</div>
+          <div class="price">${currency(price)}</div>
+        `;
+        productsGrid.appendChild(card);
+      }
+    } catch (e) {
+      console.error(e);
+      productsGrid && (productsGrid.innerHTML = `<div class="error">Error cargando tus productos</div>`);
+    }
+  }
+
+  async function refreshOrders() {
+    ordersBox && (ordersBox.innerHTML = `<div class="muted">Cargando pedidos…</div>`);
+    try {
+      const orders = await api.seller.orders();
+      if (!ordersBox) return;
+      if (!orders.length) {
+        ordersBox.innerHTML = `<div class="muted">Sin pedidos por ahora.</div>`;
+        return;
+      }
+
+      const tbl = document.createElement("table");
+      tbl.className = "orders";
+      tbl.innerHTML = `
+        <thead>
+          <tr>
+            <th>ID</th><th>Fecha</th><th>Cliente</th><th>Items</th><th>Total</th><th>Entrega</th><th>Estado</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      for (const o of orders) {
+        const tr = document.createElement("tr");
+        const when = (o.created_at || "").replace("T", " ").slice(0, 16);
+        const buyer = o.guest_name || o.customer_name || "-";
+        const itemsTxt = (o.items || []).map(i => `${i.title} × ${i.qty}`).join(", ");
+        tr.innerHTML = `
+          <td>${o.id}</td>
+          <td>${when}</td>
+          <td>${buyer}</td>
+          <td>${itemsTxt}</td>
+          <td>${currency(o.total_xaf ?? o.subtotal_xaf)}</td>
+          <td>${String(o.fulfillment_type || "").toUpperCase()}</td>
+          <td><span class="badge">${o.status}</span></td>
+          <td class="actions">
+            <button class="act ready">Ready to Pick up</button>
+            <button class="act delivered">Delivered</button>
+            <button class="act canceled">Cancelled</button>
+          </td>
+        `;
+        // Wiring acciones
+        $(".ready", tr)?.addEventListener("click", async () => {
+          await changeStatus(o.id, "READY_TO_PICKUP");
+        });
+        $(".delivered", tr)?.addEventListener("click", async () => {
+          await changeStatus(o.id, "DELIVERED");
+        });
+        $(".canceled", tr)?.addEventListener("click", async () => {
+          await changeStatus(o.id, "CANCELLED");
+        });
+        $("tbody", tbl).appendChild(tr);
+      }
+
+      ordersBox.innerHTML = "";
+      ordersBox.appendChild(tbl);
+    } catch (e) {
+      console.error(e);
+      ordersBox && (ordersBox.innerHTML = `<div class="error">Error cargando pedidos</div>`);
+    }
+  }
+
+  async function changeStatus(orderId, status) {
+    try {
+      await api.seller.setOrderStatus(orderId, status);
+      toast(`Estado actualizado: ${status}`);
+      await refreshOrders();
+    } catch (e) {
+      console.error(e);
+      alert("No se pudo actualizar el estado");
+    }
+  }
+
+  newProdForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(newProdForm);
+    const payload = {
+      name: fd.get("title") || fd.get("name") || "",
+      price_xaf: fd.get("price_xaf") || fd.get("price") || "",
+      stock: fd.get("stock") || 0,
+      image_url: fd.get("image_url") || null,
+      category: fd.get("category") || null,
+      description: fd.get("description") || null
+    };
+    try {
+      await api.seller.createProduct(payload);
+      newProdForm.reset();
+      toast("Producto creado");
+      await refreshProducts();
+    } catch (e1) {
+      console.error(e1);
+      alert("No se pudo crear el producto");
+    }
+  });
+
+  refreshProducts();
+  refreshOrders();
+}
+
+/* ==========================
+   Página: Admin
+========================== */
+function bootAdminPage() {
+  const usersWrap = $("#usersTable");
+  const form = $("#createSellerForm");
+  const refreshBtn = $("#refreshUsers");
+
+  async function renderUsers() {
+    usersWrap && (usersWrap.innerHTML = "Cargando…");
+    try {
+      const list = await api.admin.users();
+      if (!usersWrap) return;
+      const tbl = document.createElement("table");
+      tbl.innerHTML = `<thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Tienda</th></tr></thead><tbody></tbody>`;
+      for (const u of list) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.name || "-"}</td>
+          <td>${u.email || "-"}</td>
+          <td>${u.role || (u.is_admin ? "admin" : "buyer")}</td>
+          <td>${u.store_name || u.store?.name || "-"}</td>
+        `;
+        $("tbody", tbl).appendChild(tr);
+      }
+      usersWrap.innerHTML = "";
+      usersWrap.appendChild(tbl);
+    } catch (e) {
+      console.error(e);
+      usersWrap && (usersWrap.innerHTML = `<div class="error">No se pudieron cargar los usuarios</div>`);
+    }
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      name: fd.get("name"),
+      email: fd.get("email"),
+      password: fd.get("password"),
+      phone: fd.get("phone"),
+      store_name: fd.get("store_name")
+    };
+    try {
+      await api.admin.createSeller(payload);
+      toast("Vendedor creado");
+      form.reset();
+      renderUsers();
+    } catch (e1) {
+      console.error(e1);
+      alert("No se pudo crear el vendedor");
+    }
+  });
+
+  refreshBtn?.addEventListener("click", renderUsers);
+  renderUsers();
+}
