@@ -3,208 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WapMarket</title>
+  <title>WapMarket - Tu plataforma de negocios inteligente</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      AOS.init({once:false,duration:900,easing:'ease-out-cubic'});
+    });
+  </script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: Menlo, Monaco, monospace;
-      color: white;
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+    .section {
+      padding: 5rem 0;
+    }
+    .section.alt-bg {
+      background: #f1f5f9;
+    }
+    .section-title {
+      font-weight: 800;
+      font-size: 2rem;
+      margin-bottom: 1rem;
       text-align: center;
-      min-height: 100dvh; /* altura real móvil */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: url("pexels-clement-proust-363898785-18554368.jpg") no-repeat center center fixed;
-      background-size: cover;
-      overflow: hidden;
-      position: relative;
+      color: #1e293b;
     }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      flex: 1;
-      padding: 20px;
-    }
-
-    .title {
-      font-family: "Futura", sans-serif;
-      font-size: clamp(2.5rem, 8vw, 6rem);
-      font-weight: bold;
-    }
-
-    .subtitle {
-      font-size: clamp(0.8rem, 2.5vw, 1.2rem);
-      margin-top: 10px;
-      font-weight: 300;
-    }
-
-    .info-link {
-      margin-top: 20px;
-      font-size: 1rem;
-      cursor: pointer;
-      text-decoration: underline;
-      transition: color 0.3s ease;
-    }
-    .info-link:hover { color: rgb(161, 255, 20); }
-
-    .buttons {
-      margin-top: 25px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    /* 🔹 NUEVO estilo del botón Explore */
-    .button {
-      width: 140px;
-      height: 45px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: linear-gradient(135deg, rgb(161, 255, 20), rgb(120, 200, 10));
-      border-radius: 30px;
-      color: rgb(19, 19, 19);
-      font-weight: 600;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
-      padding: 0 16px;
-      transition: all 0.3s ease;
-    }
-
-    .svgIcon {
-      height: 22px;
-      width: 22px;
-      transition: transform 0.8s ease;
-    }
-
-    .button:hover {
-      background: linear-gradient(135deg, rgb(192, 255, 20), rgb(150, 220, 40));
-      transform: translateY(-2px);
-      box-shadow: 6px 6px 15px rgba(0,0,0,0.2);
-    }
-
-    .button:active {
-      transform: scale(0.95);
-    }
-
-    .button:hover .svgIcon {
-      transform: rotate(220deg);
-    }
-
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      background: rgba(0,0,0,0.6);
-      z-index: 999;
-      padding: 20px;
-    }
-    .modal-content {
-      background: rgba(0,0,0,0.85);
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 90%;
-      color: white;
-      text-align: left;
-      line-height: 1.6;
-      font-size: 0.9rem;
-      position: relative;
-    }
-    .modal-content h2 {
-      margin-bottom: 10px;
-      color: rgb(161, 255, 20);
-    }
-    .close-btn {
-      position: absolute;
-      top: 10px; right: 15px;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    footer {
-      width: 100%;
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      font-size: 0.65rem;
+    .section-subtitle {
+      font-size: 1.1rem;
       text-align: center;
-      position: absolute;
-      bottom: 0;
-      left: 0;
+      color: #475569;
+      max-width: 800px;
+      margin: 0 auto 2.5rem auto;
     }
-    .legal-links a {
+    .btn-main {
+      background: #2563eb;
       color: #fff;
-      margin: 0 5px;
-      font-size: 0.65rem;
-      text-decoration: none;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: .3s;
     }
-    .legal-links a:hover { text-decoration: underline; }
+    .btn-main:hover {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .card-feature {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform .3s;
+    }
+    .card-feature:hover {
+      transform: translateY(-5px);
+    }
+    .card-feature .icon {
+      font-size: 2rem;
+      color: #2563eb;
+      margin-bottom: 1rem;
+    }
+    footer {
+      text-align: center;
+      font-size: .9rem;
+      padding: 1.5rem 0;
+      color: #334155;
+      background: #f1f5f9;
+      margin-top: 3rem;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="title">WapMarket</div>
-    <div class="subtitle">-- Sueña alto, conecta tu negocio con más clientes --</div>
-    <div class="subtitle">-- El nuevo mundo GQ --</div>
-
-    <div class="info-link" id="infoLink">más información</div>
-
-    <div class="buttons">
-      <!-- 🔹 Botón Explore con SVG -->
-      <button class="button" onclick="window.location.href='inicio.html'">
-        <svg class="svgIcon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-          <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
-        </svg>
-        <span>Explore</span>
-      </button>
-
-      <!-- Botón Entrar normal -->
-      <button class="button" onclick="window.location.href='login.html'">Entrar</button>
+  
+  <!-- HERO -->
+  <section class="section text-center" id="hero">
+    <div class="container" data-aos="fade-up">
+      <h1 class="display-5 fw-bold mb-3">Gestiona y sigue tus pedidos en tiempo real con <span style="color:#2563eb;">WapMarket</span></h1>
+      <p class="lead mb-4">La plataforma donde los pedidos son el corazón del negocio: recibe, organiza y sigue cada pedido desde que entra hasta que se entrega, con notificaciones automáticas y control total.</p>
+      <a href="register.html" class="btn btn-main btn-lg">Comienza gratis</a>
     </div>
-  </div>
+  </section>
 
-  <!-- Modal -->
-  <div class="modal" id="infoModal">
-    <div class="modal-content">
-      <span class="close-btn" id="closeModal">&times;</span>
-      <h2>¿Qué es WapMarket?</h2>
-      <p>
-        WapMarket es una plataforma digital diseñada para conectar negocios y clientes en un mismo
-        espacio virtual. Nuestro objetivo es facilitar que las empresas puedan ofrecer sus productos y 
-        servicios, mientras que los usuarios encuentran rápidamente lo que buscan.
-      </p>
+  <!-- ¿QUÉ ES WAPMARKET? -->
+  <section class="section alt-bg" id="about">
+    <div class="container" data-aos="fade-up">
+      <div class="section-title">¿Qué es WapMarket?</div>
+      <div class="section-subtitle">WapMarket es la plataforma digital que pone los <b>pedidos</b> en el centro de tu negocio. Recibe, organiza y sigue cada pedido desde que entra hasta que se entrega, con notificaciones automáticas y control total.</div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card-feature">
+            <div class="icon"><i class="fas fa-store"></i></div>
+            <h5>Gestión de pedidos</h5>
+            <p>Recibe pedidos de clientes, visualízalos en tiempo real y actualiza su estado con un solo clic.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-feature">
+            <div class="icon"><i class="fas fa-bolt"></i></div>
+            <h5>Agilidad y control</h5>
+            <p>Centraliza la gestión de productos, clientes y ventas, siempre con foco en los pedidos y su seguimiento.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-feature">
+            <div class="icon"><i class="fas fa-chart-pie"></i></div>
+            <h5>Decisiones inteligentes</h5>
+            <p>Analiza el flujo de pedidos, identifica cuellos de botella y mejora tu servicio con datos claros.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- WAPPAY / WAPCARD -->
+  <section class="section" id="wappay">
+    <div class="container" data-aos="fade-up">
+      <div class="section-title">WapPay & WapCard</div>
+      <div class="section-subtitle">El sistema de pago digital seguro y rápido para tu negocio y tus clientes.</div>
+      <div class="row align-items-center mt-4">
+        <div class="col-md-6" data-aos="fade-right">
+          <img src="/static/img/WAPBLUEop.png" alt="WapCard" class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6" data-aos="fade-left">
+          <ul class="list-unstyled fs-5">
+            <li class="mb-3"><i class="fas fa-credit-card text-primary me-2"></i> Pagos instantáneos con WapCard.</li>
+            <li class="mb-3"><i class="fas fa-lock text-success me-2"></i> Seguridad avanzada sin riesgos de efectivo.</li>
+            <li class="mb-3"><i class="fas fa-mobile-alt text-info me-2"></i> Tus clientes pagan desde el móvil y ves el pago al instante.</li>
+            <li class="mb-3"><i class="fas fa-history text-secondary me-2"></i> Historial y control de saldo disponible.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section text-center alt-bg" id="cta">
+    <div class="container" data-aos="zoom-in">
+      <h2 class="fw-bold mb-3">¿Listo para transformar tu negocio?</h2>
+      <a href="register.html" class="btn btn-main btn-lg">¡Quiero empezar ahora!</a>
+    </div>
+  </section>
 
   <footer>
-    <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
-    <div class="legal-links">
-      <a href="terminos.html">Términos</a> |
-      <a href="informacion.html">Información</a>
-    </div>
+    © WAP tech & software development - Guinea Ecuatorial (Bata) - 2025 <br>
+    CEO: Román Salvador Ona Bile - Wappedidos - Wappay - WapMarket <br>
+    Todos los derechos reservados
   </footer>
 
-  <script>
-    const infoLink = document.getElementById("infoLink");
-    const modal = document.getElementById("infoModal");
-    const closeBtn = document.getElementById("closeModal");
-
-    infoLink.addEventListener("click", () => modal.style.display = "flex");
-    closeBtn.addEventListener("click", () => modal.style.display = "none");
-    window.addEventListener("click", e => { if (e.target === modal) modal.style.display = "none"; });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
