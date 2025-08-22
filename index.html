@@ -22,7 +22,6 @@
       position: relative;
     }
 
-    /* Contenedor principal (centrado siempre) */
     .container {
       display: flex;
       flex-direction: column;
@@ -60,20 +59,45 @@
       justify-content: center;
       gap: 15px;
     }
+
+    /* 🔹 NUEVO estilo del botón Explore */
     .button {
-      min-width: 150px;
-      padding: 12px 20px;
+      width: 140px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgb(161, 255, 20), rgb(120, 200, 10));
       border-radius: 30px;
-      background: rgb(161, 255, 20);
-      color: #111;
-      font-weight: bold;
+      color: rgb(19, 19, 19);
+      font-weight: 600;
+      font-size: 1rem;
       border: none;
       cursor: pointer;
-      transition: all .3s ease;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+      padding: 0 16px;
+      transition: all 0.3s ease;
     }
+
+    .svgIcon {
+      height: 22px;
+      width: 22px;
+      transition: transform 0.8s ease;
+    }
+
     .button:hover {
-      background: rgb(192, 255, 20);
-      transform: translateY(-3px);
+      background: linear-gradient(135deg, rgb(192, 255, 20), rgb(150, 220, 40));
+      transform: translateY(-2px);
+      box-shadow: 6px 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .button:active {
+      transform: scale(0.95);
+    }
+
+    .button:hover .svgIcon {
+      transform: rotate(220deg);
     }
 
     /* Modal */
@@ -111,7 +135,6 @@
       cursor: pointer;
     }
 
-    /* Footer fijo abajo */
     footer {
       width: 100%;
       background: rgba(0,0,0,0.6);
@@ -140,7 +163,15 @@
     <div class="info-link" id="infoLink">más información</div>
 
     <div class="buttons">
-      <button class="button" onclick="window.location.href='inicio.html'">Explorar</button>
+      <!-- 🔹 Botón Explore con SVG -->
+      <button class="button" onclick="window.location.href='inicio.html'">
+        <svg class="svgIcon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+        </svg>
+        <span>Explore</span>
+      </button>
+
+      <!-- Botón Entrar normal -->
       <button class="button" onclick="window.location.href='login.html'">Entrar</button>
     </div>
   </div>
