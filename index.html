@@ -13,12 +13,14 @@
       <input id="searchInput" type="text" placeholder="Buscar productos..." />
       <button id="searchBtn">Buscar</button>
     </div>
-    <nav class="nav">
-      <a href="login.html">Entrar</a>
-      <button id="cartBtn">Carrito (<span id="cartCount">0</span>)</button>
+    <nav class="nav" id="userSection">
+      <!-- Aquí se inyecta dinámicamente:
+           - Si no hay sesión → <a href="login.html">Entrar</a>
+           - Si hay sesión → <span>Hola, Nombre</span> <button id="logoutBtn">Salir</button>
+      -->
     </nav>
+    <button id="cartBtn">Carrito (<span id="cartCount">0</span>)</button>
   </header>
-
 
   <div class="main-layout">
     <!-- Sidebar: Negocios y Filtros -->
@@ -45,7 +47,7 @@
     <!-- Contenido principal: Productos -->
     <main class="products-area">
       <div class="products-header">
-        <h2 id="productsTitle">Productos Disponibles</h2>
+        <h2 id="productsTitle">Productos disponibles</h2>
       </div>
       <div class="products-list" id="productsList">
         <!-- Los productos se cargarán dinámicamente aquí -->
