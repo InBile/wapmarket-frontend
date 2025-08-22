@@ -931,3 +931,137 @@ function bootAdminPage() {
   refreshBtn?.addEventListener("click", renderUsers);
   renderUsers();
 }
+
+
+
+/* ======= WapMarket Secure Route & Ordering Guard (append-only) ======= */
+(function SecureGuard(){
+  // --- helpers de sesión compatibles ---
+  function sg_get(keyList) {
+    for (var i=0;i<keyList.length;i++){
+      try {
+        var v = localStorage.getItem(keyList[i]);
+        if (v) return v;
+      } catch {}
+    }
+    return null;
+  }
+  function sg_getJSON(keyList){
+    var raw = sg_get(keyList);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+  function sg_parseJwt(token){
+    try {
+      var base = token.split(".")[1];
+      base = base.replace(/-/g, "+").replace(/_/g, "/");
+      var json = atob(base);
+      return JSON.parse(json);
+    } catch { return null; }
+  }
+  function sg_session(){
+    var token = sg_get(["wap_token","wp_token","token","auth_token"]);
+    var user  = sg_getJSON(["wap_user","wp_user","user"]);
+    var payload = token ? sg_parseJwt(token) : null;
+    return { token: token || null, user: user, payload };
+  }
+  function sg_role(u, p){
+    // prioridad: user.role -> payload.role -> flags (user/payload)
+    if (u && u.role) return u.role;
+    if (p && p.role) return p.role;
+    if ((u && (u.is_admin || u.isAdmin)) || (p && (p.is_admin || p.isAdmin))) return "admin";
+    if ((u && (u.is_seller || u.isSeller)) || (p && (p.is_seller || p.isSeller))) return "seller";
+    return u ? "buyer" : "guest";
+  }
+  function sg_canOrder(u,p){
+    var r = sg_role(u,p);
+    return r === "guest" || r === "buyer";
+  }
+
+  // --- redirecciones inmediatas por rol ---
+  try {
+    var sess = sg_session();
+    var role = sg_role(sess.user, sess.payload);
+    var file = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+
+    if (role === "admin" && file !== "admin.html") {
+      location.replace("admin.html"); return;
+    }
+    if (role === "seller" && file !== "seller.html") {
+      location.replace("seller.html"); return;
+    }
+    if (role === "buyer" && (file === "admin.html" || file === "seller.html")) {
+      location.replace("index.html"); return;
+    }
+    if (role === "guest" && (file === "admin.html" || file === "seller.html")) {
+      location.replace("login.html"); return;
+    }
+  } catch {}
+
+  // --- topbar coherente si se cuela en index ---
+  document.addEventListener("DOMContentLoaded", function(){
+    try {
+      var sess = sg_session();
+      var role = sg_role(sess.user, sess.payload);
+      var nav = document.querySelector(".nav");
+      if (!nav) return;
+
+      // Oculta "Entrar" si hay sesión
+      var loginLink = nav.querySelector("a[href='login.html']");
+      if (sess.user && loginLink) loginLink.style.display = "none";
+
+      // Limpia restos
+      var oldGreet = nav.querySelector(".user-greeting");
+      if (oldGreet) oldGreet.remove();
+
+      if (role === "seller") {
+        var a = document.createElement("a"); a.href="seller.html"; a.className="user-greeting"; a.textContent="Panel Vendedor";
+        nav.prepend(a);
+      } else if (role === "admin") {
+        var b = document.createElement("a"); b.href="admin.html"; b.className="user-greeting"; b.textContent="Panel Admin";
+        nav.prepend(b);
+      } else if (role === "buyer") {
+        var name = (sess.user && (sess.user.name || sess.user.email)) || "Cliente";
+        var s = document.createElement("span"); s.className="user-greeting"; s.textContent="Hola, " + name;
+        nav.prepend(s);
+      }
+    } catch {}
+  });
+
+  // --- Interceptar acciones de compra a nivel documento ---
+  document.addEventListener("click", function(e){
+    try {
+      // Botón Abrir Checkout
+      if (e.target.closest && e.target.closest("#checkoutOpen")) {
+        var sess = sg_session();
+        if (!sg_canOrder(sess.user, sess.payload)) {
+          e.preventDefault(); e.stopPropagation();
+          alert("Solo clientes o invitados pueden realizar pedidos.");
+        }
+      }
+      // Botones de añadir al carrito (comunes)
+      if (e.target.matches(".p-add, .add-to-cart, .product-card .p-add, .btn-add-cart")) {
+        var sess2 = sg_session();
+        if (!sg_canOrder(sess2.user, sess2.payload)) {
+          e.preventDefault(); e.stopPropagation();
+          alert("Solo clientes o invitados pueden realizar pedidos.");
+        }
+      }
+    } catch {}
+  }, true);
+
+  // --- Interceptar submit del checkout ---
+  document.addEventListener("submit", function(e){
+    try {
+      var form = e.target;
+      if (form && form.id === "checkoutForm") {
+        var sess = sg_session();
+        if (!sg_canOrder(sess.user, sess.payload)) {
+          e.preventDefault(); e.stopPropagation();
+          alert("Solo clientes o invitados pueden realizar pedidos.");
+        }
+      }
+    } catch {}
+  }, true);
+})();
+/* ======= Fin Secure Guard ======= */
