@@ -6,132 +6,124 @@
   <title>WapMarket</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: "Futura", sans-serif;
       color: white;
-      text-align: center;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
       background: url("pexels-clement-proust-363898785-18554368.jpg") no-repeat center center fixed;
       background-size: cover;
-      position: relative;
-      overflow-x: hidden;
     }
 
-    /* Hero */
+    /* HERO */
     .hero {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      backdrop-filter: brightness(0.7);
+      text-align: center;
       padding: 20px;
-      animation: fadeIn 2s ease;
+      backdrop-filter: brightness(0.7);
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     .title {
-      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-size: clamp(3rem, 8vw, 6rem);
       font-weight: bold;
       text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
     }
-
     .subtitle {
       font-size: clamp(1rem, 2.5vw, 1.5rem);
-      margin-top: 10px;
+      margin-top: 15px;
       font-weight: 300;
-      text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+      opacity: 0.9;
     }
 
+    /* BOTONES */
     .buttons {
-      margin-top: 25px;
+      margin-top: 30px;
       display: flex;
-      gap: 15px;
+      gap: 20px;
       flex-wrap: wrap;
-    }
-
-    .button {
-      width: 150px;
-      height: 50px;
-      display: flex;
-      align-items: center;
       justify-content: center;
+    }
+    .button {
+      width: 160px; height: 50px;
+      display: flex; align-items: center; justify-content: center;
       gap: 8px;
-      background: linear-gradient(135deg, rgb(161, 255, 20), rgb(120, 200, 10));
+      background: linear-gradient(135deg, rgb(161, 255, 20), rgb(100, 180, 30));
       border-radius: 30px;
-      color: rgb(19, 19, 19);
-      font-weight: 600;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+      color: black; font-weight: 600; font-size: 1rem;
+      border: none; cursor: pointer;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
       transition: all 0.3s ease;
     }
-    .button:hover { transform: translateY(-3px) scale(1.03); }
-
+    .button:hover { transform: translateY(-3px) scale(1.05); }
     .svgIcon { height: 22px; width: 22px; }
 
-    /* Nueva sección Beneficios */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-      gap: 20px;
-      padding: 60px 20px;
-      background: rgba(0,0,0,0.7);
+    /* SECCIONES */
+    section { padding: 80px 20px; }
+    h2.section-title {
+      font-size: 2rem;
+      margin-bottom: 40px;
+      text-align: center;
+      color: rgb(161,255,20);
     }
 
+    /* FEATURES minimalistas */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+      gap: 30px;
+      text-align: center;
+    }
     .feature {
       background: rgba(255,255,255,0.05);
       border-radius: 15px;
-      padding: 25px;
+      padding: 30px;
       backdrop-filter: blur(10px);
       transition: transform 0.3s ease;
     }
-    .feature:hover { transform: translateY(-5px); }
-    .feature h3 { color: rgb(161,255,20); margin-bottom: 10px; }
-
-    /* Modal */
-    .modal {
-      position: fixed; inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      background: rgba(0,0,0,0.7);
-      z-index: 999;
-      padding: 20px;
+    .feature:hover { transform: translateY(-8px); }
+    .feature svg {
+      width: 40px; height: 40px;
+      stroke: rgb(161,255,20);
+      margin-bottom: 15px;
     }
-    .modal-content {
-      background: rgba(0,0,0,0.85);
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 90%;
-      color: white;
-      text-align: left;
+    .feature h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
     }
-    .modal-content h2 { color: rgb(161,255,20); }
-    .close-btn {
-      position: absolute; top: 10px; right: 20px;
-      font-size: 2rem; cursor: pointer;
+    .feature p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      line-height: 1.5;
     }
 
-    footer {
-      width: 100%;
-      background: rgba(0,0,0,0.6);
-      padding: 15px;
-      font-size: 0.8rem;
+    /* METRICS */
+    .metrics {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 40px;
       text-align: center;
     }
-    .legal-links a {
-      color: #fff; margin: 0 8px; text-decoration: none;
+    .metric {
+      font-size: 2rem; font-weight: bold;
+      color: rgb(161,255,20);
     }
+    .metric span {
+      display: block;
+      font-size: 1rem;
+      font-weight: normal;
+      color: white;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: rgba(0,0,0,0.7);
+      padding: 20px; font-size: 0.8rem; text-align: center;
+    }
+    .legal-links a { color: #fff; margin: 0 8px; text-decoration: none; }
     .legal-links a:hover { text-decoration: underline; }
   </style>
 </head>
@@ -139,51 +131,55 @@
   <!-- HERO -->
   <section class="hero">
     <div class="title">WapMarket</div>
-    <div class="subtitle">-- Sueña alto, conecta tu negocio con más clientes --</div>
-    <div class="subtitle">-- El nuevo mundo GQ --</div>
+    <div class="subtitle">Sueña alto, conecta tu negocio con más clientes</div>
+    <div class="subtitle">El nuevo mundo GQ</div>
 
     <div class="buttons">
       <button class="button" onclick="window.location.href='inicio.html'">
-        <svg class="svgIcon" viewBox="0 0 512 512"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+        <svg class="svgIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 L19 21 L12 17 L5 21 Z"/></svg>
         Explore
       </button>
       <button class="button" onclick="window.location.href='login.html'">Entrar</button>
     </div>
 
-    <div class="info-link" id="infoLink" style="margin-top:20px; cursor:pointer; text-decoration:underline;">más información</div>
+    <div id="infoLink" style="margin-top:20px; cursor:pointer; text-decoration:underline;">más información</div>
   </section>
 
-  <!-- BENEFICIOS -->
-  <section class="features">
-    <div class="feature">
-      <h3>📈 Haz crecer tu negocio</h3>
-      <p>Con WapMarket tendrás visibilidad nacional para llegar a más clientes y aumentar tus ventas.</p>
-    </div>
-    <div class="feature">
-      <h3>🤝 Conecta fácilmente</h3>
-      <p>Facilitamos la conexión entre clientes y emprendedores a través de un entorno digital confiable.</p>
-    </div>
-    <div class="feature">
-      <h3>🌍 Innovación local</h3>
-      <p>Promovemos la transformación digital en Guinea Ecuatorial con herramientas modernas.</p>
+  <!-- FEATURES -->
+  <section>
+    <h2 class="section-title">Por qué unirte a WapMarket</h2>
+    <div class="features">
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <h3>Visibilidad</h3>
+        <p>Aumenta el alcance de tu negocio y conecta con más clientes.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <h3>Eficiencia</h3>
+        <p>Optimiza tiempo y recursos gracias a nuestra plataforma digital.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <h3>Confianza</h3>
+        <p>Entorno seguro y profesional para negocios y clientes.</p>
+      </div>
     </div>
   </section>
 
-  <!-- MODAL -->
-  <div class="modal" id="infoModal">
-    <div class="modal-content">
-      <span class="close-btn" id="closeModal">&times;</span>
-      <h2>¿Qué es WapMarket?</h2>
-      <p>
-        WapMarket es una plataforma digital diseñada para conectar negocios y clientes en un mismo
-        espacio virtual. Nuestro objetivo es facilitar que las empresas puedan ofrecer sus productos y 
-        servicios, mientras que los usuarios encuentran rápidamente lo que buscan.
-      </p>
+  <!-- METRICS -->
+  <section>
+    <h2 class="section-title">Impacto en números</h2>
+    <div class="metrics">
+      <div class="metric">+500<span>Negocios registrados</span></div>
+      <div class="metric">+10K<span>Usuarios activos</span></div>
+      <div class="metric">+25K<span>Productos listados</span></div>
     </div>
-  </div>
+  </section>
 
+  <!-- FOOTER -->
   <footer>
-    <div>WapMarket | Wap Tech & Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
+    <div>WapMarket | Wap Tech & Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | GQ-Bata | 2025</div>
     <div class="legal-links">
       <a href="terminos.html">Términos</a> |
       <a href="informacion.html">Información</a>
@@ -191,12 +187,9 @@
   </footer>
 
   <script>
+    // Popup de más info
     const infoLink = document.getElementById("infoLink");
-    const modal = document.getElementById("infoModal");
-    const closeBtn = document.getElementById("closeModal");
-    infoLink.addEventListener("click", () => modal.style.display = "flex");
-    closeBtn.addEventListener("click", () => modal.style.display = "none");
-    window.addEventListener("click", e => { if (e.target === modal) modal.style.display = "none"; });
+    infoLink.addEventListener("click", () => alert("WapMarket conecta negocios y clientes en un mismo espacio digital."));
   </script>
 </body>
 </html>
