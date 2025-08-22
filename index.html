@@ -23,47 +23,13 @@
     }
 
     .container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  padding: 40px 30px;
-  max-width: 800px;
-  width: 90%;
-
-  /* 🔹 Estilo glassmorphism */
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-
-  /* 🔹 Bordes con transición de color */
-  border-radius: 25px;
-  border: 2px solid transparent;
-  background-clip: padding-box, border-box;
-  background-origin: border-box;
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)),
-    linear-gradient(135deg, rgba(161,255,20,0.7), rgba(0,212,255,0.7));
-
-  /* 🔹 Sombras suaves */
-  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-
-  /* 🔹 Animación entrada */
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 0.8s ease forwards;
-}
-
-/* Animación aparecer */
-@keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 20px;
+    }
     .title {
       font-family: "Futura", sans-serif;
       font-size: clamp(2.5rem, 8vw, 6rem);
