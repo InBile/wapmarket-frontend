@@ -77,6 +77,59 @@ async function httpJson(path, opts = {}, fallbacks = []) {
 ========================== */
 let SELECTED_STORE_ID = null; // Para filtro de productos por negocio
 
+
+/* ==========================
+   Tienda seleccionada + título + topbar
+========================== */
+let STORES_CACHE = [];
+
+function getSelectedStore() {
+  if (SELECTED_STORE_ID == null) return null;
+  return (STORES_CACHE || []).find(s => Number(s.id) === Number(SELECTED_STORE_ID)) || null;
+}
+
+function ensureCartScopedToStore(storeId) {
+  const current = localStorage.getItem("wap_cart_store");
+  const nextStr = storeId != null ? String(storeId) : "";
+  if (current !== nextStr) {
+    // Cambió de tienda -> vaciamos el carrito y persistimos la nueva tienda
+    saveCart([]);
+  }
+  localStorage.setItem("wap_cart_store", nextStr);
+  updateCartCount();
+}
+
+function updateProductsTitle() {
+  const el = $("#productsTitle");
+  if (!el) return;
+  const s = getSelectedStore();
+  el.textContent = s ? `Productos de ${s.name}` : "Productos Disponibles";
+}
+
+function updateUserTopbar() {
+  const nav = $("#userSection") || $(".nav");
+  if (!nav) return;
+  const { token, user } = getAuth();
+  if (token && user) {
+    const name = user.name || user.email || "Usuario";
+    nav.innerHTML = `
+      <span class="hello">Hola, ${name.split(" ")[0]}</span>
+      <button id="logoutBtn" class="linklike">Salir</button>
+    `;
+    $("#logoutBtn")?.addEventListener("click", () => {
+      clearAuth();
+      // Al cerrar sesión también limpiamos selección de tienda y carrito
+      SELECTED_STORE_ID = null;
+      localStorage.removeItem("wap_selected_store");
+      ensureCartScopedToStore(null);
+      updateProductsTitle();
+      // Si estamos en login, index, seller o admin, refrescamos
+      location.href = "index.html";
+    });
+  } else {
+    nav.innerHTML = `<a href="login.html">Entrar</a>`;
+  }
+}
 /* ==========================
    Carrito (guest-friendly)
 ========================== */
@@ -89,6 +142,8 @@ function saveCart(items) {
 }
 function clearCart() { saveCart([]); }
 function addToCart(product) {
+  // Aseguramos que el carrito pertenece a la tienda seleccionada
+  ensureCartScopedToStore(SELECTED_STORE_ID);
   const cart = loadCart();
   const idx = cart.findIndex(i => i.id === product.id);
   if (idx >= 0) cart[idx].qty += 1;
@@ -265,7 +320,10 @@ function renderStores(list, container) {
     `;
     item.addEventListener("click", async () => {
       SELECTED_STORE_ID = s.id;
+      localStorage.setItem("wap_selected_store", String(s.id));
       highlightActiveStore(s.id);
+      ensureCartScopedToStore(s.id);
+      updateProductsTitle();
       await reloadProducts();
       toast(`Filtrado por: ${s.name}`);
     });
@@ -483,6 +541,7 @@ function renderInvoice({ order, submittedItems, buyer }) {
    Inicialización por página
 ========================== */
 document.addEventListener("DOMContentLoaded", () => {
+  updateUserTopbar();
   updateCartCount();
 
   const isIndex  = !!$("#productsList");
@@ -499,21 +558,38 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ==========================
    Página: Index (tienda)
 ========================== */
+
 async function bootIndexPage() {
-  // Cargar stores + productos
+  updateUserTopbar();
+
   const businessesSection = $("#businessesSection");
   const productsContainer = $("#productsList");
 
   try {
-    const [stores, prods] = await Promise.all([api.stores(), api.products()]);
-    renderStores(stores, businessesSection);
+    // 1) Cargar tiendas
+    const stores = await api.stores();
+    STORES_CACHE = stores || [];
+    // 2) Seleccionar tienda por defecto
+    const saved = localStorage.getItem("wap_selected_store");
+    if (saved && STORES_CACHE.some(s => String(s.id) === String(saved))) {
+      SELECTED_STORE_ID = Number(saved);
+    } else {
+      SELECTED_STORE_ID = STORES_CACHE[0]?.id ?? null;
+      if (SELECTED_STORE_ID != null) localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
+    }
+    ensureCartScopedToStore(SELECTED_STORE_ID);
+    // 3) Pintar sidebar + título
+    renderStores(STORES_CACHE, businessesSection);
+    updateProductsTitle();
+    // 4) Cargar productos de la tienda activa
+    const prods = await api.products({ store_id: SELECTED_STORE_ID });
     renderProducts(prods, productsContainer);
   } catch (e) {
     console.error(e);
     productsContainer.innerHTML = `<div class="error">Error cargando productos</div>`;
   }
 
-  // Búsqueda / filtros locales (si tienes inputs en el HTML)
+  // Filtros / búsqueda locales
   const searchInput = $("#searchInput");
   const searchBtn   = $("#searchBtn");
   let currentProducts = [];
@@ -525,12 +601,13 @@ async function bootIndexPage() {
     const max = Number($("#maxPriceFilter")?.value || 1e12);
     const cat = ($("#categoryFilter")?.value || "").toLowerCase();
 
-    const list = await api.products({ store_id: SELECTED_STORE_ID });
-    const filtered = list.filter(p => {
-      const t = (p.title || p.name || "").toLowerCase();
+    let products = [];
+    try { products = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
+    const filtered = products.filter(p => {
+      const title = (p.title || p.name || "").toLowerCase();
       const price = Number(p.price_xaf ?? p.price ?? 0);
       const c = (p.category || "").toLowerCase();
-      return (!q || t.includes(q)) && price >= min && price <= max && (!cat || c === cat);
+      return (!q || title.includes(q)) && price >= min && price <= max && (!cat || !c || c === cat);
     });
     renderProducts(filtered, productsContainer);
   };
@@ -552,62 +629,44 @@ async function bootIndexPage() {
 
   checkoutOpen?.addEventListener("click", () => {
     renderCart();
-    $("#invoiceBox") && ($("#invoiceBox").innerHTML = ""); // limpiar factura previa
+    $("#invoiceBox") && ($("#invoiceBox").innerHTML = ""); // limpia factura previa
     checkoutModal?.classList.remove("hidden");
+    updateCheckoutSummary();
   });
-  closeCheckout?.addEventListener("click", () => checkoutModal?.classList.add("hidden"));
+  closeCheckout?.addEventListener("click", () => {
+    checkoutModal?.classList.add("hidden");
+  });
   fulfillmentType?.addEventListener("change", updateCheckoutSummary);
 
   // Checkout submit
   const checkoutForm = $("#checkoutForm");
   checkoutForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const items = loadCart();
-    if (!items.length) { alert("Tu carrito está vacío"); closeDrawer(); return; }
+    const items = loadCart().map(i => ({ productId: i.id, quantity: i.qty }));
+    if (!items.length) return alert("Tu carrito está vacío");
 
     const fd = new FormData(checkoutForm);
-    const fulfillment_type = fd.get("fulfillment_type") || "pickup";
     const payload = {
-      guest_name:  fd.get("guest_name")  || null,
+      items,
+      fulfillment_type: fd.get("fulfillment_type") || "pickup",
+      guest_name: fd.get("guest_name") || null,
       guest_phone: fd.get("guest_phone") || null,
-      address:     fd.get("address")     || null,
-      fulfillment_type,
-      // Compat: el backend acepta productId o product_id
-      items: items.map(i => ({
-        product_id: i.id,
-        productId:  i.id,
-        quantity:   i.qty
-      }))
+      address: fd.get("address") || null
     };
 
     try {
-      const resp = await api.createOrder(payload);
-      // Render de factura con datos retornados
-      const submittedItems = items.map(i => ({
-        title: i.title, quantity: i.qty, price_xaf: i.price_xaf
-      }));
+      const order = await api.createOrder(payload);
+      toast("Pedido creado con éxito");
+      const submittedItems = loadCart().map(i => ({ title: i.title, quantity: i.qty, price_xaf: i.price_xaf, unit_price_xaf: i.price_xaf }));
       clearCart();
-      renderCart(); // se vacía UI
-      // Si el carrito queda vacío, cerrar drawer automáticamente
-      closeDrawer();
-      toast("¡Pedido enviado con éxito!");
-
-      // Render factura
-      renderInvoice({
-        order: resp.order || { id: resp.order_id, total_xaf: 0, status: "CREATED", fulfillment_type },
-        submittedItems,
-        buyer: {
-          name: fd.get("guest_name") || null,
-          phone: fd.get("guest_phone") || null,
-          address: fd.get("address") || null
-        }
-      });
+      renderInvoice({ order: order.order || order, submittedItems, buyer: { name: payload.guest_name, phone: payload.guest_phone, address: payload.address } });
     } catch (err) {
       console.error(err);
       alert("No se pudo crear el pedido");
     }
   });
 }
+
 
 /* ==========================
    Página: Login / Signup
