@@ -5,164 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>WapMarket — Conecta negocios y clientes</title>
   <link rel="stylesheet" href="styles.css"/>
-
-  <!-- ==== Estilos añadidos (no toco tu CSS externo) ==== -->
-  <style>
-    :root{
-      --bg:#f7f8fa;
-      --card:#ffffff;
-      --line:#e2e8f0;
-      --ink:#0f172a;
-      --muted:#64748b;
-      --accent:#2563eb;
-    }
-    body{ background:var(--bg); color:var(--ink); }
-
-    /* Topbar */
-    header.topbar{
-      display:flex; align-items:center; gap:16px; justify-content:space-between;
-      padding:12px 16px; background:#fff; border-bottom:1px solid var(--line);
-      position:sticky; top:0; z-index:40;
-    }
-    .brand{ font-weight:700; letter-spacing:.2px; }
-    .search{ display:flex; gap:8px; }
-    .search input{ padding:8px 10px; border:1px solid var(--line); border-radius:10px; outline:none; }
-    .search button{ padding:8px 12px; border:1px solid var(--line); background:#fff; border-radius:10px; cursor:pointer; }
-
-    /* Icon buttons */
-    .icon-btn{
-      appearance:none;border:1px solid var(--line);background:#fff;
-      padding:8px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center;
-      transition:transform .15s ease, box-shadow .15s ease, background-color .15s ease;
-      box-shadow:0 1px 2px rgba(0,0,0,.04); cursor:pointer;
-    }
-    .icon-btn:hover{ transform: translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.08); }
-    .icon-btn svg{ width:22px; height:22px; }
-    .badge{
-      min-width:18px;height:18px;border-radius:999px;background:var(--accent);color:#fff;
-      font:700 11px/18px system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      display:inline-block;text-align:center; margin-left:6px;
-    }
-    .sr-only{ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
-
-    /* Layout */
-    .main-layout{ display:flex; gap:16px; padding:16px; align-items:flex-start; }
-    .sidebar{ width:320px; display:flex; flex-direction:column; gap:16px; }
-    .products-area{ flex:1; min-width:0; }
-    .products-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-
-    /* Negocios (cards modernas) */
-    .businesses{ display:grid; gap:10px; }
-    .biz-card{
-      background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px;
-      display:grid; grid-template-columns:44px 1fr 16px; align-items:center; gap:12px;
-      transition:transform .15s ease, box-shadow .15s ease;
-    }
-    .biz-card:hover{ transform: translateY(-2px); box-shadow:0 10px 24px rgba(2,6,23,.08); }
-    .biz-avatar{
-      width:44px;height:44px;border-radius:10px;background:#eef2f7; display:grid; place-items:center;
-      font:700 14px/1 system-ui; color:#0f172a;
-      overflow:hidden;
-    }
-    .biz-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .biz-info{ display:flex; flex-direction:column; gap:2px; min-width:0; }
-    .biz-name{ font:700 15px/1.2 system-ui; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .biz-meta{ font-size:12px; color:var(--muted); }
-    .biz-chevron{
-      width:10px;height:10px;border:2px solid #94a3b8;border-left:0;border-top:0; transform:rotate(-45deg); justify-self:end; opacity:.65;
-    }
-
-    /* Filtros */
-    .filters{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
-    .filters h3{ margin:2px 0 8px; font:700 14px/1.2 system-ui; }
-    .filters label{ display:grid; gap:6px; margin:8px 0; font-size:12px; color:var(--muted); }
-    .filters input, .filters select{
-      border:1px solid var(--line); border-radius:10px; padding:10px; outline:none; background:#fff;
-    }
-    .filters input:focus, .filters select:focus{ border-color:#cbd5e1; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-
-    /* Toolbar móvil */
-    .mobile-toolbar{ display:none; }
-    @media (max-width: 1024px){ .sidebar{ width:280px; } }
-    @media (max-width: 768px){
-      .main-layout{ padding:12px; }
-      .sidebar{ display:none; }
-      .mobile-toolbar{
-        position:sticky; top:0; z-index:35; display:flex; gap:8px; justify-content:center;
-        padding:10px; background:linear-gradient(#fff, rgba(255,255,255,.95)); border-bottom:1px solid var(--line);
-      }
-      .chip-btn{
-        appearance:none; border:1px solid var(--line); background:#fff; padding:8px 12px; border-radius:999px;
-        font:600 13px/1 system-ui; color:var(--ink); cursor:pointer;
-      }
-      .chip-btn:active{ transform:scale(.98); }
-
-      /* Sheets retractiles */
-      .sheet{ position:fixed; inset:0; display:none; }
-      .sheet.open{ display:block; }
-      .sheet-backdrop{ position:absolute; inset:0; background:rgba(2,6,23,.35); }
-      .sheet-panel{
-        position:absolute; left:0; right:0; bottom:0; background:#fff; border-top-left-radius:16px; border-top-right-radius:16px;
-        box-shadow:0 -12px 40px rgba(2,6,23,.18); max-height:78vh; display:flex; flex-direction:column;
-        animation:slideUp .22s ease;
-      }
-      @keyframes slideUp{ from{ transform:translateY(16px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
-      .sheet-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--line); }
-      .sheet-header strong{ font:700 14px/1 system-ui; color:var(--ink); }
-      .sheet-close{ appearance:none; border:1px solid var(--line); background:#fff; width:32px;height:32px;border-radius:8px; }
-      .sheet-body{ padding:12px; overflow:auto; }
-    }
-
-    /* Footer limpio */
-    footer.footer{
-      margin-top:20px; padding:14px; background:#fff; border-top:1px solid var(--line);
-      font:400 12px/1.6 system-ui; color:#64748b; text-align:center;
-    }
-    .legal-links{ margin-top:6px; }
-    .legal-links a{ color:var(--accent); text-decoration:none; margin:0 8px; }
-    .legal-links a:hover{ text-decoration:underline; }
-
-    /* Utilidades */
-    .hidden{ display:none !important; }
-  </style>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">WapMarket</div>
-
     <div class="search">
       <input id="searchInput" type="text" placeholder="Buscar productos..." />
       <button id="searchBtn">Buscar</button>
     </div>
-
-    <nav class="nav" id="userSection"><!-- app.js inyecta el login/usuario --></nav>
-
-    <!-- Carrito minimalista -->
-    <button id="cartBtn" class="icon-btn" aria-label="Carrito">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-        <path d="M6 6h15l-1.5 9H7.5L6 6Z" stroke-width="1.6" />
-        <circle cx="9" cy="20" r="1.6" />
-        <circle cx="18" cy="20" r="1.6" />
-      </svg>
-      <span class="badge" id="cartCount">0</span>
-      <span class="sr-only">Abrir carrito</span>
-    </button>
+    <nav class="nav" id="userSection">
+      <!-- Aquí se inyecta dinámicamente:
+           - Si no hay sesión → <a href="login.html">Entrar</a>
+           - Si hay sesión → <span>Hola, Nombre</span> <button id="logoutBtn">Salir</button>
+      -->
+    </nav>
+    <button id="cartBtn">Carrito (<span id="cartCount">0</span>)</button>
   </header>
 
-  <!-- Toolbar móvil (abre sheets) -->
-  <div class="mobile-toolbar">
-    <button id="openBiz" class="chip-btn">Negocios</button>
-    <button id="openFilters" class="chip-btn">Filtros</button>
-  </div>
-
   <div class="main-layout">
-    <!-- Sidebar (escritorio) -->
+    <!-- Sidebar: Negocios y Filtros -->
     <aside class="sidebar">
       <section class="businesses" id="businessesSection">
-        <!-- Negocios dinámicos (app.js). Los estilizo vía .biz-card -->
+        <!-- Aquí se cargarán los negocios dinámicamente -->
       </section>
-
-      <section class="filters" id="filtersSection">
+      <section class="filters">
         <h3>Filtros</h3>
         <label>Categoría
           <select id="categoryFilter">
@@ -178,16 +44,18 @@
       </section>
     </aside>
 
-    <!-- Productos -->
+    <!-- Contenido principal: Productos -->
     <main class="products-area">
       <div class="products-header">
         <h2 id="productsTitle">Productos disponibles</h2>
       </div>
-      <div class="products-list" id="productsList"><!-- dinámico --></div>
+      <div class="products-list" id="productsList">
+        <!-- Los productos se cargarán dinámicamente aquí -->
+      </div>
     </main>
   </div>
 
-  <!-- Drawer de carrito (estructura original) -->
+  <!-- Carrito Drawer -->
   <div id="cartDrawer" class="drawer hidden">
     <div class="drawer-content">
       <div class="drawer-header">
@@ -204,7 +72,7 @@
     </div>
   </div>
 
-  <!-- Checkout Modal -->
+  <!-- Checkout Modal (sin autenticación permitido) -->
   <div id="checkoutModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -241,183 +109,11 @@
     </div>
   </div>
 
-  <!-- Sheets móviles -->
-  <div id="bizSheet" class="sheet" aria-hidden="true">
-    <div class="sheet-backdrop"></div>
-    <div class="sheet-panel" role="dialog" aria-labelledby="bizTitle">
-      <div class="sheet-header">
-        <strong id="bizTitle">Negocios</strong>
-        <button class="sheet-close" aria-label="Cerrar">✕</button>
-      </div>
-      <div class="sheet-body" id="bizSheetBody"><!-- aquí se moverá #businessesSection en móvil --></div>
-    </div>
-  </div>
-
-  <div id="filterSheet" class="sheet" aria-hidden="true">
-    <div class="sheet-backdrop"></div>
-    <div class="sheet-panel" role="dialog" aria-labelledby="filterTitle">
-      <div class="sheet-header">
-        <strong id="filterTitle">Filtros</strong>
-        <button class="sheet-close" aria-label="Cerrar">✕</button>
-      </div>
-      <div class="sheet-body" id="filterSheetBody"><!-- aquí se moverá #filtersSection en móvil --></div>
-    </div>
-  </div>
-
-  <!-- Footer limpio -->
   <footer class="footer">
-    <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
-    <div class="legal-links">
-      <a href="terminos.html">Términos y condiciones</a>
-      <a href="informacion.html">Información</a>
-    </div>
+  <script src="app.js"></script>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div><div class="legal-links"><a href="terminos.html">Términos y condiciones</a><a href="informacion.html">Información</a></div></footer>
   </footer>
 
-  <!-- Librerías y scripts (app primero, luego mejoras) -->
   <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <!-- ==== Mejora UX: quitar “Todos”, estilizar negocios, sheets móviles, login icono ==== -->
-  <script>
-    (function(){
-      /* 0) Helper: detectar móvil */
-      const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
-
-      /* 1) Carrito: asegura badge */
-      const cartBtn = document.getElementById('cartBtn');
-      if (cartBtn && !document.getElementById('cartCount')) {
-        const span = document.createElement('span');
-        span.id = 'cartCount';
-        span.className = 'badge';
-        span.textContent = '0';
-        cartBtn.appendChild(span);
-      }
-
-      /* 2) Convertir “Entrar” en icono minimalista cuando app.js inyecte el link */
-      const userSection = document.getElementById('userSection');
-      function upgradeLogin(){
-        const loginLink = userSection && userSection.querySelector('a[href*="login"]');
-        if(loginLink && !loginLink.classList.contains('icon-btn')){
-          loginLink.className = 'icon-btn';
-          loginLink.setAttribute('aria-label','Entrar');
-          loginLink.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c2.2-3.5 6-4.5 8-4.5s5.8 1 8 4.5" />
-            </svg>
-          `;
-        }
-      }
-      upgradeLogin();
-      if (userSection){
-        const mo = new MutationObserver(upgradeLogin);
-        mo.observe(userSection, { childList:true, subtree:true });
-      }
-
-      /* 3) Estilizar lista de negocios (sin tocar datos) */
-      const businesses = document.getElementById('businessesSection');
-      function styleBusinesses(){
-        if(!businesses) return;
-        [...businesses.children].forEach(item=>{
-          if(!item.classList.contains('biz-card')){
-            item.classList.add('biz-card');
-            // Avatar: si no hay img, generamos inicial
-            const hasImg = item.querySelector('img');
-            const nameEl = item.querySelector('h3, strong, .name') || { textContent: (item.getAttribute('data-name')||'N') };
-            const initial = (nameEl.textContent||'N').trim().charAt(0).toUpperCase();
-            const avatar = document.createElement('div');
-            avatar.className = 'biz-avatar';
-            if(hasImg){
-              avatar.appendChild(hasImg);
-            }else{
-              avatar.textContent = initial || 'N';
-            }
-            // Info wrapper
-            const info = document.createElement('div'); info.className = 'biz-info';
-            if (nameEl && nameEl.parentElement){
-              const meta = item.querySelector('small, .meta, span');
-              const name = document.createElement('div'); name.className='biz-name'; name.textContent = (nameEl.textContent||'Negocio');
-              const metaEl = document.createElement('div'); metaEl.className='biz-meta'; metaEl.textContent = meta ? meta.textContent : '';
-              info.appendChild(name); if(metaEl.textContent) info.appendChild(metaEl);
-            } else {
-              const name = document.createElement('div'); name.className='biz-name'; name.textContent='Negocio';
-              info.appendChild(name);
-            }
-            const chev = document.createElement('i'); chev.className='biz-chevron';
-
-            // Vaciar y rearmar en orden si el markup original era arbitrario
-            item.innerHTML = '';
-            item.appendChild(avatar);
-            item.appendChild(info);
-            item.appendChild(chev);
-          }
-        });
-      }
-      styleBusinesses();
-      if (businesses){
-        const mob = new MutationObserver(styleBusinesses);
-        mob.observe(businesses, { childList:true, subtree:true });
-      }
-
-      /* 4) Eliminar/ocultar selectores “Todos” sin afectar “Todas las categorías” */
-      function removeTodosSelects(){
-        // Candidatos: selects cerca de negocios o con opción “Todos”
-        document.querySelectorAll('select').forEach(sel=>{
-          const txt = (sel.options[sel.selectedIndex]?.text || '').trim().toLowerCase();
-          const hasTodos = [...sel.options].some(o => (o.text||'').trim().toLowerCase() === 'todos');
-          const nearBusinesses = sel.closest('.sidebar, .businesses, section, header');
-          if (hasTodos && (!txt || txt === 'todos')) {
-            sel.closest('label, .field, .control')?.classList?.add('hidden');
-            sel.classList.add('hidden');
-            // Elimina opción “Todos” para evitar que reaparezca
-            [...sel.options].forEach(o=>{
-              if((o.text||'').trim().toLowerCase()==='todos'){ o.remove(); }
-            });
-          }
-        });
-        // También oculto cualquier span/div superficial que solo diga “Todos”
-        document.querySelectorAll('span,div,button').forEach(el=>{
-          const t = el.textContent && el.textContent.trim().toLowerCase();
-          if (t === 'todos') el.classList.add('hidden');
-        });
-      }
-      removeTodosSelects();
-
-      /* 5) Sheets móviles: mover secciones a los sheets */
-      const filters = document.getElementById('filtersSection');
-      const bizSheet = document.getElementById('bizSheet');
-      const filterSheet = document.getElementById('filterSheet');
-      const bizBody = document.getElementById('bizSheetBody');
-      const filterBody = document.getElementById('filterSheetBody');
-      const openBiz = document.getElementById('openBiz');
-      const openFilters = document.getElementById('openFilters');
-
-      function toMobile(){
-        if (isMobile()){
-          if (businesses && businesses.parentElement !== bizBody) bizBody.appendChild(businesses);
-          if (filters && filters.parentElement !== filterBody) filterBody.appendChild(filters);
-        } else {
-          const sidebar = document.querySelector('.sidebar');
-          if (sidebar){
-            if (businesses && businesses.parentElement !== sidebar) sidebar.prepend(businesses);
-            if (filters && filters.parentElement !== sidebar) sidebar.appendChild(filters);
-          }
-          closeSheet(bizSheet); closeSheet(filterSheet);
-        }
-      }
-      function openSheet(el){ if(!el) return; el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
-      function closeSheet(el){ if(!el) return; el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
-
-      openBiz && openBiz.addEventListener('click', ()=> openSheet(bizSheet));
-      openFilters && openFilters.addEventListener('click', ()=> openSheet(filterSheet));
-      document.querySelectorAll('.sheet .sheet-backdrop, .sheet .sheet-close').forEach(el=>{
-        el.addEventListener('click', ()=> closeSheet(el.closest('.sheet')));
-      });
-
-      window.addEventListener('resize', toMobile);
-      document.addEventListener('DOMContentLoaded', toMobile);
-      toMobile();
-    })();
-  </script>
 </body>
 </html>
