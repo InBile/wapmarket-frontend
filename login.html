@@ -4,9 +4,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Acceso — WapMarket</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f3ec;        /* beige claro */
+      --fg: #0f172a;        /* Slate-900 */
+      --fg-soft: #475569;   /* Slate-600 */
+      --accent: #2563eb;    /* azul */
+      --accent-2: #0ea5e9;  /* cian */
+      --glass-bg: rgba(255,255,255,.55);
+      --glass-brd: rgba(255,255,255,.65);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,255,255,.6), transparent 60%),
+                  radial-gradient(1000px 700px at 90% -20%, rgba(255,255,255,.35), transparent 60%),
+                  var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+      color: var(--fg);
+    }
+    .auth-card {
+      background: var(--glass-bg);
+      backdrop-filter: saturate(1.35) blur(14px);
+      -webkit-backdrop-filter: saturate(1.35) blur(14px);
+      border: 1px solid var(--glass-brd);
+      border-radius: 18px;
+      padding: 36px 30px;
+      width: 100%; max-width: 380px;
+      box-shadow: 0 10px 30px rgba(17,24,39,.12), inset 0 1px 0 rgba(255,255,255,.4);
+      text-align: center;
+    }
+    h2 {
+      font-family: "Futura", sans-serif;
+      font-size: 1.6rem; 
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+    form {
+      display: flex; flex-direction: column; gap: 14px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    label {
+      font-size: 0.85rem; font-weight: 600; color: var(--fg-soft);
+    }
+    input {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      font-size: 0.95rem;
+      transition: border .2s ease, box-shadow .2s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.25);
+    }
+    button {
+      border: none;
+      border-radius: 30px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      transition: all .3s ease;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    }
+    .small-text {
+      font-size: 0.75rem;
+      color: var(--fg-soft);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .small-text a { color: var(--accent); text-decoration: none; }
+    .small-text a:hover { text-decoration: underline; }
+    .toggle-link {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--fg-soft);
+    }
+    .toggle-link a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .toggle-link a:hover { text-decoration: underline; }
+    .hidden { display: none; }
+
+    @media (max-width: 480px) {
+      .auth-card {
+        margin: 0 16px;
+        padding: 28px 22px;
+      }
+      h2 { font-size: 1.4rem; }
+    }
+  </style>
 </head>
-<body class="auth-body">
+<body>
   <div class="auth-card">
     <!-- Iniciar sesión -->
     <div id="loginBox">
@@ -18,7 +121,7 @@
         <label for="loginPassword">Contraseña</label>
         <input id="loginPassword" name="password" type="password" required>
         
-        <button type="submit" class="btn-yellow">Continuar</button>
+        <button type="submit">Continuar</button>
       </form>
       <div class="small-text">
         Al continuar, aceptas nuestras <a href="terminos.html">Condiciones de uso</a> y <a href="informacion.html">Aviso de privacidad</a>.
@@ -44,7 +147,7 @@
         <label for="signupPassword">Contraseña</label>
         <input id="signupPassword" name="password" type="password" required>
         
-        <button type="submit" class="btn-yellow">Registrarme</button>
+        <button type="submit">Registrarme</button>
       </form>
       <div class="small-text">
         Al crear una cuenta, aceptas nuestras <a href="terminos.html">Condiciones</a> y <a href="informacion.html">Política de privacidad</a>.
@@ -55,7 +158,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
   <script>
     // Toggle entre login y signup
     document.getElementById("showSignup").addEventListener("click", e => {
@@ -69,8 +171,5 @@
       document.getElementById("loginBox").classList.remove("hidden");
     });
   </script>
-  <footer class="footer">
-
-  </footer>
 </body>
 </html>
