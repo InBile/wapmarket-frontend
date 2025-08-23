@@ -7,11 +7,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f7f3ec;        /* beige claro */
-      --fg: #0f172a;        /* Slate-900 */
-      --fg-soft: #475569;   /* Slate-600 */
-      --accent: #2563eb;    /* azul */
-      --accent-2: #0ea5e9;  /* cian */
+      --bg: #f7f3ec;
+      --fg: #0f172a;
+      --fg-soft: #475569;
+      --accent: #2563eb;
+      --accent-2: #0ea5e9;
       --glass-bg: rgba(255,255,255,.55);
       --glass-brd: rgba(255,255,255,.65);
       --line: #e2e8f0;
@@ -44,7 +44,7 @@
     }
     h2 {
       font-family: "Futura", sans-serif;
-      font-size: 1.6rem; 
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 18px;
     }
@@ -106,7 +106,6 @@
     .toggle-link a:hover { text-decoration: underline; }
     .hidden { display: none; }
 
-    /* Footer */
     footer {
       background:#f2ede6;
       border-top: 1px solid var(--line);
@@ -216,8 +215,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: pass })
         });
-        if (!res.ok) throw new Error("Credenciales inválidas");
-        // si es correcto redirige
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || "Credenciales inválidas");
+        }
         window.location.href = "inicio.html";
       } catch (err) {
         alert("Error: " + err.message);
@@ -238,8 +239,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, phone, email, password: pass })
         });
-        if (!res.ok) throw new Error("Error al crear cuenta");
-        // si es correcto redirige
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || "Error al crear cuenta");
+        }
         window.location.href = "inicio.html";
       } catch (err) {
         alert("Error: " + err.message);
