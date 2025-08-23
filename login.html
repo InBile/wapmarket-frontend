@@ -203,6 +203,48 @@
       document.getElementById("signupBox").classList.add("hidden");
       document.getElementById("loginBox").classList.remove("hidden");
     });
+
+    // Manejo de login
+    document.getElementById("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const pass = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch("backend-wapmarket-production.up.railway.app", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password: pass })
+        });
+        if (!res.ok) throw new Error("Credenciales inválidas");
+        // si es correcto redirige
+        window.location.href = "inicio.html";
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+
+    // Manejo de signup
+    document.getElementById("signupForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const name = document.getElementById("signupName").value;
+      const phone = document.getElementById("signupPhone").value;
+      const email = document.getElementById("signupEmail").value;
+      const pass = document.getElementById("signupPassword").value;
+
+      try {
+        const res = await fetch("backend-wapmarket-production.up.railway.app", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, email, password: pass })
+        });
+        if (!res.ok) throw new Error("Error al crear cuenta");
+        // si es correcto redirige
+        window.location.href = "inicio.html";
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
   </script>
 </body>
 </html>
