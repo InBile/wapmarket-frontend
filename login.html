@@ -34,22 +34,32 @@
     .auth-card {
       background: var(--glass-bg);
       backdrop-filter: saturate(1.35) blur(14px);
-      -webkit-backdrop-filter: saturate(1.35) blur(14px);
       border: 1px solid var(--glass-brd);
       border-radius: 18px;
-      padding: 36px 30px;
+      padding: 30px;
       width: 100%; max-width: 420px;
       box-shadow: 0 10px 30px rgba(17,24,39,.12), inset 0 1px 0 rgba(255,255,255,.4);
-      text-align: center;
     }
-    h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 18px;
+    .tabs {
+      display: flex; justify-content: space-around;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-weight: 600;
+      color: var(--fg-soft);
+      cursor: pointer;
+      transition: color .2s, border .2s;
+    }
+    .tab.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
     form {
       display: flex; flex-direction: column; gap: 14px;
-      margin-bottom: 18px;
       text-align: left;
     }
     label {
@@ -88,8 +98,8 @@
     .small-text {
       font-size: 0.75rem;
       color: var(--fg-soft);
-      margin-top: 4px;
-      line-height: 1.4;
+      margin-top: 12px;
+      text-align: center;
     }
     .small-text a { color: var(--accent); text-decoration: none; }
     .small-text a:hover { text-decoration: underline; }
@@ -102,11 +112,7 @@
       text-align: center;
     }
     @media (max-width: 480px) {
-      .auth-card {
-        margin: 0 10px;
-        padding: 28px 22px;
-      }
-      h2 { font-size: 1.4rem; }
+      .auth-card { margin: 0 10px; padding: 25px; }
       button { font-size: .95rem; }
     }
   </style>
@@ -114,31 +120,31 @@
 <body>
   <main>
     <div class="auth-card">
-      <h2>Iniciar sesión</h2>
+      <!-- Tabs -->
+      <div class="tabs">
+        <div id="tab-login" class="tab active">Iniciar Sesión</div>
+        <div id="tab-signup" class="tab">Crear Cuenta</div>
+      </div>
+
+      <!-- Formulario Login -->
       <form id="loginForm">
         <label>Email</label>
         <input name="email" type="email" required />
-        
         <label>Contraseña</label>
         <input name="password" type="password" required />
-        
         <button type="submit">Entrar</button>
       </form>
 
-      <h2 style="margin-top:20px;">Crear cuenta</h2>
-      <form id="signupForm">
+      <!-- Formulario Signup -->
+      <form id="signupForm" style="display:none;">
         <label>Nombre</label>
         <input name="name" required />
-        
         <label>Teléfono</label>
         <input name="phone" />
-        
         <label>Email</label>
         <input name="email" type="email" required />
-        
         <label>Contraseña</label>
         <input name="password" type="password" required />
-        
         <button type="submit">Registrarme</button>
       </form>
 
@@ -152,7 +158,28 @@
     <span>© WapMarket</span>
   </footer>
 
-  <!-- ⚡ Mantiene las funciones desde login.html -->
+  <!-- ⚡ Mantiene las funciones originales -->
   <script src="app.js"></script>
+  <script>
+    // Cambiar entre login y signup
+    const tabLogin = document.getElementById("tab-login");
+    const tabSignup = document.getElementById("tab-signup");
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+
+    tabLogin.addEventListener("click", () => {
+      tabLogin.classList.add("active");
+      tabSignup.classList.remove("active");
+      loginForm.style.display = "flex";
+      signupForm.style.display = "none";
+    });
+
+    tabSignup.addEventListener("click", () => {
+      tabSignup.classList.add("active");
+      tabLogin.classList.remove("active");
+      loginForm.style.display = "none";
+      signupForm.style.display = "flex";
+    });
+  </script>
 </body>
 </html>
