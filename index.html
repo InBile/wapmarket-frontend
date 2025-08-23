@@ -122,7 +122,21 @@
     .faq summary{ font-weight:700; }
     .faq .disc-body{ padding-left:22px; }
 
-    /* Footer */
+    /* ===== Footer ===== */
+    /* Bloque QR + Logo: centrado, compacto y responsivo */
+    .footer-extras{ display:flex; flex-direction:column; align-items:center; gap:14px; margin: 14px 0 8px; }
+    .qr-card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(17,24,39,.08);
+      display: inline-block;
+    }
+    .qr-card img{ width: 160px; height: 160px; display:block; }
+    .qr-card p{ margin-top: 8px; font: 500 .9rem/1.35 Inter, system-ui; color: var(--fg-soft); }
+    .logo-container img{ width: 120px; height: auto; filter: drop-shadow(0 4px 10px rgba(2,6,23,.10)); }
+
     footer{ background:#f2ede6; border-top: 1px solid var(--line); padding: 14px; font: 400 .8rem/1.5 Inter, system-ui; color: var(--fg-soft); }
     .legal-links a{ color: var(--accent); text-decoration:none; margin: 0 6px; }
     .legal-links a:hover{ text-decoration:underline; }
@@ -130,6 +144,12 @@
     /* Reveal on scroll */
     .reveal{ opacity: 0; transform: translateY(16px); }
     .reveal.in{ opacity: 1; transform: translateY(0); transition: opacity .5s ease, transform .5s ease; }
+
+    /* Responsive */
+    @media (max-width: 480px){
+      .qr-card img{ width: 130px; height: 130px; }
+      .logo-container img{ width: 100px; }
+    }
   </style>
 </head>
 <body>
@@ -257,6 +277,23 @@
   </section>
 
   <footer>
+    <!-- Bloque QR + Logo al FONDO -->
+    <div class="footer-extras" aria-label="Acceso a WhatsApp y logotipo">
+      <div class="qr-card">
+        <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wa.me/240555218661"
+            alt="QR para WhatsApp: +240 555 218 661"
+            loading="lazy"
+          />
+        </a>
+        <p>Escanéame o toca para WhatsApp <strong>+240 555 218 661</strong></p>
+      </div>
+      <div class="logo-container">
+        <img src="coomo.png" alt="Logo WapMarket" loading="lazy"/>
+      </div>
+    </div>
+
     <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
     <div class="legal-links" style="margin-top:6px;">
       <a href="terminos.html">Términos</a> |
