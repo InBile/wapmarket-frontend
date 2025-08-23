@@ -3,330 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Acceso — WapMarket</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #f7f3ec;
-      --fg: #0f172a;
-      --fg-soft: #475569;
-      --accent: #2563eb;
-      --accent-2: #0ea5e9;
-      --glass-bg: rgba(255,255,255,.55);
-      --glass-brd: rgba(255,255,255,.65);
-      --line: #e2e8f0;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,255,255,.6), transparent 60%),
-                  radial-gradient(1000px 700px at 90% -20%, rgba(255,255,255,.35), transparent 60%),
-                  var(--bg);
-      display: flex; flex-direction: column;
-      min-height: 100vh;
-      color: var(--fg);
-    }
-    main {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-    }
-    .auth-card {
-      background: var(--glass-bg);
-      backdrop-filter: saturate(1.35) blur(14px);
-      -webkit-backdrop-filter: saturate(1.35) blur(14px);
-      border: 1px solid var(--glass-brd);
-      border-radius: 18px;
-      padding: 36px 30px;
-      width: 100%; max-width: 380px;
-      box-shadow: 0 10px 30px rgba(17,24,39,.12), inset 0 1px 0 rgba(255,255,255,.4);
-      text-align: center;
-    }
-    h2 {
-      font-family: "Futura", sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 18px;
-    }
-    form {
-      display: flex; flex-direction: column; gap: 14px;
-      margin-bottom: 18px;
-      text-align: left;
-    }
-    label {
-      font-size: 0.85rem; font-weight: 600; color: var(--fg-soft);
-    }
-    input {
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      font-size: 0.95rem;
-      transition: border .2s ease, box-shadow .2s ease;
-    }
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37,99,235,.25);
-    }
-    button {
-      border: none;
-      border-radius: 30px;
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      transition: all .3s ease;
-    }
-    button:hover {
-      background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-    }
-    .small-text {
-      font-size: 0.75rem;
-      color: var(--fg-soft);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-    .small-text a { color: var(--accent); text-decoration: none; }
-    .small-text a:hover { text-decoration: underline; }
-    .toggle-link {
-      margin-top: 12px;
-      font-size: 0.85rem;
-      color: var(--fg-soft);
-    }
-    .toggle-link a {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .toggle-link a:hover { text-decoration: underline; }
-    .hidden { display: none; }
-
-    footer {
-      background:#f2ede6;
-      border-top: 1px solid var(--line);
-      padding: 14px;
-      font: 400 .8rem/1.5 Inter, system-ui;
-      color: var(--fg-soft);
-      text-align: center;
-    }
-    .legal-links a {
-      color: var(--accent);
-      text-decoration:none;
-      margin: 0 6px;
-    }
-    .legal-links a:hover { text-decoration: underline; }
-
-    @media (max-width: 480px) {
-      .auth-card {
-        margin: 0 10px;
-        padding: 28px 22px;
-      }
-      h2 { font-size: 1.4rem; }
-      button { font-size: .95rem; }
-    }
-  </style>
+  <title>Login - WapMarket</title>
 </head>
 <body>
-  <main>
-    <div class="auth-card">
-      <!-- Iniciar sesión -->
-      <div id="loginBox">
-        <h2>Iniciar sesión</h2>
-        <form id="loginForm">
-          <label for="loginEmail">Correo electrónico</label>
-          <input id="loginEmail" name="email" type="email" required>
-          
-          <label for="loginPassword">Contraseña</label>
-          <input id="loginPassword" name="password" type="password" required>
-          
-          <button type="submit">Continuar</button>
-        </form>
-        <div class="small-text">
-          Al continuar, aceptas nuestras <a href="terminos.html">Condiciones de uso</a> y <a href="informacion.html">Aviso de privacidad</a>.
-        </div>
-        <div class="toggle-link">
-          ¿Eres nuevo aquí? <a href="#" id="showSignup">Crea tu cuenta</a>
-        </div>
-      </div>
+  <h2>Iniciar Sesión</h2>
 
-      <!-- Crear cuenta -->
-      <div id="signupBox" class="hidden">
-        <h2>Crear cuenta</h2>
-        <form id="signupForm">
-          <label for="signupName">Nombre</label>
-          <input id="signupName" name="name" required>
-          
-          <label for="signupPhone">Teléfono</label>
-          <input id="signupPhone" name="phone">
-          
-          <label for="signupEmail">Correo electrónico</label>
-          <input id="signupEmail" name="email" type="email" required>
-          
-          <label for="signupPassword">Contraseña</label>
-          <input id="signupPassword" name="password" type="password" required>
-          
-          <button type="submit">Registrarme</button>
-        </form>
-        <div class="small-text">
-          Al crear una cuenta, aceptas nuestras <a href="terminos.html">Condiciones</a> y <a href="informacion.html">Política de privacidad</a>.
-        </div>
-        <div class="toggle-link">
-          ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
-    <div class="legal-links" style="margin-top:6px;">
-      <a href="terminos.html">Términos</a> |
-      <a href="informacion.html">Información</a>
-    </div>
-  </footer>
+  <!-- ✅ Formulario SIN action ni method -->
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <input type="password" id="loginPassword" placeholder="Contraseña" required />
+    <button type="submit">Entrar</button>
+  </form>
 
   <script>
-    // Toggle entre login y signup
-    document.getElementById("showSignup").addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("signupBox").classList.remove("hidden");
-    });
-    document.getElementById("showLogin").addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("signupBox").classList.add("hidden");
-      document.getElementById("loginBox").classList.remove("hidden");
-    });
+    const API_BASE = "https://backend-wapmarket-production.up.railway.app"; 
+    // ⚠️ Cámbialo si tu backend tiene otro subdominio real
 
-    // Manejo de login
-    document.getElementById("loginForm").addEventListener("submit", async e => {
-      e.preventDefault();
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); // ✅ evita que el form se envíe como GET en la URL
+
       const email = document.getElementById("loginEmail").value;
       const pass = document.getElementById("loginPassword").value;
 
       try {
-        const res = await fetch("https://backend-wapmarket-production.up.railway.app/api/login", {
+        const res = await fetch(`${API_BASE}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: pass })
         });
+
+        const text = await res.text(); // leemos texto primero
+        let data;
+        try {
+          data = JSON.parse(text); // intentamos parsear JSON
+        } catch {
+          throw new Error("Respuesta inesperada del servidor: " + text.slice(0, 100));
+        }
+
         if (!res.ok) {
-  const msg = await res.text();
-  throw new Error(msg || "Credenciales inválidas");
-}
+          throw new Error(data.error || "Error en login");
+        }
 
-const data = await res.json();
+        // ✅ Guardar sesión
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-// Guardar token y user en localStorage
-localStorage.setItem("token", data.token);
-localStorage.setItem("user", JSON.stringify(data.user));
+        // ✅ Redirección según rol
+        if (data.user.role === "admin") {
+          window.location.href = "admin.html";
+        } else if (data.user.role === "seller") {
+          window.location.href = "seller.html";
+        } else {
+          window.location.href = "inicio.html";
+        }
 
-// Redirigir según el rol
-if (data.user.role === "admin") {
-  window.location.href = "admin.html";
-} else if (data.user.role === "seller") {
-  window.location.href = "seller.html";
-} else {
-  window.location.href = "inicio.html";
-}
-
-
-    <script>
-  // Toggle entre login y signup
-  document.getElementById("showSignup").addEventListener("click", e => {
-    e.preventDefault();
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("signupBox").classList.remove("hidden");
-  });
-  document.getElementById("showLogin").addEventListener("click", e => {
-    e.preventDefault();
-    document.getElementById("signupBox").classList.add("hidden");
-    document.getElementById("loginBox").classList.remove("hidden");
-  });
-
-  // Manejo de login
-  document.getElementById("loginForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const email = document.getElementById("loginEmail").value;
-    const pass = document.getElementById("loginPassword").value;
-
-    try {
-      const res = await fetch("https://backend-wapmarket-production.up.railway.app/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: pass })
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Credenciales inválidas");
+      } catch (err) {
+        console.error("Error en login:", err);
+        alert("Error: " + err.message);
       }
-
-      const data = await res.json();
-
-      // Guardar token y user en localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Redirigir según el rol
-      if (data.user.role === "admin") {
-        window.location.href = "admin.html";
-      } else if (data.user.role === "seller") {
-        window.location.href = "seller.html";
-      } else {
-        window.location.href = "inicio.html";
-      }
-
-    } catch (err) {
-      console.error("Error en login:", err);
-      alert("Error: " + err.message);
-    }
-  });
-
-  // Manejo de signup
-  document.getElementById("signupForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const name = document.getElementById("signupName").value;
-    const phone = document.getElementById("signupPhone").value;
-    const email = document.getElementById("signupEmail").value;
-    const password = document.getElementById("signupPassword").value;
-
-    try {
-      const res = await fetch("https://backend-wapmarket-production.up.railway.app/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, email, password })
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Error al registrarse");
-      }
-
-      const data = await res.json();
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      if (data.user.role === "admin") {
-        window.location.href = "admin.html";
-      } else if (data.user.role === "seller") {
-        window.location.href = "seller.html";
-      } else {
-        window.location.href = "inicio.html";
-      }
-
-    } catch (err) {
-      console.error("Error en signup:", err);
-      alert("Error: " + err.message);
-    }
-  });
-</script>
-
+    });
+  </script>
 </body>
 </html>
