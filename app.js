@@ -992,7 +992,7 @@ function bootAdminPage() {
       location.replace("seller.html"); return;
     }
     if (role === "buyer" && (file === "admin.html" || file === "seller.html")) {
-      location.replace("index.html"); return;
+      location.replace("inicio.html"); return;
     }
     if (role === "guest" && (file === "admin.html" || file === "seller.html")) {
       location.replace("login.html"); return;
