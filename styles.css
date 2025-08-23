@@ -497,4 +497,172 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
     grid-template-columns: 1fr; /* si es muy estrecho, 1 por fila */
   }
 }
+/* ==== Grilla de productos ==== */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
 
+/* Forzar mínimo 2 productos por fila en móviles */
+@media (max-width: 500px) {
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==== Tarjeta de producto ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;          /* 👈 sin bordes redondeados */
+  padding: 0.5rem;
+  text-align: center;
+  position: relative;
+  height: 220px;             /* altura fija compacta */
+}
+
+.product-card img {
+  max-height: 100px;
+  object-fit: contain;
+  margin: 0.5rem auto;
+}
+
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.product-card p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0.3rem 0;
+}
+
+/* Botón añadir centrado en el fondo */
+.product-card .btn-add {
+  position: absolute;
+  bottom: 10px;            /* 👈 siempre en el fondo */
+  left: 50%;               /* 👈 lo coloca en el centro */
+  transform: translateX(-50%); /* 👈 ajuste fino */
+  width: auto;             /* 👈 ancho según contenido */
+  min-width: 100px;        /* 👈 mínimo para que se vea bien */
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border-radius: 0;        /* 👈 sin bordes redondeados */
+}
+
+/* ==== Grilla de productos ==== */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Forzar mínimo 2 productos por fila en móviles */
+@media (max-width: 500px) {
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==== Tarjeta de producto ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* 👈 todo centrado verticalmente */
+  align-items: center;       /* 👈 centrado horizontal */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;          /* 👈 sin bordes redondeados */
+  padding: 0.5rem;
+  text-align: center;
+  height: 220px;             /* altura fija compacta */
+}
+
+.product-card img {
+  max-height: 100px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.product-card p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0.3rem 0;
+}
+
+/* Botón añadir centrado en el medio */
+.product-card .btn-add {
+  margin-top: 0.5rem;
+  width: 70%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 0;
+}
+/* ==== Grilla de productos ==== */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Forzar mínimo 2 productos por fila en móviles */
+@media (max-width: 500px) {
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==== Tarjeta de producto ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;         /* 👈 sin bordes redondeados */
+  padding: 0.5rem;
+  text-align: center;
+  position: relative;
+  height: 220px;            /* altura fija compacta */
+}
+
+.product-card img {
+  max-height: 100px;
+  object-fit: contain;
+  margin: auto;
+}
+
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  flex: 0 0 auto;
+}
+
+.product-card p {
+  font-size: 0.8rem;
+  color: #666;
+  flex: 0 0 auto;
+}
+
+/* Botón añadir fijo abajo y centrado */
+.product-card .btn-add {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  padding: 0.4rem;
+  font-size: 0.85rem;
+  border-radius: 0;       /* 👈 sin bordes redondeados */
+}
