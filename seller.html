@@ -115,7 +115,7 @@
 
     const token = localStorage.getItem("wap_token");
 
-    const res = await fetch("https://TU_BACKEND_URL/products", {
+    const res = await fetch("https://backend-wapmarket-production.up.railway.app", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
