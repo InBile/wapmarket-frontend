@@ -3,65 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - WapMarket</title>
+  <title>Acceso — WapMarket</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <h2>Iniciar Sesión</h2>
+  <header class="topbar">
+    <div class="brand">WapMarket</div>
+    <nav class="nav">
+      <a href="index.html">Inicio</a>
+    </nav>
+  </header>
 
-  <!-- ✅ Formulario SIN action ni method -->
-  <form id="loginForm">
-    <input type="email" id="loginEmail" placeholder="Email" required />
-    <input type="password" id="loginPassword" placeholder="Contraseña" required />
-    <button type="submit">Entrar</button>
-  </form>
+  <main class="container auth">
+    <section>
+      <h2>Iniciar sesión</h2>
+      <form id="loginForm">
+        <label>Email <input name="email" type="email" required /></label>
+        <label>Contraseña <input name="password" type="password" required /></label>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
 
-  <script>
-    const API_BASE = "https://backend-wapmarket-production.up.railway.app"; 
-    // ⚠️ Cámbialo si tu backend tiene otro subdominio real
+    <section>
+      <h2>Crear cuenta (cliente)</h2>
+      <form id="signupForm">
+        <label>Nombre <input name="name" required /></label>
+        <label>Teléfono <input name="phone" /></label>
+        <label>Email <input name="email" type="email" required /></label>
+        <label>Contraseña <input name="password" type="password" required /></label>
+        <button type="submit">Registrarme</button>
+      </form>
+    </section>
+  </main>
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault(); // ✅ evita que el form se envíe como GET en la URL
-
-      const email = document.getElementById("loginEmail").value;
-      const pass = document.getElementById("loginPassword").value;
-
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password: pass })
-        });
-
-        const text = await res.text(); // leemos texto primero
-        let data;
-        try {
-          data = JSON.parse(text); // intentamos parsear JSON
-        } catch {
-          throw new Error("Respuesta inesperada del servidor: " + text.slice(0, 100));
-        }
-
-        if (!res.ok) {
-          throw new Error(data.error || "Error en login");
-        }
-
-        // ✅ Guardar sesión
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
-        // ✅ Redirección según rol
-        if (data.user.role === "admin") {
-          window.location.href = "admin.html";
-        } else if (data.user.role === "seller") {
-          window.location.href = "seller.html";
-        } else {
-          window.location.href = "inicio.html";
-        }
-
-      } catch (err) {
-        console.error("Error en login:", err);
-        alert("Error: " + err.message);
-      }
-    });
-  </script>
+  <footer class="footer">
+    <span>© WapMarket</span>
+  </footer>
+  <script src="app.js"></script>
 </body>
 </html>
