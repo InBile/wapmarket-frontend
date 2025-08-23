@@ -3,179 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WapMarket - Conecta tu negocio</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <title>WapMarket</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
-      AOS.init({ once:false, duration:900, easing:'ease-out-cubic' });
+      AOS.init({ duration: 900, easing: 'ease-out-cubic', once: false });
     });
   </script>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: 'Inter', sans-serif;
       background: #ffffff;
       color: #1e293b;
+      text-align: center;
       overflow-x: hidden;
     }
-    .hero {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 2rem;
+
+    .container {
+      padding: 6rem 1rem 4rem 1rem;
     }
-    .hero h1 {
+
+    .title {
       font-weight: 800;
-      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-size: clamp(2.5rem, 7vw, 4rem);
       margin-bottom: 1rem;
     }
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto 2rem;
+
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
       color: #475569;
     }
-    .btn-main {
-      background: #2563eb;
-      color: #fff;
-      font-weight: 600;
-      border-radius: 8px;
-      padding: 0.8rem 2rem;
-      transition: .3s;
+
+    .info-link {
+      margin-top: 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.3s ease;
     }
-    .btn-main:hover {
-      background: #1d4ed8;
-      transform: translateY(-3px);
+    .info-link:hover { color: #2563eb; }
+
+    .buttons {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
     }
+
+    /* 🔹 Botón Explore no se toca */
+    .button { /* ya viene con su estilo de tu código original */ }
+
+    /* Sección features */
     .features {
-      padding: 5rem 0;
-    }
-    .card-feature {
       background: #f8fafc;
+      padding: 5rem 1rem;
+    }
+    .features h2 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    .feature-card {
+      background: #fff;
       border-radius: 12px;
       padding: 2rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
       text-align: center;
       transition: transform .3s;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
     }
-    .card-feature:hover {
+    .feature-card:hover {
       transform: translateY(-5px);
     }
-    .card-feature i {
+    .feature-card i {
       font-size: 2rem;
       color: #2563eb;
       margin-bottom: 1rem;
     }
-    .card-feature h5 {
-      font-weight: 700;
-      margin-bottom: .5rem;
+
+    /* CTA */
+    .cta {
+      padding: 5rem 1rem;
     }
+    .cta h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+      padding: 20px;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 500px;
+      color: #1e293b;
+      text-align: left;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-bottom: 10px;
+      color: #2563eb;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
     footer {
-      text-align: center;
-      font-size: .9rem;
-      padding: 1.5rem 0;
-      color: #334155;
+      width: 100%;
       background: #f1f5f9;
-      margin-top: 3rem;
+      padding: 15px;
+      font-size: 0.75rem;
+      text-align: center;
+      color: #334155;
     }
     .legal-links a {
       color: #2563eb;
-      margin: 0 6px;
+      margin: 0 5px;
+      font-size: 0.75rem;
       text-decoration: none;
     }
-    .legal-links a:hover {
-      text-decoration: underline;
-    }
+    .legal-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-
   <!-- HERO -->
-  <section class="hero">
-    <h1 data-aos="fade-up">WapMarket</h1>
-    <p data-aos="fade-up" data-aos-delay="200">Sueña alto, conecta tu negocio con más clientes. El nuevo mundo GQ.</p>
-    <div data-aos="zoom-in" data-aos-delay="400">
-      <a href="inicio.html" class="btn btn-main me-3">Explorar</a>
-      <a href="login.html" class="btn btn-outline-dark">Entrar</a>
+  <div class="container" data-aos="fade-up">
+    <div class="title">WapMarket</div>
+    <div class="subtitle">Sueña alto, conecta tu negocio con más clientes</div>
+    <div class="subtitle">El nuevo mundo GQ</div>
+
+    <div class="info-link" id="infoLink">más información</div>
+
+    <div class="buttons">
+      <!-- Botón Explore intacto -->
+      <button class="button" onclick="window.location.href='inicio.html'">
+        <svg class="svgIcon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+        </svg>
+        <span>Explore</span>
+      </button>
+      <button class="button" onclick="window.location.href='login.html'">Entrar</button>
     </div>
-    <div class="mt-3">
-      <span id="infoLink" style="cursor:pointer; text-decoration:underline; font-weight:500;">más información</span>
-    </div>
-  </section>
+  </div>
 
   <!-- FEATURES -->
-  <section class="features">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4" data-aos="fade-up">
-          <div class="card-feature">
-            <i class="fas fa-store"></i>
-            <h5>Gestión de pedidos</h5>
-            <p>Recibe pedidos de clientes, visualízalos en tiempo real y actualiza su estado con un clic.</p>
-          </div>
-        </div>
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="150">
-          <div class="card-feature">
-            <i class="fas fa-bolt"></i>
-            <h5>Agilidad y control</h5>
-            <p>Centraliza productos, clientes y ventas, siempre con foco en los pedidos.</p>
-          </div>
-        </div>
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-          <div class="card-feature">
-            <i class="fas fa-chart-pie"></i>
-            <h5>Decisiones inteligentes</h5>
-            <p>Analiza el flujo de pedidos, identifica cuellos de botella y mejora tu servicio.</p>
-          </div>
-        </div>
+  <section class="features" data-aos="fade-up">
+    <h2>¿Por qué elegir WapMarket?</h2>
+    <div class="grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; max-width:1000px; margin:0 auto;">
+      <div class="feature-card" data-aos="zoom-in">
+        <i class="fas fa-store"></i>
+        <h5>Gestión de pedidos</h5>
+        <p>Recibe y gestiona pedidos en tiempo real con facilidad.</p>
+      </div>
+      <div class="feature-card" data-aos="zoom-in" data-aos-delay="150">
+        <i class="fas fa-bolt"></i>
+        <h5>Agilidad y control</h5>
+        <p>Centraliza productos, clientes y ventas en un solo lugar.</p>
+      </div>
+      <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+        <i class="fas fa-chart-pie"></i>
+        <h5>Decisiones inteligentes</h5>
+        <p>Analiza pedidos y mejora tu negocio con datos claros.</p>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="text-center py-5 bg-light" data-aos="zoom-in">
-    <h2 class="fw-bold mb-3">¿Listo para transformar tu negocio?</h2>
-    <a href="register.html" class="btn btn-main btn-lg">¡Quiero empezar ahora!</a>
+  <section class="cta" data-aos="fade-up">
+    <h2>¿Listo para transformar tu negocio?</h2>
+    <button class="button" onclick="window.location.href='register.html'">Comenzar gratis</button>
   </section>
 
   <!-- Modal -->
-  <div class="modal fade" id="infoModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">¿Qué es WapMarket?</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <p>
-          WapMarket es una plataforma digital diseñada para conectar negocios y clientes en un mismo
-          espacio virtual. Nuestro objetivo es facilitar que las empresas puedan ofrecer sus productos y 
-          servicios, mientras que los usuarios encuentran rápidamente lo que buscan.
-        </p>
-      </div>
+  <div class="modal" id="infoModal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2>¿Qué es WapMarket?</h2>
+      <p>
+        WapMarket es una plataforma digital diseñada para conectar negocios y clientes en un mismo
+        espacio virtual. Nuestro objetivo es facilitar que las empresas puedan ofrecer sus productos y 
+        servicios, mientras que los usuarios encuentran rápidamente lo que buscan.
+      </p>
     </div>
   </div>
 
   <footer>
     <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
     <div class="legal-links">
-      <a href="terminos.html">Términos</a> | <a href="informacion.html">Información</a>
+      <a href="terminos.html">Términos</a> |
+      <a href="informacion.html">Información</a>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    document.getElementById("infoLink").addEventListener("click", () => {
-      const modal = new bootstrap.Modal(document.getElementById("infoModal"));
-      modal.show();
-    });
+    const infoLink = document.getElementById("infoLink");
+    const modal = document.getElementById("infoModal");
+    const closeBtn = document.getElementById("closeModal");
+
+    infoLink.addEventListener("click", () => modal.style.display = "flex");
+    closeBtn.addEventListener("click", () => modal.style.display = "none");
+    window.addEventListener("click", e => { if (e.target === modal) modal.style.display = "none"; });
   </script>
 </body>
 </html>
-
-
