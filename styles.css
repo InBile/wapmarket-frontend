@@ -199,3 +199,140 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   .auth{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
 }
+/* ======= Icon Buttons / Badge / Util ======= */
+.icon-btn{
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border: none; border-radius: 10px;
+  background: transparent; color: #fff;
+  transition: background .2s ease, transform .1s ease;
+}
+.icon-btn:hover{ background: rgba(255,255,255,.12); }
+.icon-btn:active{ transform: scale(.96); }
+.icon-btn.sm{ width: 34px; height: 34px; border-radius: 8px; color: #111; background: #f3f4f6; }
+.icon-btn.sm:hover{ background: #e5e7eb; }
+
+.badge{
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px;
+  background: #f59e0b; color: #111; font-weight: 700;
+  font-size: 12px; display: grid; place-items: center;
+}
+
+/* ======= Paneles retractiles (details) ======= */
+.panel{
+  border: 1px solid #e5e7eb; border-radius: 12px;
+  background: #fff; overflow: hidden;
+}
+.panel + .panel{ margin-top: 1rem; }
+.panel-summary{
+  list-style: none; cursor: pointer; user-select: none;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .9rem 1rem; font-weight: 700; color: #111;
+}
+.panel summary::-webkit-details-marker{ display: none; }
+.panel .chev{
+  width: 10px; height: 10px; border: 2px solid #111;
+  border-left: 0; border-top: 0; transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+.panel .chev.open{ transform: rotate(225deg); }
+.panel[open] .chev{ transform: rotate(225deg); }
+.panel > .businesses, .panel > .filters{ padding: .75rem 1rem 1rem 1rem; }
+
+/* ======= Buscador y chip "Todos" ======= */
+.business-actions{ display: flex; flex-direction: column; gap: .5rem; }
+.business-search{ display: flex; gap: .5rem; }
+.business-search input{
+  flex: 1; padding: .55rem .7rem; border-radius: 10px;
+  border: 1px solid #d1d5db; background: #fff;
+}
+.chip{
+  padding: .5rem .85rem; border-radius: 999px; border: 1px solid #e5e7eb;
+  background: #f8fafc; color: #111; font-weight: 600; cursor: pointer;
+}
+.chip:hover{ background: #eef2ff; border-color: #c7d2fe; }
+
+/* ======= Lista de negocios moderna ======= */
+.business-list{ display: flex; flex-direction: column; gap: .6rem; margin-top: .5rem; }
+.business-item{
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
+  gap: .75rem; padding: .6rem .65rem; border: 1px solid #eef2f7;
+  border-radius: 12px; background: #fff;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .04s ease;
+}
+.business-item:hover{
+  border-color: #e0e7ff; box-shadow: 0 4px 14px rgba(37,99,235,.08);
+}
+.business-item:active{ transform: scale(.995); }
+.business-item img{ width: 40px; height: 40px; border-radius: 10px; object-fit: cover; background: #f3f4f6; }
+.business-name{ font-weight: 700; color: #111; }
+.business-meta{ font-size: .85rem; color: #6b7280; }
+.biz-arrow{
+  width: 12px; height: 12px; border: 2px solid #94a3b8; border-left: 0; border-top: 0; transform: rotate(-45deg);
+}
+
+/* ======= Filtros ======= */
+.filters label{ display: flex; flex-direction: column; gap: .35rem; margin-bottom: .7rem; }
+.filters input, .filters select{
+  padding: .55rem .7rem; border: 1px solid #d1d5db; border-radius: 10px; background: #fff;
+}
+
+/* ======= Área de productos (de tu CSS base) ======= */
+.products-header{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+.products-list{ display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
+
+/* Botón primario reutilizable */
+.btn-primary{
+  padding: .55rem .9rem; border-radius: .6rem; border: none;
+  background: #111; color: #fff; font-weight: 700;
+}
+.btn-primary.wide{ width: 100%; }
+
+/* ======= Topbar (mantiene tu esquema) ======= */
+.topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;background:#131921;color:#fff}
+.brand{font-weight:700;font-size:1.2rem}
+.search{flex:1;display:flex;gap:.5rem}
+.search input{flex:1;padding:.5rem .75rem;border-radius:.5rem;border:1px solid #333;background:#1f2937;color:#fff}
+.search button{padding:.55rem .9rem;border-radius:.5rem;border:none;background:#f59e0b;color:#111;font-weight:600;cursor:pointer}
+.nav{display:flex;gap:.5rem;align-items:center}
+
+/* ======= Layout base (tomado y refinado) ======= */
+.main-layout{display:flex;gap:2rem;max-width:1400px;margin:2rem auto 1rem;padding:0 1.5rem}
+.sidebar{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:1rem}
+.products-area{flex:1;min-width:0}
+
+/* ======= Drawer / Modal (ajustes mínimos) ======= */
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;justify-content:flex-end}
+.drawer.hidden{display:none}
+.drawer-content{width:420px;max-width:100%;height:100%;background:#fff;padding:1rem;display:flex;flex-direction:column;border-top-left-radius:12px;border-bottom-left-radius:12px}
+.drawer-header{display:flex;align-items:center;justify-content:space-between}
+.drawer-footer{margin-top:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.modal.hidden{display:none}
+.modal-content{width:640px;max-width:95%;background:#fff;border-radius:.75rem;padding:1rem}
+.modal-header{display:flex;align-items:center;justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+.summary{background:#f3f4f6;padding:.75rem;border-radius:.5rem;margin:.75rem 0}
+.total{font-size:1.1rem}
+
+/* ======= Footer reducido ======= */
+.footer{padding:1.2rem;text-align:center;color:#6b7280;font-size:.9rem}
+.footer .legal-links{display:flex;gap:.8rem;justify-content:center;margin-top:.4rem}
+.footer .legal-links a{color:#111;text-decoration:none}
+.footer .legal-links a:hover{text-decoration:underline}
+
+/* ======= Responsive ======= */
+@media (max-width: 1100px){
+  .main-layout{flex-direction:column;gap:1.2rem}
+  .sidebar{width:100%;flex-direction:column}
+}
+@media (max-width: 700px){
+  .main-layout{padding:0 .5rem}
+  .products-list{grid-template-columns:1fr}
+  .icon-btn{width:38px;height:38px}
+  .search button{display:none} /* más limpio en móvil, usa Enter */
+}
