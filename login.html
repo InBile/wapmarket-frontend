@@ -210,22 +210,20 @@
       const pass = document.getElementById("loginPassword").value;
 
       try {
-        const res = await fetch("https://backend-wapmarket-production.up.railway.app/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password: pass })
-        });
-
-        });
-        if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || "Credenciales inválidas");
-        }
-        window.location.href = "inicio.html";
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
+    const res = await fetch("https://backend-wapmarket-production.up.railway.app/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass })
     });
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Credenciales inválidas");
+    }
+    window.location.href = "inicio.html";
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+});
 
     // Manejo de signup
     document.getElementById("signupForm").addEventListener("submit", async e => {
