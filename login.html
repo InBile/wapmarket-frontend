@@ -1,207 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Acceso — WapMarket</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión — WapMarket</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f7f3ec;        /* beige claro */
-      --fg: #0f172a;        /* Slate-900 */
-      --fg-soft: #475569;   /* Slate-600 */
-      --accent: #2563eb;    /* azul */
-      --accent-2: #0ea5e9;  /* cian */
-      --glass-bg: rgba(255,255,255,.55);
-      --glass-brd: rgba(255,255,255,.65);
+      --bg: #f7f3ec;
+      --fg: #0f172a;
+      --fg-soft: #475569;
+      --card: #ffffff;
       --line: #e2e8f0;
+      --accent: #2563eb;
+      --accent-2: #0ea5e9;
+      --error: #dc2626;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {margin:0;padding:0;box-sizing:border-box;}
     body {
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,255,255,.6), transparent 60%),
-                  radial-gradient(1000px 700px at 90% -20%, rgba(255,255,255,.35), transparent 60%),
-                  var(--bg);
-      display: flex; flex-direction: column;
-      min-height: 100vh;
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--bg);
       color: var(--fg);
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
     main {
-      flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
     }
-    .auth-card {
-      background: var(--glass-bg);
-      backdrop-filter: saturate(1.35) blur(14px);
-      -webkit-backdrop-filter: saturate(1.35) blur(14px);
-      border: 1px solid var(--glass-brd);
-      border-radius: 18px;
-      padding: 36px 30px;
-      width: 100%; max-width: 380px;
-      box-shadow: 0 10px 30px rgba(17,24,39,.12), inset 0 1px 0 rgba(255,255,255,.4);
-      text-align: center;
+    .card {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:32px;
+      width:100%;
+      max-width:400px;
+      box-shadow:0 10px 24px rgba(17,24,39,.08);
+      text-align:center;
     }
-    h2 {
-      font-family: "Futura", sans-serif;
-      font-size: 1.6rem; 
-      font-weight: 800;
-      margin-bottom: 18px;
+    h1 {
+      font-size:1.8rem;
+      margin-bottom:20px;
+      font-weight:800;
     }
-    form {
-      display: flex; flex-direction: column; gap: 14px;
-      margin-bottom: 18px;
-      text-align: left;
+    .form-group {
+      text-align:left;
+      margin-bottom:16px;
     }
     label {
-      font-size: 0.85rem; font-weight: 600; color: var(--fg-soft);
+      display:block;
+      font-weight:600;
+      margin-bottom:6px;
+      font-size:0.9rem;
     }
     input {
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      font-size: 0.95rem;
-      transition: border .2s ease, box-shadow .2s ease;
+      width:100%;
+      padding:10px 14px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      font-size:1rem;
     }
     input:focus {
-      outline: none;
+      outline:none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37,99,235,.25);
+      box-shadow:0 0 0 3px rgba(37,99,235,.2);
     }
     button {
-      border: none;
-      border-radius: 30px;
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      transition: all .3s ease;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      font-weight:600;
+      font-size:1rem;
+      color:#fff;
+      background:linear-gradient(135deg, var(--accent-2), var(--accent));
+      cursor:pointer;
+      transition:all .3s ease;
     }
     button:hover {
-      background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+      background:linear-gradient(135deg, #38bdf8, #1d4ed8);
+      transform:translateY(-2px);
     }
-    .small-text {
-      font-size: 0.75rem;
-      color: var(--fg-soft);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-    .small-text a { color: var(--accent); text-decoration: none; }
-    .small-text a:hover { text-decoration: underline; }
-    .toggle-link {
-      margin-top: 12px;
-      font-size: 0.85rem;
-      color: var(--fg-soft);
-    }
-    .toggle-link a {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .toggle-link a:hover { text-decoration: underline; }
-    .hidden { display: none; }
 
-    /* Footer */
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--error);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: opacity .4s ease, transform .4s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
     footer {
       background:#f2ede6;
-      border-top: 1px solid var(--line);
-      padding: 14px;
-      font: 400 .8rem/1.5 Inter, system-ui;
-      color: var(--fg-soft);
-      text-align: center;
+      border-top:1px solid var(--line);
+      padding:14px;
+      font:400 .8rem/1.5 Inter, system-ui;
+      color:var(--fg-soft);
+      text-align:center;
     }
-    .legal-links a {
-      color: var(--accent);
+    .legal-links a{
+      color:var(--accent);
       text-decoration:none;
-      margin: 0 6px;
+      margin:0 6px;
     }
-    .legal-links a:hover { text-decoration: underline; }
-
-    @media (max-width: 480px) {
-      .auth-card {
-        margin: 0 10px;
-        padding: 28px 22px;
-      }
-      h2 { font-size: 1.4rem; }
-      button { font-size: .95rem; }
-    }
+    .legal-links a:hover{ text-decoration:underline; }
   </style>
 </head>
 <body>
   <main>
-    <div class="auth-card">
-      <!-- Iniciar sesión -->
-      <div id="loginBox">
-        <h2>Iniciar sesión</h2>
-        <form id="loginForm">
+    <div class="card">
+      <h1>Inicia sesión</h1>
+      <form id="loginForm">
+        <div class="form-group">
           <label for="loginEmail">Correo electrónico</label>
-          <input id="loginEmail" name="email" type="email" required>
-          
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group">
           <label for="loginPassword">Contraseña</label>
-          <input id="loginPassword" name="password" type="password" required>
-          
-          <button type="submit">Continuar</button>
-        </form>
-        <div class="small-text">
-          Al continuar, aceptas nuestras <a href="terminos.html">Condiciones de uso</a> y <a href="informacion.html">Aviso de privacidad</a>.
+          <input type="password" id="loginPassword" required>
         </div>
-        <div class="toggle-link">
-          ¿Eres nuevo aquí? <a href="#" id="showSignup">Crea tu cuenta</a>
-        </div>
-      </div>
-
-      <!-- Crear cuenta -->
-      <div id="signupBox" class="hidden">
-        <h2>Crear cuenta</h2>
-        <form id="signupForm">
-          <label for="signupName">Nombre</label>
-          <input id="signupName" name="name" required>
-          
-          <label for="signupPhone">Teléfono</label>
-          <input id="signupPhone" name="phone">
-          
-          <label for="signupEmail">Correo electrónico</label>
-          <input id="signupEmail" name="email" type="email" required>
-          
-          <label for="signupPassword">Contraseña</label>
-          <input id="signupPassword" name="password" type="password" required>
-          
-          <button type="submit">Registrarme</button>
-        </form>
-        <div class="small-text">
-          Al crear una cuenta, aceptas nuestras <a href="terminos.html">Condiciones</a> y <a href="informacion.html">Política de privacidad</a>.
-        </div>
-        <div class="toggle-link">
-          ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
-        </div>
-      </div>
+        <button type="submit">Continuar</button>
+      </form>
     </div>
   </main>
 
   <footer>
-    <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
+    <div>WapMarket | Wap Tech &amp; Software development | todos los derechos reservados | Guinea-Ecuatorial (GQ) | 2025</div>
     <div class="legal-links" style="margin-top:6px;">
       <a href="terminos.html">Términos</a> |
       <a href="informacion.html">Información</a>
     </div>
   </footer>
 
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
   <script>
-    // Toggle entre login y signup
-    document.getElementById("showSignup").addEventListener("click", e => {
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async e => {
       e.preventDefault();
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("signupBox").classList.remove("hidden");
-    });
-    document.getElementById("showLogin").addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("signupBox").classList.add("hidden");
-      document.getElementById("loginBox").classList.remove("hidden");
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch("https://backend-wapmarket-production.up.railway.app/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) throw new Error("Credenciales inválidas");
+        const data = await res.json();
+
+        if (data.token) localStorage.setItem("auth_token", data.token);
+
+        window.location.href = "inicio.html";
+      } catch (err) {
+        showToast(err.message);
+      }
     });
   </script>
 </body>
