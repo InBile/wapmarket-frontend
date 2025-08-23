@@ -259,7 +259,52 @@
     const pubCard = document.querySelector('.card.publicidad');
     if(pubCard) startImageSlider(pubCard);
   });
+    
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const pubCard = document.querySelector(".card.publicidad");
+
+    // Lista de imágenes en tu carpeta assets/pub/
+    const pubImages = [
+      "display_large_2x-ip16.webp",
+      "Captura de pantalla 2025-07-07 a la(s) 19.24.34.png",
+      "Captura de pantalla 2025-07-07 a la(s) 19.02.16.png"
+      "c5c1f82a-9517-4699-8d2f-cd9de4ed6c78.jp"
+      "“Unearthing Affordable Luxury_ High-Quality Earbuds That Won’t Break the Bank” (1).jpeg"
+      "banner3.jpg"
+      // 👉 añade aquí más archivos según los tengas en assets/pub/
+    ];
+
+    // Crear dinámicamente las etiquetas <img>
+    pubImages.forEach((file, i) => {
+      const img = document.createElement("img");
+      img.src = `assets/pub/${file}`;
+      img.alt = `Publicidad ${i+1}`;
+      if (i === 0) img.classList.add("active");
+      pubCard.appendChild(img);
+    });
+
+    // ----- Slider automático -----
+    function startImageSlider(card){
+      const images = card.querySelectorAll("img");
+      if(!images.length) return;
+      let i = 0;
+      images.forEach((img, idx)=> img.style.opacity = idx===0 ? "1" : "0");
+      const tick = () => {
+        images[i].classList.remove("active");
+        images[i].style.opacity = "0";
+        i = (i + 1) % images.length;
+        images[i].classList.add("active");
+        images[i].style.opacity = "1";
+      };
+      setInterval(tick, 4000);
+    }
+
+    startImageSlider(pubCard);
+  });
+</script>
+
 
   <!-- jsPDF (si ya lo usas) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
