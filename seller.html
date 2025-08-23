@@ -32,14 +32,13 @@
 
     <form id="newProductForm" class="card">
       <div class="grid">
-    <label>Imagen
-        <input type="file" name="image_file" id="imageFile" accept="image/*" />
-        </label>
-        <label>Stock<input name="stock" type="number" value="10"/></label>
+        <label>Título<input name="title" required/></label>
+        <label>Precio (XAF)<input name="price_xaf" type="number" required/></label>
       </div>
-
       <div class="grid">
-        <label>Imagen (URL)<input name="image_url"/></label>
+        <label>Imagen
+          <input type="file" name="image_file" id="imageFile" accept="image/*" required />
+        </label>
         <label>Stock<input name="stock" type="number" value="10"/></label>
       </div>
       <label>Descripción<textarea name="description"></textarea></label>
@@ -57,74 +56,75 @@
     </section>
   </main>
 
- 
+  <footer class="footer"><span>© WapMarket</span></footer>
   <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Script para compresión y subida -->
   <script>
-async function compressImage(file, maxSizeKB = 500) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+  async function compressImage(file, maxSizeKB = 500) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
 
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
 
-        let quality = 0.9;
-        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+          let quality = 0.9;
+          let dataUrl = canvas.toDataURL("image/jpeg", quality);
 
-        while (dataUrl.length / 1024 > maxSizeKB && quality > 0.1) {
-          quality -= 0.1;
-          dataUrl = canvas.toDataURL("image/jpeg", quality);
-        }
+          while (dataUrl.length / 1024 > maxSizeKB && quality > 0.1) {
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL("image/jpeg", quality);
+          }
 
-        fetch(dataUrl)
-          .then((res) => res.blob())
-          .then((blob) => {
-            resolve(new File([blob], file.name, { type: "image/jpeg" }));
-          });
+          fetch(dataUrl)
+            .then((res) => res.blob())
+            .then((blob) => {
+              resolve(new File([blob], file.name, { type: "image/jpeg" }));
+            });
+        };
       };
-    };
-  });
-}
-
-document.getElementById("newProductForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const form = e.target;
-  const formData = new FormData(form);
-
-  const fileInput = document.getElementById("imageFile");
-  if (fileInput.files.length > 0) {
-    let file = fileInput.files[0];
-
-    if (file.size / 1024 > 500) {
-      file = await compressImage(file, 500);
-    }
-
-    formData.delete("image_file");
-    formData.append("image_file", file);
+    });
   }
 
-  const token = localStorage.getItem("wap_token");
+  document.getElementById("newProductForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const res = await fetch("https://TU_BACKEND_URL/products", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const fileInput = document.getElementById("imageFile");
+    if (fileInput.files.length > 0) {
+      let file = fileInput.files[0];
+
+      if (file.size / 1024 > 500) {
+        file = await compressImage(file, 500);
+      }
+
+      formData.delete("image_file");
+      formData.append("image_file", file);
+    }
+
+    const token = localStorage.getItem("wap_token");
+
+    const res = await fetch("https://TU_BACKEND_URL/products", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    const data = await res.json();
+    alert("Producto añadido!");
+    console.log(data);
   });
-
-  const data = await res.json();
-  alert("Producto añadido!");
-  console.log(data);
-});
-</script>
-
+  </script>
 </body>
 </html>
