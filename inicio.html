@@ -264,12 +264,14 @@
     const pubImages = [
       "display_large_2x-ip16.webp",
       "Captura de pantalla 2025-07-07 a la(s) 19.24.34.png",
-      "Captura de pantalla 2025-07-07 a la(s) 19.02.16.png"
-      "c5c1f82a-9517-4699-8d2f-cd9de4ed6c78.jp"
-      "“Unearthing Affordable Luxury_ High-Quality Earbuds That Won’t Break the Bank” (1).jpeg"
+      "Captura de pantalla 2025-07-07 a la(s) 19.02.16.png",
+      "c5c1f82a-9517-4699-8d2f-cd9de4ed6c78.jpg",
+      "earbuds.jpeg",   // renombra tu archivo largo a este nombre en assets/pub/
       "banner3.jpg"
-      // 👉 añade aquí más archivos según los tengas en assets/pub/
     ];
+
+    // Limpiar imágenes que estén puestas en el HTML
+    pubCard.innerHTML = "";
 
     // Crear dinámicamente las etiquetas <img>
     pubImages.forEach((file, i) => {
@@ -299,6 +301,7 @@
     startImageSlider(pubCard);
   });
 </script>
+
 
 
   <!-- jsPDF (si ya lo usas) -->
