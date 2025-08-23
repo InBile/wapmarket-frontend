@@ -124,26 +124,33 @@ function updateUserTopbar() {
   const nav = $("#userSection") || $(".nav");
   if (!nav) return;
   const { token, user } = getAuth();
+
   if (token && user) {
-    const name = user.name || user.email || "Usuario";
+    // Mostramos solo botón de logout en el topbar
     nav.innerHTML = `
-      <span class="hello">Hola, ${name.split(" ")[0]}</span>
       <button id="logoutBtn" class="linklike">Salir</button>
     `;
+
+    // Actualizamos el saludo dentro del modal
+    const greetingText = document.getElementById("userGreetingText");
+    if (greetingText) {
+      const name = user.name || user.email || "Usuario";
+      greetingText.textContent = `Hola, ${name.split(" ")[0]}`;
+    }
+
     $("#logoutBtn")?.addEventListener("click", () => {
       clearAuth();
-      // Al cerrar sesión también limpiamos selección de tienda y carrito
       SELECTED_STORE_ID = null;
       localStorage.removeItem("wap_selected_store");
       ensureCartScopedToStore(null);
       updateProductsTitle();
-      // Si estamos en login, index, seller o admin, refrescamos
       location.href = "index.html";
     });
   } else {
     nav.innerHTML = `<a href="login.html">Entrar</a>`;
   }
 }
+
 /* ==========================
    Carrito (guest-friendly)
 ========================== */
