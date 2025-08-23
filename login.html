@@ -14,6 +14,7 @@
       --accent-2: #0ea5e9;  /* cian */
       --glass-bg: rgba(255,255,255,.55);
       --glass-brd: rgba(255,255,255,.65);
+      --line: #e2e8f0;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -21,9 +22,14 @@
       background: radial-gradient(1200px 800px at 20% -10%, rgba(255,255,255,.6), transparent 60%),
                   radial-gradient(1000px 700px at 90% -20%, rgba(255,255,255,.35), transparent 60%),
                   var(--bg);
-      display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column;
       min-height: 100vh;
       color: var(--fg);
+    }
+    main {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
     }
     .auth-card {
       background: var(--glass-bg);
@@ -100,63 +106,90 @@
     .toggle-link a:hover { text-decoration: underline; }
     .hidden { display: none; }
 
+    /* Footer */
+    footer {
+      background:#f2ede6;
+      border-top: 1px solid var(--line);
+      padding: 14px;
+      font: 400 .8rem/1.5 Inter, system-ui;
+      color: var(--fg-soft);
+      text-align: center;
+    }
+    .legal-links a {
+      color: var(--accent);
+      text-decoration:none;
+      margin: 0 6px;
+    }
+    .legal-links a:hover { text-decoration: underline; }
+
     @media (max-width: 480px) {
       .auth-card {
-        margin: 0 16px;
+        margin: 0 10px;
         padding: 28px 22px;
       }
       h2 { font-size: 1.4rem; }
+      button { font-size: .95rem; }
     }
   </style>
 </head>
 <body>
-  <div class="auth-card">
-    <!-- Iniciar sesión -->
-    <div id="loginBox">
-      <h2>Iniciar sesión</h2>
-      <form id="loginForm">
-        <label for="loginEmail">Correo electrónico</label>
-        <input id="loginEmail" name="email" type="email" required>
-        
-        <label for="loginPassword">Contraseña</label>
-        <input id="loginPassword" name="password" type="password" required>
-        
-        <button type="submit">Continuar</button>
-      </form>
-      <div class="small-text">
-        Al continuar, aceptas nuestras <a href="terminos.html">Condiciones de uso</a> y <a href="informacion.html">Aviso de privacidad</a>.
+  <main>
+    <div class="auth-card">
+      <!-- Iniciar sesión -->
+      <div id="loginBox">
+        <h2>Iniciar sesión</h2>
+        <form id="loginForm">
+          <label for="loginEmail">Correo electrónico</label>
+          <input id="loginEmail" name="email" type="email" required>
+          
+          <label for="loginPassword">Contraseña</label>
+          <input id="loginPassword" name="password" type="password" required>
+          
+          <button type="submit">Continuar</button>
+        </form>
+        <div class="small-text">
+          Al continuar, aceptas nuestras <a href="terminos.html">Condiciones de uso</a> y <a href="informacion.html">Aviso de privacidad</a>.
+        </div>
+        <div class="toggle-link">
+          ¿Eres nuevo aquí? <a href="#" id="showSignup">Crea tu cuenta</a>
+        </div>
       </div>
-      <div class="toggle-link">
-        ¿Eres nuevo aquí? <a href="#" id="showSignup">Crea tu cuenta</a>
-      </div>
-    </div>
 
-    <!-- Crear cuenta -->
-    <div id="signupBox" class="hidden">
-      <h2>Crear cuenta</h2>
-      <form id="signupForm">
-        <label for="signupName">Nombre</label>
-        <input id="signupName" name="name" required>
-        
-        <label for="signupPhone">Teléfono</label>
-        <input id="signupPhone" name="phone">
-        
-        <label for="signupEmail">Correo electrónico</label>
-        <input id="signupEmail" name="email" type="email" required>
-        
-        <label for="signupPassword">Contraseña</label>
-        <input id="signupPassword" name="password" type="password" required>
-        
-        <button type="submit">Registrarme</button>
-      </form>
-      <div class="small-text">
-        Al crear una cuenta, aceptas nuestras <a href="terminos.html">Condiciones</a> y <a href="informacion.html">Política de privacidad</a>.
-      </div>
-      <div class="toggle-link">
-        ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
+      <!-- Crear cuenta -->
+      <div id="signupBox" class="hidden">
+        <h2>Crear cuenta</h2>
+        <form id="signupForm">
+          <label for="signupName">Nombre</label>
+          <input id="signupName" name="name" required>
+          
+          <label for="signupPhone">Teléfono</label>
+          <input id="signupPhone" name="phone">
+          
+          <label for="signupEmail">Correo electrónico</label>
+          <input id="signupEmail" name="email" type="email" required>
+          
+          <label for="signupPassword">Contraseña</label>
+          <input id="signupPassword" name="password" type="password" required>
+          
+          <button type="submit">Registrarme</button>
+        </form>
+        <div class="small-text">
+          Al crear una cuenta, aceptas nuestras <a href="terminos.html">Condiciones</a> y <a href="informacion.html">Política de privacidad</a>.
+        </div>
+        <div class="toggle-link">
+          ¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
+
+  <footer>
+    <div>WapMarket | Wap Tech &amp; Software development | CEO Román Salvador Ona Bile | todos los derechos reservados | Guinea-Ecuatorial (GQ-Bata) | 2025</div>
+    <div class="legal-links" style="margin-top:6px;">
+      <a href="terminos.html">Términos</a> |
+      <a href="informacion.html">Información</a>
+    </div>
+  </footer>
 
   <script>
     // Toggle entre login y signup
