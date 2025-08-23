@@ -309,8 +309,9 @@ function renderStores(list, container) {
   container.innerHTML = "";
   const head = document.createElement("div");
   head.className = "businesses-header";
-  head.innerHTML = `<h3>Negocios</h3><button class="link-btn" id="clearStoreFilter">Todos</button>`;
+  head.innerHTML = `<h3>Negocios</h3>`;
   container.appendChild(head);
+
 
   const wrap = document.createElement("div");
   wrap.className = "business-list";
@@ -344,11 +345,11 @@ function renderStores(list, container) {
     wrap.appendChild(item);
   }
 
-  $("#clearStoreFilter")?.addEventListener("click", async () => {
-    SELECTED_STORE_ID = null;
-    highlightActiveStore(null);
-    await reloadProducts();
-  });
+  //$("#clearStoreFilter")?.addEventListener("click", async () => {
+   // SELECTED_STORE_ID = null;
+   // highlightActiveStore(null);
+    //await reloadProducts();
+  //});
 }
 
 function highlightActiveStore(storeId) {
