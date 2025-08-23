@@ -703,7 +703,7 @@ function bootAuthPage() {
 
       if (role === "seller")      window.location.href = "seller.html";
       else if (role === "admin")  window.location.href = "admin.html";
-      else                        window.location.href = "index.html";
+      else                        window.location.href = "inicio.html"; // 👈 aquí
     } catch (e1) {
       console.error(e1);
       alert("Credenciales inválidas");
@@ -721,17 +721,15 @@ function bootAuthPage() {
     };
     try {
       const data = await api.signup(payload);
-      // El backend de signup no devuelve token por defecto; opcionalmente forzamos login posterior
-      // Para mantener UX simple, intentamos login automático:
       if (payload.email && payload.password) {
         const autologin = await api.login(payload.email, payload.password);
         if (autologin?.token) setAuth({ token: autologin.token, user: autologin.user });
         const role = autologin?.user?.role || (autologin?.user?.is_admin ? "admin" : "buyer");
         if (role === "seller")     window.location.href = "seller.html";
         else if (role === "admin") window.location.href = "admin.html";
-        else                       window.location.href = "index.html";
+        else                       window.location.href = "inicio.html"; // 👈 aquí
       } else {
-        window.location.href = "inicio.html";
+        window.location.href = "inicio.html"; // 👈 aquí
       }
     } catch (e1) {
       console.error(e1);
@@ -739,6 +737,7 @@ function bootAuthPage() {
     }
   });
 }
+
 
 /* ==========================
    Página: Seller
