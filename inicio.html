@@ -233,29 +233,7 @@
       }
     });
   </script>
-  <script>
-  // Slider simple de imágenes
-  function startImageSlider(card){
-    const images = card.querySelectorAll('img');
-    if(!images.length) return;
-    let i = 0;
-    images.forEach((img, idx)=> img.style.opacity = idx===0 ? '1' : '0');
-    const tick = () => {
-      images[i].classList.remove('active');
-      images[i].style.opacity = '0';
-      i = (i + 1) % images.length;
-      images[i].classList.add('active');
-      images[i].style.opacity = '1';
-    };
-    setInterval(tick, 4000);
-  }
-
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const pubCard = document.querySelector('.card.publicidad');
-    if(pubCard) startImageSlider(pubCard);
-  });
-    
-</script>
+  
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const pubCard = document.querySelector(".card.publicidad");
