@@ -731,7 +731,7 @@ function bootAuthPage() {
         else if (role === "admin") window.location.href = "admin.html";
         else                       window.location.href = "index.html";
       } else {
-        window.location.href = "index.html";
+        window.location.href = "inicio.html";
       }
     } catch (e1) {
       console.error(e1);
