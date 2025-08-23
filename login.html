@@ -216,14 +216,25 @@
           body: JSON.stringify({ email, password: pass })
         });
         if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || "Credenciales inválidas");
-        }
-        window.location.href = "inicio.html";
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
-    });
+  const msg = await res.text();
+  throw new Error(msg || "Credenciales inválidas");
+}
+
+const data = await res.json();
+
+// Guardar token y user en localStorage
+localStorage.setItem("token", data.token);
+localStorage.setItem("user", JSON.stringify(data.user));
+
+// Redirigir según el rol
+if (data.user.role === "admin") {
+  window.location.href = "admin.html";
+} else if (data.user.role === "seller") {
+  window.location.href = "seller.html";
+} else {
+  window.location.href = "inicio.html";
+}
+
 
     // Manejo de signup
     document.getElementById("signupForm").addEventListener("submit", async e => {
