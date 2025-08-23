@@ -130,13 +130,6 @@
     /* Reveal on scroll */
     .reveal{ opacity: 0; transform: translateY(16px); }
     .reveal.in{ opacity: 1; transform: translateY(0); transition: opacity .5s ease, transform .5s ease; }
-      /* ===== QR & Logo (pequeños cambios) ===== */
-    .qr-card{ background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: 0 10px 24px rgba(17,24,39,.08); display:inline-block; margin-top: 28px; }
-    .qr-card img{ width: 148px; height: 148px; }
-    .qr-card p{ margin-top: 8px; font: 500 .9rem/1.35 Inter, system-ui; color: var(--fg-soft); }
-    .logo-container{ margin-top: 16px; }
-    .logo-container img{ width: 120px; height: auto; filter: drop-shadow(0 6px 12px rgba(2,6,23,.08)); }
-    @media (max-width:640px){ .qr-card img{ width:120px; height:120px; } .logo-container img{ width: 100px; } }
   </style>
 </head>
 <body>
@@ -153,17 +146,15 @@
     <p class="subtitle">Sueña alto, conecta tu negocio con más clientes</p>
     <p class="subtitle">El nuevo mundo GQ</p>
 
-    $1
-
-    <!-- QR Card (WhatsApp) -->
-    <div class="qr-card" aria-label="WhatsApp QR">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wa.me/240555218661" alt="QR para WhatsApp (+240 555 218 661)" loading="lazy" />
-      <p>Escanéame para WhatsApp <strong>+240 555 218 661</strong></p>
-    </div>
-
-    <!-- Logo pequeño -->
-    <div class="logo-container">
-      <img src="coomo.png" alt="Logo WapMarket" loading="lazy" />
+    <div class="buttons">
+      <!-- Mantener estructura original, sólo cambia color (ya aplicado en CSS) -->
+      <button class="button" onclick="window.location.href='inicio.html'">
+        <svg class="svgIcon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+        </svg>
+        <span>Explore</span>
+      </button>
+      <button class="button" onclick="window.location.href='login.html'">Entrar</button>
     </div>
   </header>
 
