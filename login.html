@@ -210,10 +210,12 @@
       const pass = document.getElementById("loginPassword").value;
 
       try {
-        const res = await fetch("https://backend-wapmarket-production.up.railway.app", {
+        const res = await fetch("https://backend-wapmarket-production.up.railway.app/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password: pass })
+        });
+
         });
         if (!res.ok) {
           const msg = await res.text();
@@ -234,11 +236,12 @@
       const pass = document.getElementById("signupPassword").value;
 
       try {
-        const res = await fetch("https://backend-wapmarket-production.up.railway.app", {
+        const res = await fetch("https://backend-wapmarket-production.up.railway.app/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, phone, email, password: pass })
         });
+
         if (!res.ok) {
           const msg = await res.text();
           throw new Error(msg || "Error al crear cuenta");
