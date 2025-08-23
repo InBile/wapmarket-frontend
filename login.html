@@ -14,7 +14,6 @@
       --line: #e2e8f0;
       --accent: #2563eb;
       --accent-2: #0ea5e9;
-      --error: #dc2626;
     }
     * {margin:0;padding:0;box-sizing:border-box;}
     body {
@@ -85,31 +84,11 @@
       background:linear-gradient(135deg, #38bdf8, #1d4ed8);
       transform:translateY(-2px);
     }
-
-    /* Toast notification */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--error);
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      opacity: 0;
-      transform: translateY(20px);
-      pointer-events: none;
-      transition: opacity .4s ease, transform .4s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-      z-index: 9999;
+    .error {
+      margin-top:12px;
+      font-size:0.9rem;
+      color:#dc2626;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
     footer {
       background:#f2ede6;
       border-top:1px solid var(--line);
@@ -140,6 +119,7 @@
           <input type="password" id="loginPassword" required>
         </div>
         <button type="submit">Continuar</button>
+        <div id="errorMsg" class="error" style="display:none;"></div>
       </form>
     </div>
   </main>
@@ -152,26 +132,16 @@
     </div>
   </footer>
 
-  <!-- Toast -->
-  <div id="toast" class="toast"></div>
-
   <script>
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 3000);
-    }
-
     document.getElementById("loginForm").addEventListener("submit", async e => {
       e.preventDefault();
       const email = document.getElementById("loginEmail").value;
       const password = document.getElementById("loginPassword").value;
+      const errorBox = document.getElementById("errorMsg");
+      errorBox.style.display = "none";
 
       try {
-        const res = await fetch("https://backend-wapmarket-production.up.railway.app/", {
+        const res = await fetch("/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -180,11 +150,14 @@
         if (!res.ok) throw new Error("Credenciales inválidas");
         const data = await res.json();
 
+        // Guardar token en localStorage (si tu backend devuelve uno)
         if (data.token) localStorage.setItem("auth_token", data.token);
 
+        // Redirigir a inicio
         window.location.href = "inicio.html";
       } catch (err) {
-        showToast(err.message);
+        errorBox.textContent = err.message;
+        errorBox.style.display = "block";
       }
     });
   </script>
