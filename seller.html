@@ -29,7 +29,7 @@
   <main class="container">
     <h2>Panel del vendedor</h2>
 
-    <!-- ✅ Formulario corregido -->
+    <!-- Formulario de producto -->
     <form id="newProductForm" class="card" enctype="multipart/form-data">
       <div class="grid">
         <label>Nombre<input name="name" required/></label>
@@ -42,25 +42,30 @@
         <label>Stock<input name="stock" type="number" value="10"/></label>
       </div>
       <label>Categoría<input name="category" /></label>
-
-      <!-- ⚠️ store_id y seller_id: ahora en hidden, en real deberían venir del login -->
+      <!-- ⚠️ estos hidden deberían venir del login -->
       <input type="hidden" name="store_id" value="1" />
       <input type="hidden" name="seller_id" value="1" />
-
       <button type="submit">Añadir producto</button>
     </form>
 
+    <!-- Productos -->
     <section class="card">
       <h3>Tus productos</h3>
       <div id="sellerProducts" class="grid-4"></div>
+    </section>
+
+    <!-- Pedidos -->
+    <section class="card">
+      <h3>Tus pedidos</h3>
+      <div id="sellerOrders"></div>
     </section>
   </main>
 
   <footer class="footer"><span>© WapMarket</span></footer>
   <script src="app.js"></script>
 
-  <!-- Script para compresión y subida -->
   <script>
+  // ================= COMPRESIÓN DE IMÁGENES =================
   async function compressImage(file, maxSizeKB = 500) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -93,7 +98,7 @@
     });
   }
 
-  // Crear producto
+  // ================= CREAR PRODUCTO =================
   document.getElementById("newProductForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -122,10 +127,10 @@
     cargarMisProductos(); // refrescar lista
   });
 
-  // Cargar productos del seller
+  // ================= CARGAR PRODUCTOS DEL SELLER =================
   async function cargarMisProductos() {
     const token = localStorage.getItem("wap_token");
-    const sellerId = 1; // ⚠️ cambiar por el ID real del seller logueado
+    const sellerId = 1; // ⚠️ cambiar por ID real
     const res = await fetch(`https://backend-wapmarket-production.up.railway.app/sellers/${sellerId}/products`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -154,44 +159,45 @@
       container.appendChild(card);
     });
   }
-  document.addEventListener("DOMContentLoaded", cargarMisProductos);
-    <script>
-async function loadSellerOrders() {
-  const token = localStorage.getItem("wap_token");
-  try {
-    const res = await fetch("https://backend-wapmarket-production.up.railway.app/orders/seller", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const orders = await res.json();
 
-    const container = document.getElementById("sellerOrders");
-    container.innerHTML = "";
+  // ================= CARGAR PEDIDOS DEL SELLER =================
+  async function loadSellerOrders() {
+    const token = localStorage.getItem("wap_token");
+    try {
+      const res = await fetch("https://backend-wapmarket-production.up.railway.app/api/seller/orders", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const orders = await res.json();
 
-    if (!orders.length) {
-      container.innerHTML = "<p>No tienes pedidos todavía.</p>";
-      return;
+      const container = document.getElementById("sellerOrders");
+      container.innerHTML = "";
+
+      if (!orders.length) {
+        container.innerHTML = "<p>No tienes pedidos todavía.</p>";
+        return;
+      }
+
+      orders.forEach(order => {
+        const div = document.createElement("div");
+        div.className = "order-card";
+        div.innerHTML = `
+          <p><b>Pedido #${order.id}</b></p>
+          <p>Cliente: ${order.customer_name || "N/A"}</p>
+          <p>Total: ${order.total_xaf} XAF</p>
+          <p>Estado: ${order.status}</p>
+        `;
+        container.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Error cargando pedidos:", err);
     }
-
-    orders.forEach(order => {
-      const div = document.createElement("div");
-      div.className = "order-card";
-      div.innerHTML = `
-        <p><b>Pedido #${order.id}</b></p>
-        <p>Cliente: ${order.customer_name || "N/A"}</p>
-        <p>Total: ${order.total_xaf} XAF</p>
-        <p>Estado: ${order.status}</p>
-      `;
-      container.appendChild(div);
-    });
-  } catch (err) {
-    console.error("Error cargando pedidos:", err);
   }
-}
 
-// cargar al entrar al panel
-loadSellerOrders();
-</script>
-
+  // ================= INICIO =================
+  document.addEventListener("DOMContentLoaded", () => {
+    cargarMisProductos();
+    loadSellerOrders();
+  });
   </script>
 </body>
 </html>
