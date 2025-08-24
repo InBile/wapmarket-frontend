@@ -43,8 +43,9 @@
       </div>
       <label>Categoría<input name="category" /></label>
       <!-- ⚠️ estos hidden deberían venir del login -->
-      <input type="hidden" name="store_id" value="1" />
-      <input type="hidden" name="seller_id" value="1" />
+      <input type="hidden" name="store_id" id="storeIdInput" />
+      <input type="hidden" name="seller_id" id="sellerIdInput" />
+
       <button type="submit">Añadir producto</button>
     </form>
 
@@ -63,6 +64,24 @@
 
   <footer class="footer"><span>© WapMarket</span></footer>
   <script src="app.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("wap_user") || "{}");
+
+      // Si el user tiene info de tienda y seller, se asigna automáticamente
+      if (user.store_id) {
+        document.getElementById("storeIdInput").value = user.store_id;
+      }
+      if (user.id) {
+        document.getElementById("sellerIdInput").value = user.id;
+      }
+    } catch (e) {
+      console.error("❌ No se pudo cargar info del usuario:", e);
+    }
+  });
+  </script>
+
 
   <script>
   // ================= COMPRESIÓN DE IMÁGENES =================
