@@ -602,17 +602,37 @@ async function bootIndexPage() {
     ensureCartScopedToStore(SELECTED_STORE_ID);
     // 3) Pintar sidebar + título
     // 4) Cargar productos de la tienda activa
-const prods = await api.products({ store_id: SELECTED_STORE_ID });
+// ================== RENDERIZAR PRODUCTOS ==================
+function renderProducts(products, container) {
+  container.innerHTML = "";
 
-// aseguramos que cada producto tenga la URL de imagen bien formada
-const prodsWithImages = prods.map(p => ({
-  ...p,
-  image_url: p.image_url 
-    ? p.image_url 
-    : "assets/no-image.png" // fallback si no hay imagen
-}));
+  if (!products || !products.length) {
+    container.innerHTML = "<p>No hay productos disponibles.</p>";
+    return;
+  }
 
-renderProducts(prodsWithImages, productsContainer);
+  products.forEach(product => {
+    const card = document.createElement("div");
+    card.classList.add("product-card");
+
+    card.innerHTML = `
+      <div class="product-image">
+        ${
+          product.image_url
+            ? `<img src="${product.image_url}" alt="${product.name}" />`
+            : `<img src="assets/no-image.png" alt="Sin imagen" />`
+        }
+      </div>
+      <div class="product-info">
+        <h4>${product.name}</h4>
+        <p><strong>Precio:</strong> ${product.price} XAF</p>
+        <p><strong>Categoría:</strong> ${product.category || "Sin categoría"}</p>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
 
     // 4) Cargar productos de la tienda activa
     const prods = await api.products({ store_id: SELECTED_STORE_ID });
