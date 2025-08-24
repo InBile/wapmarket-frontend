@@ -122,9 +122,29 @@
     });
 
     const data = await res.json();
-    alert("✅ Producto añadido!");
-    console.log(data);
-    cargarMisProductos(); // refrescar lista
+alert("✅ Producto añadido!");
+console.log(data);
+
+// Agregar el nuevo producto al DOM directamente
+const container = document.getElementById("sellerProducts");
+const card = document.createElement("div");
+card.classList.add("product-card");
+card.innerHTML = `
+  <h4>${data.name}</h4>
+  <p><strong>Precio:</strong> ${data.price} XAF</p>
+  <p><strong>Stock:</strong> ${data.stock}</p>
+  <p><strong>Categoría:</strong> ${data.category || "Sin categoría"}</p>
+  ${
+    data.image_url
+      ? `<img src="${data.image_url}" alt="${data.name}" width="150"/>`
+      : `<p>⚠️ Sin imagen</p>`
+  }
+`;
+container.appendChild(card);
+
+// limpiar formulario
+form.reset();
+
   });
 
   // ================= CARGAR PRODUCTOS DEL SELLER =================
