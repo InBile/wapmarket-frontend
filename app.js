@@ -601,8 +601,19 @@ async function bootIndexPage() {
     }
     ensureCartScopedToStore(SELECTED_STORE_ID);
     // 3) Pintar sidebar + título
-    renderStores(STORES_CACHE, businessesSection);
-    updateProductsTitle();
+    // 4) Cargar productos de la tienda activa
+const prods = await api.products({ store_id: SELECTED_STORE_ID });
+
+// aseguramos que cada producto tenga la URL de imagen bien formada
+const prodsWithImages = prods.map(p => ({
+  ...p,
+  image_url: p.image_url 
+    ? p.image_url 
+    : "assets/no-image.png" // fallback si no hay imagen
+}));
+
+renderProducts(prodsWithImages, productsContainer);
+
     // 4) Cargar productos de la tienda activa
     const prods = await api.products({ store_id: SELECTED_STORE_ID });
     renderProducts(prods, productsContainer);
