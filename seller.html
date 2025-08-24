@@ -18,7 +18,6 @@
     }
   })();
 </script>
-</head>
 <body>
   <header class="topbar">
     <div class="brand">WapMarket</div>
@@ -30,10 +29,11 @@
   <main class="container">
     <h2>Panel del vendedor</h2>
 
-    <form id="newProductForm" class="card">
+    <!-- ✅ Formulario corregido -->
+    <form id="newProductForm" class="card" enctype="multipart/form-data">
       <div class="grid">
-        <label>Título<input name="title" required/></label>
-        <label>Precio (XAF)<input name="price_xaf" type="number" required/></label>
+        <label>Nombre<input name="name" required/></label>
+        <label>Precio (XAF)<input name="price" type="number" required/></label>
       </div>
       <div class="grid">
         <label>Imagen
@@ -41,7 +41,12 @@
         </label>
         <label>Stock<input name="stock" type="number" value="10"/></label>
       </div>
-      <label>Descripción<textarea name="description"></textarea></label>
+      <label>Categoría<input name="category" /></label>
+
+      <!-- ⚠️ store_id y seller_id: ahora en hidden, en real deberían venir del login -->
+      <input type="hidden" name="store_id" value="1" />
+      <input type="hidden" name="seller_id" value="1" />
+
       <button type="submit">Añadir producto</button>
     </form>
 
@@ -49,16 +54,10 @@
       <h3>Tus productos</h3>
       <div id="sellerProducts" class="grid-4"></div>
     </section>
-
-    <section class="card">
-      <h3>Tus pedidos</h3>
-      <div id="sellerOrders"></div>
-    </section>
   </main>
 
   <footer class="footer"><span>© WapMarket</span></footer>
   <script src="app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <!-- Script para compresión y subida -->
   <script>
@@ -72,7 +71,6 @@
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
@@ -95,37 +93,68 @@
     });
   }
 
+  // Crear producto
   document.getElementById("newProductForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const form = e.target;
     const formData = new FormData(form);
 
     const fileInput = document.getElementById("imageFile");
     if (fileInput.files.length > 0) {
       let file = fileInput.files[0];
-
       if (file.size / 1024 > 500) {
         file = await compressImage(file, 500);
       }
-
       formData.delete("image_file");
       formData.append("image_file", file);
     }
 
     const token = localStorage.getItem("wap_token");
-
     const res = await fetch("https://backend-wapmarket-production.up.railway.app/products", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
-
     const data = await res.json();
-    alert("Producto añadido!");
+    alert("✅ Producto añadido!");
     console.log(data);
+    cargarMisProductos(); // refrescar lista
   });
+
+  // Cargar productos del seller
+  async function cargarMisProductos() {
+    const token = localStorage.getItem("wap_token");
+    const sellerId = 1; // ⚠️ cambiar por el ID real del seller logueado
+    const res = await fetch(`https://backend-wapmarket-production.up.railway.app/sellers/${sellerId}/products`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const productos = await res.json();
+
+    const container = document.getElementById("sellerProducts");
+    container.innerHTML = "";
+    if (!productos.length) {
+      container.innerHTML = "<p>No tienes productos aún.</p>";
+      return;
+    }
+    productos.forEach(p => {
+      const card = document.createElement("div");
+      card.classList.add("product-card");
+      card.innerHTML = `
+        <h4>${p.name}</h4>
+        <p><strong>Precio:</strong> ${p.price} XAF</p>
+        <p><strong>Stock:</strong> ${p.stock}</p>
+        <p><strong>Categoría:</strong> ${p.category || "Sin categoría"}</p>
+        ${
+          p.image_url
+            ? `<img src="${p.image_url}" alt="${p.name}" width="150"/>`
+            : `<p>⚠️ Sin imagen</p>`
+        }
+      `;
+      container.appendChild(card);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", cargarMisProductos);
   </script>
 </body>
 </html>
