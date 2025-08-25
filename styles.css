@@ -29,6 +29,86 @@
   align-items: center;
   gap: .5rem;
 }
+/* ==== Grilla de productos ==== */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 500px) {
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 360px) {
+  .products-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==== Tarjeta de producto ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  padding: 0.75rem;
+  text-align: center;
+
+  height: 220px;
+  min-height: 220px;
+  max-height: 220px;
+
+  contain: layout paint; /* 👈 aísla el card y evita parpadeos */
+}
+
+/* Imagen fija arriba, no afecta al botón */
+.product-card img {
+  width: 100%;
+  height: 100px;       /* 👈 altura fija */
+  object-fit: contain;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Títulos */
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+  flex: 0 0 auto;
+}
+
+.product-card p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0.3rem 0;
+  flex: 0 0 auto;
+}
+
+/* Botón fijo abajo pero dentro del flow */
+.product-card .btn-add {
+  margin-top: auto;    /* 👈 lo empuja al fondo */
+  width: 80%;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.product-card .btn-add:hover {
+  background: #f59e0b;
+  color: #111;
+}
+
 .business-search {
   display: flex;
   gap: .5rem;
