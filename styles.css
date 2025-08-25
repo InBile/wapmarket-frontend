@@ -690,3 +690,16 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   justify-content: space-between;
   align-items: center;
 }
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 320px; /* 👈 asegura que todos tengan la misma altura */
+}
+
+.product-card img {
+  max-height: 150px;
+  object-fit: contain;
+  margin: auto;
+}
+
