@@ -581,13 +581,15 @@ document.addEventListener("DOMContentLoaded", () => {
    Página: Index (tienda)
 ========================== */
 
-// === Config ===
 // =====================
 // Configuración
 // =====================
 const API = "https://backend-wapmarket-production.up.railway.app";
 
-// Fallback para imágenes que no cargan
+// Variable global única (no duplicar en ningún sitio más)
+let SELECTED_STORE_ID = null;
+
+// Fallback para imágenes
 const PLACEHOLDER = `data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>
   <rect width='100%' height='100%' fill='%23ddd'/>
@@ -608,13 +610,14 @@ function renderBusinesses(stores) {
   const wrap = document.getElementById("businessesList");
   if (!wrap) return;
 
-  // Filtramos la tienda que no quieres ver
+  // Filtrar "Mi primera tienda"
   const clean = (stores || []).filter(
     s => (s.name || "").toLowerCase() !== "mi primera tienda"
   );
 
-  // Botón "Todos"
   const frag = document.createDocumentFragment();
+
+  // Botón "Todos"
   const btnAll = document.createElement("button");
   btnAll.className = "list-item";
   btnAll.textContent = "Todos";
@@ -689,8 +692,6 @@ document.getElementById("productsList")?.addEventListener("click", e => {
 // =====================
 // Carga de datos
 // =====================
-let SELECTED_STORE_ID = null;
-
 async function loadStores() {
   try {
     const r = await fetch(`${API}/api/stores`);
@@ -735,7 +736,6 @@ async function loadProducts() {
 document.addEventListener("DOMContentLoaded", () => {
   loadStores().then(loadProducts).catch(console.error);
 });
-
 
 /* ==========================
    Página: Login / Signup
