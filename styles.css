@@ -702,38 +702,5 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   object-fit: contain;
   margin: auto;
 }
-.product-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 340px; /* fuerza altura consistente */
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
 
-.product-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 150px;
-  margin-bottom: 10px;
-}
-
-.product-image img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-}
-
-.product-info {
-  flex-grow: 1;
-}
-
-.product-actions {
-  margin-top: auto; /* 🔥 baja el botón al fondo */
-  text-align: center;
-}
 
