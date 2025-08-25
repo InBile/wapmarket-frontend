@@ -1060,6 +1060,46 @@ function bootAdminPage() {
       location.replace("login.html"); return;
     }
   } catch {}
+  // === FUNCIONES WAPCARD ===
+
+async function loadWapCard(userId) {
+  const res = await fetch(`/card/${userId}`);
+  const data = await res.json();
+  document.getElementById("wapcard-balance").innerText =
+    "Saldo: " + data.balance + " XAF";
+}
+
+async function payOrder(userId, sellerId, amount, delivery) {
+  const res = await fetch("/pay-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ buyerId: userId, sellerId, amount, delivery })
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadWapCard(userId);
+}
+
+async function rechargeCard(userId, amount) {
+  const res = await fetch("/admin/recharge", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, amount })
+  });
+  const data = await res.json();
+  alert(data.message);
+}
+
+async function withdrawSeller(sellerId, amount) {
+  const res = await fetch("/seller/withdraw", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sellerId, amount })
+  });
+  const data = await res.json();
+  alert(data.message);
+}
+
 
   // --- topbar coherente si se cuela en index ---
   document.addEventListener("DOMContentLoaded", function(){
@@ -1087,6 +1127,8 @@ function bootAdminPage() {
         var name = (sess.user && (sess.user.name || sess.user.email)) || "Cliente";
         var s = document.createElement("span"); s.className="user-greeting"; s.textContent="Hola, " + name;
         nav.prepend(s);
+        loadWapCard(USER_ID);
+
       }
     } catch {}
   });
