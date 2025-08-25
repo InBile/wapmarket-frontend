@@ -292,27 +292,26 @@ function renderProducts(products, container) {
     const card = document.createElement("div");
     card.classList.add("product-card");
 
-    // Usar image_url directamente (como en seller.html)
-    const imageSrc = product.image_url 
-      ? product.image_url 
-      : "assets/no-image.png"; // asegúrate de tener este archivo en /assets/
+    // si hay image_url válida úsala, si no usa el placeholder
+    const imgUrl = product.image_url && product.image_url.startsWith("http")
+      ? product.image_url
+      : "assets/no-image.png";
 
     card.innerHTML = `
       <div class="product-image">
-        <img src="${imageSrc}" alt="${product.name || "Producto"}"
-             onerror="this.onerror=null;this.src='assets/no-image.png'">
+        <img src="${imgUrl}" alt="${product.name}" />
       </div>
       <div class="product-info">
-        <h4>${product.name || product.title || "Producto"}</h4>
-        <p><strong>Precio:</strong> ${(product.price_xaf ?? product.price ?? 0).toLocaleString("es-GQ")} XAF</p>
+        <h4>${product.name}</h4>
+        <p><strong>Precio:</strong> ${product.price} XAF</p>
         <p><strong>Categoría:</strong> ${product.category || "Sin categoría"}</p>
-        <button class="btn-primary add-to-cart" data-id="${product.id}">Agregar al carrito</button>
       </div>
     `;
 
     container.appendChild(card);
   });
 }
+
 
 
 function renderStores(list, container) {
