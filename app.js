@@ -89,7 +89,7 @@ async function httpJson(path, opts = {}, fallbacks = []) {
 /* ==========================
    Estado global (frontend)
 ========================== */
-let SELECTED_STORE_ID = null; // Para filtro de productos por negocio
+ SELECTED_STORE_ID = null; // Para filtro de productos por negocio
 
 
 /* ==========================
@@ -280,36 +280,39 @@ const api = {
 /* ==========================
    Render helpers (Index)
 ========================== */
-function renderProducts(list, container) {
-  if (!container) return;
+function renderProducts(products, container) {
   container.innerHTML = "";
-  if (!list.length) {
-    container.innerHTML = `<div class="muted">No hay productos disponibles.</div>`;
+
+  if (!products || !products.length) {
+    container.innerHTML = "<p>No hay productos disponibles.</p>";
     return;
   }
 
-  for (const p of list) {
-    const title = p.title || p.name || "Producto";
-    const price = Number(p.price_xaf ?? p.price ?? 0);
-    const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
-
+  products.forEach(product => {
     const card = document.createElement("div");
-    card.className = "product-card";
+    card.classList.add("product-card");
+
+    // si hay image_url válida úsala, si no usa el placeholder
+    const imgUrl = product.image_url && product.image_url.startsWith("http")
+      ? product.image_url
+      : "assets/no-image.png";
+
     card.innerHTML = `
-      <img class="product-thumb" src="${img}" alt="${title}">
+      <div class="product-image">
+        <img src="${imgUrl}" alt="${product.name}" />
+      </div>
       <div class="product-info">
-        <div class="product-title">${title}</div>
-        <div class="product-price">${currency(price)}</div>
-        <button class="product-btn">Añadir</button>
+        <h4>${product.name}</h4>
+        <p><strong>Precio:</strong> ${product.price} XAF</p>
+        <p><strong>Categoría:</strong> ${product.category || "Sin categoría"}</p>
       </div>
     `;
-    $(".product-btn", card).addEventListener("click", () => {
-      addToCart({ id: p.id, title, price_xaf: price, image_url: img });
-      toast("Producto añadido al carrito");
-    });
+
     container.appendChild(card);
-  }
+  });
 }
+
+
 
 function renderStores(list, container) {
   if (!container) return;
@@ -581,137 +584,113 @@ document.addEventListener("DOMContentLoaded", () => {
    Página: Index (tienda)
 ========================== */
 
-// app.js
-const API = "https://backend-wapmarket-production.up.railway.app";
+async function bootIndexPage() {
+  updateUserTopbar();
 
-const els = {
-  businessesList: document.getElementById("businessesList"),
-  productsList: document.getElementById("productsList"),
-  cartBtn: document.getElementById("cartBtn"),
-  cartDrawer: document.getElementById("cartDrawer"),
-  closeCart: document.getElementById("closeCart"),
-  cartItems: document.getElementById("cartItems"),
-  cartCount: document.getElementById("cartCount"),
-  subtotalXAF: document.getElementById("subtotalXAF"),
-  checkoutOpen: document.getElementById("checkoutOpen"),
-};
+  const businessesSection = $("#businessesSection");
+  const productsContainer = $("#productsList");
 
-let productsCache = [];
-let currentStoreId = null;
+  try {
+    // 1) Cargar tiendas
+    const stores = await api.stores();
+    STORES_CACHE = stores || [];
+    // 2) Seleccionar tienda por defecto
+    const saved = localStorage.getItem("wap_selected_store");
+    if (saved && STORES_CACHE.some(s => String(s.id) === String(saved))) {
+      SELECTED_STORE_ID = Number(saved);
+    } else {
+      SELECTED_STORE_ID = STORES_CACHE[0]?.id ?? null;
+      if (SELECTED_STORE_ID != null) localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
+    }
+    ensureCartScopedToStore(SELECTED_STORE_ID);
+    // 3) Pintar sidebar + título
+    renderStores(STORES_CACHE, businessesSection);
+    updateProductsTitle();
+    // 4) Cargar productos de la tienda activa
+    const prods = await api.products({ store_id: SELECTED_STORE_ID });
+    renderProducts(prods, productsContainer);
+  } catch (e) {
+    console.error(e);
+    productsContainer.innerHTML = `<div class="error">Error cargando productos</div>`;
+  }
 
-// ------- UTIL
-function fmt(xaf) { return Number(xaf || 0).toLocaleString("es-GQ"); }
-function imgOf(p) { return p.image_url || "assets/placeholder.png"; } // fallback
+  // Filtros / búsqueda locales
+  const searchInput = $("#searchInput");
+  const searchBtn   = $("#searchBtn");
+  let currentProducts = [];
+  try { currentProducts = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
 
-function getCart() {
-  try { return JSON.parse(localStorage.getItem("wap_cart") || "[]"); }
-  catch { return []; }
-}
-function setCart(items) {
-  localStorage.setItem("wap_cart", JSON.stringify(items));
-  drawCart();
-}
-function addToCart(productId) {
-  const p = productsCache.find(x => x.id == productId);
-  if (!p) return;
-  const cart = getCart();
-  const idx = cart.findIndex(i => i.id == p.id);
-  if (idx >= 0) cart[idx].qty += 1;
-  else cart.push({ id: p.id, name: p.name, price: p.price_xaf ?? p.price, qty: 1 });
-  setCart(cart);
-}
+  const applyFilters = async () => {
+    const q   = (searchInput?.value || "").toLowerCase().trim();
+    const min = Number($("#minPriceFilter")?.value || 0);
+    const max = Number($("#maxPriceFilter")?.value || 1e12);
+    const cat = ($("#categoryFilter")?.value || "").toLowerCase();
 
-// ------- RENDER
-function renderStores(stores) {
-  const frag = document.createDocumentFragment();
-
-  const allBtn = document.createElement("button");
-  allBtn.className = "list-item";
-  allBtn.textContent = "Todos";
-  allBtn.addEventListener("click", () => {
-    currentStoreId = null;
-    loadProducts();
-  });
-  frag.appendChild(allBtn);
-
-  stores.forEach(s => {
-    const li = document.createElement("button");
-    li.className = "list-item";
-    li.textContent = `${s.name} (${s.product_count})`;
-    li.addEventListener("click", () => {
-      currentStoreId = s.id;
-      loadProducts();
+    let products = [];
+    try { products = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
+    const filtered = products.filter(p => {
+      const title = (p.title || p.name || "").toLowerCase();
+      const price = Number(p.price_xaf ?? p.price ?? 0);
+      const c = (p.category || "").toLowerCase();
+      return (!q || title.includes(q)) && price >= min && price <= max && (!cat || !c || c === cat);
     });
-    frag.appendChild(li);
+    renderProducts(filtered, productsContainer);
+  };
+  if (searchBtn)   searchBtn.addEventListener("click", applyFilters);
+  if (searchInput) searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+
+  // Drawer carrito
+  const cartBtn   = $("#cartBtn");
+  const closeCart = $("#closeCart");
+  cartBtn?.addEventListener("click", () => { renderCart(); openDrawer(); });
+  closeCart?.addEventListener("click", closeDrawer);
+  wireDrawerDismiss();
+
+  // Checkout modal
+  const checkoutOpen  = $("#checkoutOpen");
+  const checkoutModal = $("#checkoutModal");
+  const closeCheckout = $("#closeCheckout");
+  const fulfillmentType = $("#fulfillmentType");
+
+  checkoutOpen?.addEventListener("click", () => {
+    renderCart();
+    $("#invoiceBox") && ($("#invoiceBox").innerHTML = ""); // limpia factura previa
+    checkoutModal?.classList.remove("hidden");
+    updateCheckoutSummary();
   });
-
-  els.businessesList.innerHTML = "";
-  els.businessesList.appendChild(frag);
-}
-
-
-// ------- CART UI
-function drawCart() {
-  const cart = getCart();
-  els.cartItems.innerHTML = "";
-
-  let subtotal = 0;
-  cart.forEach(i => {
-    const row = document.createElement("div");
-    row.className = "cart-row";
-    const line = Number(i.price) * Number(i.qty);
-    subtotal += line;
-    row.innerHTML = `
-      <div>${i.name}</div>
-      <div>${i.qty} × ${fmt(i.price)} XAF</div>
-      <div><b>${fmt(line)} XAF</b></div>
-    `;
-    els.cartItems.appendChild(row);
+  closeCheckout?.addEventListener("click", () => {
+    checkoutModal?.classList.add("hidden");
   });
+  fulfillmentType?.addEventListener("change", updateCheckoutSummary);
 
-  els.cartCount.textContent = cart.reduce((a,b)=>a + Number(b.qty), 0);
-  els.subtotalXAF.textContent = fmt(subtotal);
+  // Checkout submit
+  const checkoutForm = $("#checkoutForm");
+  checkoutForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const items = loadCart().map(i => ({ productId: i.id, quantity: i.qty }));
+    if (!items.length) return alert("Tu carrito está vacío");
+
+    const fd = new FormData(checkoutForm);
+    const payload = {
+      items,
+      fulfillment_type: fd.get("fulfillment_type") || "pickup",
+      guest_name: fd.get("guest_name") || null,
+      guest_phone: fd.get("guest_phone") || null,
+      address: fd.get("address") || null
+    };
+
+    try {
+      const order = await api.createOrder(payload);
+      toast("Pedido creado con éxito");
+      const submittedItems = loadCart().map(i => ({ title: i.title, quantity: i.qty, price_xaf: i.price_xaf, unit_price_xaf: i.price_xaf }));
+      clearCart();
+      renderInvoice({ order: order.order || order, submittedItems, buyer: { name: payload.guest_name, phone: payload.guest_phone, address: payload.address } });
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo crear el pedido");
+    }
+  });
 }
-
-els.cartBtn?.addEventListener("click", () => {
-  els.cartDrawer.classList.remove("hidden");
-  els.cartDrawer.setAttribute("aria-hidden", "false");
-});
-els.closeCart?.addEventListener("click", () => {
-  els.cartDrawer.classList.add("hidden");
-  els.cartDrawer.setAttribute("aria-hidden", "true");
-});
-
-// ------- DATA
-async function loadStores() {
-  try {
-    const r = await fetch(`${API}/api/stores`);
-    const data = await r.json();
-    renderStores(data.stores || []);
-  } catch (e) {
-    console.error("Error cargando stores:", e);
-  }
-}
-
-async function loadProducts() {
-  try {
-    const url = new URL(`${API}/api/products`);
-    if (currentStoreId) url.searchParams.set("store_id", currentStoreId);
-    const r = await fetch(url);
-    const data = await r.json();
-    productsCache = data.products || [];
-    renderProducts(productsCache);
-  } catch (e) {
-    console.error("Error cargando products:", e);
-  }
-}
-
-// ------- INIT
-document.addEventListener("DOMContentLoaded", () => {
-  drawCart();
-  loadStores();
-  loadProducts();
-});
 
 
 /* ==========================
