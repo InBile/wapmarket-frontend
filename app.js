@@ -582,35 +582,36 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================== */
 
 // === Config ===
+// =====================
+// Configuración
+// =====================
 const API = "https://backend-wapmarket-production.up.railway.app";
 
-// Fallback SVG embebido (sin 404 a no-image.png)
-const PLACEHOLDER_SVG = `data:image/svg+xml;utf8,
-<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
-  <rect width='100%' height='100%' fill='%23eee'/>
-  <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%23999'>
-    Sin imagen
-  </text>
+// Fallback para imágenes que no cargan
+const PLACEHOLDER = `data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>
+  <rect width='100%' height='100%' fill='%23ddd'/>
+  <text x='50%' y='50%' font-family='Arial' font-size='20' fill='%23666' 
+        dominant-baseline='middle' text-anchor='middle'>Sin imagen</text>
 </svg>`;
 
-// Normaliza URL de imagen sin provocar 404
 function imgURL(p) {
-  const u = p?.image_url?.trim();
-  if (!u) return PLACEHOLDER_SVG;
-  // Si ya es absoluta, úsala
-  if (/^https?:\/\//i.test(u)) return u;
-  // Si te llega sólo el nombre de archivo (migraciones viejas), NO rompas:
-  // 1) intenta supabase/public/products/, 2) si falla, el onerror cae al SVG
-  return `assets/pub/${u}`;
+  if (!p || !p.image_url) return PLACEHOLDER;
+  if (/^https?:\/\//i.test(p.image_url)) return p.image_url;
+  return `assets/pub/${p.image_url}`;
 }
 
-// ====== RENDER ======
+// =====================
+// Render de Negocios
+// =====================
 function renderBusinesses(stores) {
   const wrap = document.getElementById("businessesList");
   if (!wrap) return;
 
-  // Filtro temporal en UI: oculta "Mi primera tienda"
-  const clean = (stores || []).filter(s => (s.name || "").toLowerCase() !== "mi primera tienda");
+  // Filtramos la tienda que no quieres ver
+  const clean = (stores || []).filter(
+    s => (s.name || "").toLowerCase() !== "mi primera tienda"
+  );
 
   // Botón "Todos"
   const frag = document.createDocumentFragment();
@@ -640,13 +641,15 @@ function renderBusinesses(stores) {
   wrap.appendChild(frag);
 }
 
-function renderProducts(products, containerEl = document.getElementById("productsList")) {
+// =====================
+// Render de Productos
+// =====================
+function renderProducts(products, container = document.getElementById("productsList")) {
+  if (!container) return;
   const list = products || [];
-  const el = containerEl;
-  if (!el) return;
 
   if (!list.length) {
-    el.innerHTML = "<p>No hay productos disponibles.</p>";
+    container.innerHTML = "<p>No hay productos disponibles.</p>";
     return;
   }
 
@@ -654,10 +657,11 @@ function renderProducts(products, containerEl = document.getElementById("product
   list.forEach(p => {
     const card = document.createElement("div");
     card.className = "product-card";
+
     card.innerHTML = `
       <div class="product-image">
         <img src="${imgURL(p)}" alt="${p.name || ""}"
-             onerror="this.onerror=null;this.src='${PLACEHOLDER_SVG}'">
+             onerror="this.onerror=null;this.src='${PLACEHOLDER}'">
       </div>
       <div class="product-info">
         <h4>${p.name || p.title || "Producto"}</h4>
@@ -669,52 +673,69 @@ function renderProducts(products, containerEl = document.getElementById("product
     frag.appendChild(card);
   });
 
-  el.innerHTML = "";
-  el.appendChild(frag);
+  container.innerHTML = "";
+  container.appendChild(frag);
 }
 
-// Delegación de eventos para carrito (un solo handler)
-document.getElementById("productsList")?.addEventListener("click", (e) => {
+// Delegación para botones de carrito
+document.getElementById("productsList")?.addEventListener("click", e => {
   const btn = e.target.closest(".add-to-cart");
   if (!btn) return;
   const id = btn.dataset.id;
-  addToCart(id);     // usa tu lógica existente
-  renderCart();      // refresca drawer
+  addToCart(id);
+  renderCart();
 });
 
-// ====== DATA ======
+// =====================
+// Carga de datos
+// =====================
 let SELECTED_STORE_ID = null;
 
 async function loadStores() {
-  const r = await fetch(`${API}/api/stores`);
-  const data = await r.json();
-  const stores = data.stores || data || [];
-  renderBusinesses(stores);
+  try {
+    const r = await fetch(`${API}/api/stores`);
+    const data = await r.json();
+    const stores = data.stores || data || [];
+    renderBusinesses(stores);
 
-  // Selección por defecto (omitiendo "Mi primera tienda")
-  const saved = localStorage.getItem("wap_selected_store");
-  const first = stores.find(s => (s.name || "").toLowerCase() !== "mi primera tienda");
-  if (saved && stores.some(s => String(s.id) === String(saved))) {
-    SELECTED_STORE_ID = Number(saved);
-  } else {
-    SELECTED_STORE_ID = first?.id ?? null;
-    if (SELECTED_STORE_ID != null) localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
+    const saved = localStorage.getItem("wap_selected_store");
+    const first = stores.find(
+      s => (s.name || "").toLowerCase() !== "mi primera tienda"
+    );
+
+    if (saved && stores.some(s => String(s.id) === String(saved))) {
+      SELECTED_STORE_ID = Number(saved);
+    } else {
+      SELECTED_STORE_ID = first?.id ?? null;
+      if (SELECTED_STORE_ID != null)
+        localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
+    }
+  } catch (err) {
+    console.error("Error cargando negocios:", err);
   }
 }
 
 async function loadProducts() {
-  const url = new URL(`${API}/api/products`);
-  if (SELECTED_STORE_ID) url.searchParams.set("store_id", SELECTED_STORE_ID);
-  const r = await fetch(url);
-  const data = await r.json();
-  const prods = data.products || data || [];
-  renderProducts(prods);
+  try {
+    const url = new URL(`${API}/api/products`);
+    if (SELECTED_STORE_ID) url.searchParams.set("store_id", SELECTED_STORE_ID);
+
+    const r = await fetch(url);
+    const data = await r.json();
+    const prods = data.products || data || [];
+    renderProducts(prods);
+  } catch (err) {
+    console.error("Error cargando productos:", err);
+  }
 }
 
-// ====== INIT ======
+// =====================
+// Init
+// =====================
 document.addEventListener("DOMContentLoaded", () => {
   loadStores().then(loadProducts).catch(console.error);
 });
+
 
 /* ==========================
    Página: Login / Signup
