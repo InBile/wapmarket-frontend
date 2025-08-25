@@ -715,4 +715,25 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
 .product-actions .btn {
   width: 100%;
 }
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* 👈 asegura que todo se mantenga dentro */
+}
+
+.product-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-info {
+  flex-grow: 1; /* 👈 empuja al botón hacia abajo */
+}
+
+.product-actions {
+  margin-top: auto; /* 👈 botón siempre pegado al fondo */
+  text-align: center;
+}
 
