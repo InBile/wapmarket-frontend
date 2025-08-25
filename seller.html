@@ -109,70 +109,52 @@
   }
 
   // ================= CREAR PRODUCTO =================
-  document.getElementById("newProductForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
+document.getElementById("productForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
 
-    const fileInput = document.getElementById("imageFile");
-    if (fileInput.files.length > 0) {
-      let file = fileInput.files[0];
-      if (file.size / 1024 > 500) {
-        file = await compressImage(file, 500);
-      }
-      formData.delete("image_file");
-      formData.append("image_file", file);
+  const fileInput = form.querySelector("input[name='image_file']"); // ✅ usa el input real
+  if (fileInput.files.length > 0) {
+    let file = fileInput.files[0];
+    if (file.size / 1024 > 500) {
+      file = await compressImage(file, 500);
     }
-
-    const token = localStorage.getItem("wap_token");
-    const res = await fetch("https://backend-wapmarket-production.up.railway.app/products", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-
-    const data = await res.json();
-alert("✅ Producto añadido!");
-console.log(data);
-
-// Agregar el nuevo producto al DOM directamente
-const container = document.getElementById("sellerProducts");
-const card = document.createElement("div");
-card.classList.add("product-card");
-card.innerHTML = `
-  <h4>${data.name}</h4>
-  <p><strong>Precio:</strong> ${data.price} XAF</p>
-  <p><strong>Stock:</strong> ${data.stock}</p>
-  <p><strong>Categoría:</strong> ${data.category || "Sin categoría"}</p>
-  ${
-    data.image_url
-      ? `<img src="${data.image_url}" alt="${data.name}" width="150"/>`
-      : `<p>⚠️ Sin imagen</p>`
+    formData.delete("image_file");
+    formData.append("image_file", file);
   }
-`;
-container.appendChild(card);
 
-// limpiar formulario
-form.reset();
-
-  });
-
-  async function cargarMisProductos() {
   const token = localStorage.getItem("wap_token");
-  const user = JSON.parse(localStorage.getItem("wap_user") || "{}");
-  const sellerId = user.id;  // 👈 usar el ID del seller logueado
-
-  if (!sellerId) {
-    console.error("❌ No se encontró sellerId en el usuario logueado");
-    return;
-  }
-
-  const res = await fetch(`https://backend-wapmarket-production.up.railway.app/sellers/${sellerId}/products`, {
+  const res = await fetch("https://backend-wapmarket-production.up.railway.app/products", {
+    method: "POST",
     headers: { Authorization: `Bearer ${token}` },
+    body: formData,
   });
-  const productos = await res.json();
 
-}
+  const data = await res.json();
+  alert("✅ Producto añadido!");
+  console.log(data);
+
+  // Agregar el nuevo producto al DOM directamente
+  const container = document.getElementById("sellerProducts");
+  const card = document.createElement("div");
+  card.classList.add("product-card");
+  card.innerHTML = `
+    <h4>${data.name}</h4>
+    <p><strong>Precio:</strong> ${data.price} XAF</p>
+    <p><strong>Stock:</strong> ${data.stock}</p>
+    <p><strong>Categoría:</strong> ${data.category || "Sin categoría"}</p>
+    ${
+      data.image_url
+        ? `<img src="${data.image_url}" alt="${data.name}" width="150"/>`
+        : `<p>⚠️ Sin imagen</p>`
+    }
+  `;
+  container.appendChild(card);
+
+  // limpiar formulario
+  form.reset();
+});
 
   // ================= CARGAR PEDIDOS DEL SELLER =================
 async function loadSellerOrders() {
