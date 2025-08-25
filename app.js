@@ -306,7 +306,10 @@ function renderProducts(products, containerEl) {
 
     card.innerHTML = `
       <div class="product-image">
-        <img src="${imgSrc}" alt="${title}" loading="lazy"/>
+        <img src="${imgSrc}" 
+             alt="${title}" 
+             loading="lazy"
+             onerror="this.src='assets/no-image.png'"/>
       </div>
 
       <div class="product-info">
