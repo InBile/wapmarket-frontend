@@ -280,36 +280,40 @@ const api = {
 /* ==========================
    Render helpers (Index)
 ========================== */
-function renderProducts(list, container) {
-  if (!container) return;
+function renderProducts(products, container) {
   container.innerHTML = "";
-  if (!list.length) {
-    container.innerHTML = `<div class="muted">No hay productos disponibles.</div>`;
+
+  if (!products || !products.length) {
+    container.innerHTML = "<p>No hay productos disponibles.</p>";
     return;
   }
 
-  for (const p of list) {
-    const title = p.title || p.name || "Producto";
-    const price = Number(p.price_xaf ?? p.price ?? 0);
-    const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
-
+  products.forEach(product => {
     const card = document.createElement("div");
-    card.className = "product-card";
+    card.classList.add("product-card");
+
+    // Usar image_url directamente (como en seller.html)
+    const imageSrc = product.image_url 
+      ? product.image_url 
+      : "assets/no-image.png"; // asegúrate de tener este archivo en /assets/
+
     card.innerHTML = `
-      <img class="product-thumb" src="${img}" alt="${title}">
+      <div class="product-image">
+        <img src="${imageSrc}" alt="${product.name || "Producto"}"
+             onerror="this.onerror=null;this.src='assets/no-image.png'">
+      </div>
       <div class="product-info">
-        <div class="product-title">${title}</div>
-        <div class="product-price">${currency(price)}</div>
-        <button class="product-btn">Añadir</button>
+        <h4>${product.name || product.title || "Producto"}</h4>
+        <p><strong>Precio:</strong> ${(product.price_xaf ?? product.price ?? 0).toLocaleString("es-GQ")} XAF</p>
+        <p><strong>Categoría:</strong> ${product.category || "Sin categoría"}</p>
+        <button class="btn-primary add-to-cart" data-id="${product.id}">Agregar al carrito</button>
       </div>
     `;
-    $(".product-btn", card).addEventListener("click", () => {
-      addToCart({ id: p.id, title, price_xaf: price, image_url: img });
-      toast("Producto añadido al carrito");
-    });
+
     container.appendChild(card);
-  }
+  });
 }
+
 
 function renderStores(list, container) {
   if (!container) return;
