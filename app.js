@@ -89,7 +89,7 @@ async function httpJson(path, opts = {}, fallbacks = []) {
 /* ==========================
    Estado global (frontend)
 ========================== */
-let SELECTED_STORE_ID = null; // Para filtro de productos por negocio
+ SELECTED_STORE_ID = null; // Para filtro de productos por negocio
 
 
 /* ==========================
@@ -581,161 +581,114 @@ document.addEventListener("DOMContentLoaded", () => {
    Página: Index (tienda)
 ========================== */
 
-// =====================
-// Configuración
-// =====================
-const API = "https://backend-wapmarket-production.up.railway.app";
+async function bootIndexPage() {
+  updateUserTopbar();
 
-// Variable global única (no duplicar en ningún sitio más)
-let SELECTED_STORE_ID = null;
+  const businessesSection = $("#businessesSection");
+  const productsContainer = $("#productsList");
 
-// Fallback para imágenes
-const PLACEHOLDER = `data:image/svg+xml;utf8,
-<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>
-  <rect width='100%' height='100%' fill='%23ddd'/>
-  <text x='50%' y='50%' font-family='Arial' font-size='20' fill='%23666' 
-        dominant-baseline='middle' text-anchor='middle'>Sin imagen</text>
-</svg>`;
-
-function imgURL(p) {
-  if (!p || !p.image_url) return PLACEHOLDER;
-  if (/^https?:\/\//i.test(p.image_url)) return p.image_url;
-  return `assets/pub/${p.image_url}`;
-}
-
-// =====================
-// Render de Negocios
-// =====================
-function renderBusinesses(stores) {
-  const wrap = document.getElementById("businessesList");
-  if (!wrap) return;
-
-  // Filtrar "Mi primera tienda"
-  const clean = (stores || []).filter(
-    s => (s.name || "").toLowerCase() !== "mi primera tienda"
-  );
-
-  const frag = document.createDocumentFragment();
-
-  // Botón "Todos"
-  const btnAll = document.createElement("button");
-  btnAll.className = "list-item";
-  btnAll.textContent = "Todos";
-  btnAll.addEventListener("click", () => {
-    localStorage.removeItem("wap_selected_store");
-    SELECTED_STORE_ID = null;
-    loadProducts();
-  });
-  frag.appendChild(btnAll);
-
-  clean.forEach(s => {
-    const b = document.createElement("button");
-    b.className = "list-item";
-    b.textContent = `${s.name} (${s.product_count ?? 0})`;
-    b.addEventListener("click", () => {
-      SELECTED_STORE_ID = s.id;
-      localStorage.setItem("wap_selected_store", String(s.id));
-      loadProducts();
-    });
-    frag.appendChild(b);
-  });
-
-  wrap.innerHTML = "";
-  wrap.appendChild(frag);
-}
-
-// =====================
-// Render de Productos
-// =====================
-function renderProducts(products, container = document.getElementById("productsList")) {
-  if (!container) return;
-  const list = products || [];
-
-  if (!list.length) {
-    container.innerHTML = "<p>No hay productos disponibles.</p>";
-    return;
-  }
-
-  const frag = document.createDocumentFragment();
-  list.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-
-    card.innerHTML = `
-      <div class="product-image">
-        <img src="${imgURL(p)}" alt="${p.name || ""}"
-             onerror="this.onerror=null;this.src='${PLACEHOLDER}'">
-      </div>
-      <div class="product-info">
-        <h4>${p.name || p.title || "Producto"}</h4>
-        <p><strong>Precio:</strong> ${(p.price_xaf ?? p.price ?? 0).toLocaleString("es-GQ")} XAF</p>
-        <p><strong>Categoría:</strong> ${p.category || "Sin categoría"}</p>
-        <button class="btn-primary add-to-cart" data-id="${p.id}">Agregar al carrito</button>
-      </div>
-    `;
-    frag.appendChild(card);
-  });
-
-  container.innerHTML = "";
-  container.appendChild(frag);
-}
-
-// Delegación para botones de carrito
-document.getElementById("productsList")?.addEventListener("click", e => {
-  const btn = e.target.closest(".add-to-cart");
-  if (!btn) return;
-  const id = btn.dataset.id;
-  addToCart(id);
-  renderCart();
-});
-
-// =====================
-// Carga de datos
-// =====================
-async function loadStores() {
   try {
-    const r = await fetch(`${API}/api/stores`);
-    const data = await r.json();
-    const stores = data.stores || data || [];
-    renderBusinesses(stores);
-
+    // 1) Cargar tiendas
+    const stores = await api.stores();
+    STORES_CACHE = stores || [];
+    // 2) Seleccionar tienda por defecto
     const saved = localStorage.getItem("wap_selected_store");
-    const first = stores.find(
-      s => (s.name || "").toLowerCase() !== "mi primera tienda"
-    );
-
-    if (saved && stores.some(s => String(s.id) === String(saved))) {
+    if (saved && STORES_CACHE.some(s => String(s.id) === String(saved))) {
       SELECTED_STORE_ID = Number(saved);
     } else {
-      SELECTED_STORE_ID = first?.id ?? null;
-      if (SELECTED_STORE_ID != null)
-        localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
+      SELECTED_STORE_ID = STORES_CACHE[0]?.id ?? null;
+      if (SELECTED_STORE_ID != null) localStorage.setItem("wap_selected_store", String(SELECTED_STORE_ID));
     }
-  } catch (err) {
-    console.error("Error cargando negocios:", err);
+    ensureCartScopedToStore(SELECTED_STORE_ID);
+    // 3) Pintar sidebar + título
+    renderStores(STORES_CACHE, businessesSection);
+    updateProductsTitle();
+    // 4) Cargar productos de la tienda activa
+    const prods = await api.products({ store_id: SELECTED_STORE_ID });
+    renderProducts(prods, productsContainer);
+  } catch (e) {
+    console.error(e);
+    productsContainer.innerHTML = `<div class="error">Error cargando productos</div>`;
   }
+
+  // Filtros / búsqueda locales
+  const searchInput = $("#searchInput");
+  const searchBtn   = $("#searchBtn");
+  let currentProducts = [];
+  try { currentProducts = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
+
+  const applyFilters = async () => {
+    const q   = (searchInput?.value || "").toLowerCase().trim();
+    const min = Number($("#minPriceFilter")?.value || 0);
+    const max = Number($("#maxPriceFilter")?.value || 1e12);
+    const cat = ($("#categoryFilter")?.value || "").toLowerCase();
+
+    let products = [];
+    try { products = await api.products({ store_id: SELECTED_STORE_ID }); } catch {}
+    const filtered = products.filter(p => {
+      const title = (p.title || p.name || "").toLowerCase();
+      const price = Number(p.price_xaf ?? p.price ?? 0);
+      const c = (p.category || "").toLowerCase();
+      return (!q || title.includes(q)) && price >= min && price <= max && (!cat || !c || c === cat);
+    });
+    renderProducts(filtered, productsContainer);
+  };
+  if (searchBtn)   searchBtn.addEventListener("click", applyFilters);
+  if (searchInput) searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+
+  // Drawer carrito
+  const cartBtn   = $("#cartBtn");
+  const closeCart = $("#closeCart");
+  cartBtn?.addEventListener("click", () => { renderCart(); openDrawer(); });
+  closeCart?.addEventListener("click", closeDrawer);
+  wireDrawerDismiss();
+
+  // Checkout modal
+  const checkoutOpen  = $("#checkoutOpen");
+  const checkoutModal = $("#checkoutModal");
+  const closeCheckout = $("#closeCheckout");
+  const fulfillmentType = $("#fulfillmentType");
+
+  checkoutOpen?.addEventListener("click", () => {
+    renderCart();
+    $("#invoiceBox") && ($("#invoiceBox").innerHTML = ""); // limpia factura previa
+    checkoutModal?.classList.remove("hidden");
+    updateCheckoutSummary();
+  });
+  closeCheckout?.addEventListener("click", () => {
+    checkoutModal?.classList.add("hidden");
+  });
+  fulfillmentType?.addEventListener("change", updateCheckoutSummary);
+
+  // Checkout submit
+  const checkoutForm = $("#checkoutForm");
+  checkoutForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const items = loadCart().map(i => ({ productId: i.id, quantity: i.qty }));
+    if (!items.length) return alert("Tu carrito está vacío");
+
+    const fd = new FormData(checkoutForm);
+    const payload = {
+      items,
+      fulfillment_type: fd.get("fulfillment_type") || "pickup",
+      guest_name: fd.get("guest_name") || null,
+      guest_phone: fd.get("guest_phone") || null,
+      address: fd.get("address") || null
+    };
+
+    try {
+      const order = await api.createOrder(payload);
+      toast("Pedido creado con éxito");
+      const submittedItems = loadCart().map(i => ({ title: i.title, quantity: i.qty, price_xaf: i.price_xaf, unit_price_xaf: i.price_xaf }));
+      clearCart();
+      renderInvoice({ order: order.order || order, submittedItems, buyer: { name: payload.guest_name, phone: payload.guest_phone, address: payload.address } });
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo crear el pedido");
+    }
+  });
 }
 
-async function loadProducts() {
-  try {
-    const url = new URL(`${API}/api/products`);
-    if (SELECTED_STORE_ID) url.searchParams.set("store_id", SELECTED_STORE_ID);
-
-    const r = await fetch(url);
-    const data = await r.json();
-    const prods = data.products || data || [];
-    renderProducts(prods);
-  } catch (err) {
-    console.error("Error cargando productos:", err);
-  }
-}
-
-// =====================
-// Init
-// =====================
-document.addEventListener("DOMContentLoaded", () => {
-  loadStores().then(loadProducts).catch(console.error);
-});
 
 /* ==========================
    Página: Login / Signup
