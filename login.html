@@ -181,5 +181,83 @@
       signupForm.style.display = "flex";
     });
   </script>
+  <script>
+  // === LOGIN ===
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(loginForm));
+    try {
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Error al iniciar sesión");
+        return;
+      }
+
+      // Guardamos datos en localStorage
+      localStorage.setItem("userId", data.user._id);
+      localStorage.setItem("role", data.user.role);
+
+      if (data.user.role === "seller") {
+        localStorage.setItem("sellerId", data.user._id);
+        window.location.href = "seller.html";
+      } else if (data.user.role === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        // Cliente
+        localStorage.setItem("sellerId", ""); // por si acaso
+        // Crear WapCard si no existe
+        await fetch(`/create-wapcard/${data.user._id}`, { method: "POST" });
+        window.location.href = "inicio.html";
+      }
+    } catch (err) {
+      console.error("Error login:", err);
+      alert("Error de conexión con el servidor");
+    }
+  });
+
+  // === SIGNUP ===
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(signupForm));
+    try {
+      const res = await fetch("/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Error en el registro");
+        return;
+      }
+
+      // Guardamos datos en localStorage
+      localStorage.setItem("userId", data.user._id);
+      localStorage.setItem("role", data.user.role);
+
+      if (data.user.role === "seller") {
+        localStorage.setItem("sellerId", data.user._id);
+        window.location.href = "seller.html";
+      } else if (data.user.role === "admin") {
+        window.location.href = "admin.html";
+      } else {
+        // Cliente normal
+        await fetch(`/create-wapcard/${data.user._id}`, { method: "POST" });
+        window.location.href = "inicio.html";
+      }
+    } catch (err) {
+      console.error("Error signup:", err);
+      alert("Error de conexión con el servidor");
+    }
+  });
+</script>
+
 </body>
 </html>
