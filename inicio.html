@@ -241,6 +241,19 @@
           <div>Envío: <span id="coDelivery">0</span> XAF</div>
           <div class="total">Total: <strong id="coTotal">0</strong> XAF</div>
         </div>
+          <!-- Opciones de pago -->
+        <div id="paymentOptions">
+          <h4>Método de pago</h4>
+          <label>
+        <input type="radio" name="payMethod" value="cash" checked>
+          agar en efectivo al recibir / en tienda
+        </label>
+        <label id="wapcardOption" style="display:none;">
+    <input type="radio" name="payMethod" value="wapcard">
+    Pagar con WapCard (saldo disponible: <span id="wapcard-balance">--</span> XAF)
+  </label>
+</div>
+
         <button type="submit" class="btn-primary wide">Confirmar pedido</button>
       </form>
     </div>
@@ -280,7 +293,61 @@
         });
       }
     });
+    document.addEventListener("DOMContentLoaded", () => {
+  const userId = localStorage.getItem("userId"); // ⚠️ se guarda al hacer login
+  const sellerId = localStorage.getItem("sellerId"); // ⚠️ vendedor actual
+
+  // Si el usuario está logueado, mostramos su opción de WapCard
+  if (userId) {
+    document.getElementById("wapcardOption").style.display = "block";
+    loadWapCard(userId);
+  }
+
+  // Reemplazamos el submit del checkout
+  const coForm = document.getElementById("checkoutForm");
+  coForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const method = document.querySelector("input[name=payMethod]:checked").value;
+    const subtotal = parseInt(document.getElementById("coSubtotal").innerText);
+    const delivery = parseInt(document.getElementById("coDelivery").innerText);
+    
+    if (method === "wapcard") {
+      // Pago con WapCard
+      const res = await fetch("/pay-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          buyerId: userId,
+          sellerId: sellerId,
+          amount: subtotal,
+          delivery: delivery
+        })
+      });
+      const data = await res.json();
+      alert(data.message || "Pago realizado");
+      loadWapCard(userId); // refrescar saldo
+    } else {
+      // Proceso normal de tu pedido en efectivo
+      coForm.submit(); 
+    }
+  });
+});
+
+// === FUNCIONES WAPCARD ===
+async function loadWapCard(userId) {
+  try {
+    const res = await fetch(`/card/${userId}`);
+    const data = await res.json();
+    document.getElementById("wapcard-balance").innerText =
+      data.balance + " XAF";
+  } catch (err) {
+    console.error("Error al cargar WapCard:", err);
+  }
+}
+
   </script>
+  
   
 <script>
   document.addEventListener("DOMContentLoaded", () => {
