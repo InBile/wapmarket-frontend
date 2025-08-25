@@ -30,24 +30,15 @@
     <h2>Panel del vendedor</h2>
 
     <!-- Formulario de producto -->
-    <form id="newProductForm" class="card" enctype="multipart/form-data">
-      <div class="grid">
-        <label>Nombre<input name="name" required/></label>
-        <label>Precio (XAF)<input name="price" type="number" required/></label>
-      </div>
-      <div class="grid">
-        <label>Imagen
-          <input type="file" name="image_file" id="imageFile" accept="image/*" required />
-        </label>
-        <label>Stock<input name="stock" type="number" value="10"/></label>
-      </div>
-      <label>Categoría<input name="category" /></label>
-      <!-- ⚠️ estos hidden deberían venir del login -->
-      <input type="hidden" name="store_id" id="storeIdInput" />
-      <input type="hidden" name="seller_id" id="sellerIdInput" />
-
-      <button type="submit">Añadir producto</button>
+    <form id="productForm" enctype="multipart/form-data">
+      <input type="text" name="name" placeholder="Nombre del producto" />
+      <input type="number" name="price" placeholder="Precio" />
+      <input type="number" name="stock" placeholder="Stock" />
+      <input type="text" name="category" placeholder="Categoría" />
+      <input type="file" name="image_file" accept="image/*" /> <!-- ✅ Correcto -->
+      <button type="submit">Guardar</button>
     </form>
+
 
     <!-- Productos -->
     <section class="card">
