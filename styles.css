@@ -691,70 +691,28 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   align-items: center;
 }
 
-/* ==== Tarjetas de producto ESTABLES ==== */
-.products-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
 .product-card {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 0.8rem;
+  justify-content: space-between; /* 👈 reparte espacio entre imagen/info/botón */
+}
+
+.product-image {
+  flex-shrink: 0;
   text-align: center;
-  position: relative;
-  height: 260px; /* 👈 altura fija */
-  overflow: hidden;
 }
 
-.product-card img {
+.product-info {
+  flex-grow: 1; /* 👈 se expande para empujar el botón hacia abajo */
+  text-align: center;
+}
+
+.product-actions {
+  margin-top: auto;   /* 👈 asegura que el botón quede pegado al fondo */
+  text-align: center;
+}
+
+.product-actions .btn {
   width: 100%;
-  height: 120px;        /* 👈 altura consistente */
-  object-fit: contain;  /* 👈 imagen nunca deforma */
-  margin-bottom: 0.5rem;
-}
-
-.product-card h3 {
-  font-size: 0.95rem;
-  margin: 0.3rem 0;
-}
-
-.product-card p {
-  font-size: 0.85rem;
-  color: #444;
-  margin: 0.2rem 0;
-}
-
-.product-card .btn-add {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 85%;
-  padding: 0.5rem;
-  font-size: 0.85rem;
-  border-radius: 6px;
-  background: #111;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-.product-card .btn-add:hover {
-  background: #f59e0b;
-  color: #111;
-}
-
-/* Responsivo */
-@media (max-width: 600px) {
-  .products-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
