@@ -649,38 +649,7 @@ function renderStores(stores) {
   els.businessesList.appendChild(frag);
 }
 
-function renderProducts(list) {
-  const wrap = document.createDocumentFragment();
 
-  list.forEach(p => {
-    const card = document.createElement("article");
-    card.className = "card product-card";
-
-    card.innerHTML = `
-      <div class="img-wrap">
-        <img src="${imgOf(p)}" alt="${p.name}"
-             onerror="this.src='assets/placeholder.png'"/>
-      </div>
-      <h4>${p.name}</h4>
-      <p><b>Precio:</b> ${fmt(p.price_xaf ?? p.price)} XAF</p>
-      <p><b>Categoría:</b> ${p.category || "Sin categoría"}</p>
-      <button class="btn-primary add-to-cart" data-id="${p.id}">
-        Agregar al carrito
-      </button>
-    `;
-    wrap.appendChild(card);
-  });
-
-  els.productsList.innerHTML = "";
-  els.productsList.appendChild(wrap);
-}
-
-// Delegación de click para botones "Agregar al carrito"
-els.productsList.addEventListener("click", (e) => {
-  const btn = e.target.closest(".add-to-cart");
-  if (!btn) return;
-  addToCart(btn.dataset.id);
-});
 
 // ------- CART UI
 function drawCart() {
