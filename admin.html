@@ -1,338 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <title>Panel Admin — WapCard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin — WapMarket</title>
   <link rel="stylesheet" href="styles.css"/>
-
-  <style>
-    /* Estilos mínimos locales para tablas y badges en admin */
-    .admin-section { max-width: 980px; margin: 1rem auto; }
-    .card h2, .card h3 { margin: 0 0 .75rem 0; font-weight: 600; }
-    .card .desc { color: #6b7280; font-size: .92rem; margin-bottom: .75rem; }
-
-    .table-wrap { overflow: auto; }
-    table.data { width: 100%; border-collapse: collapse; }
-    table.data th, table.data td { padding: .6rem .65rem; border-bottom: 1px solid #eee; text-align: left; font-size: .95rem; }
-    table.data th { background: #f9fafb; font-weight: 600; white-space: nowrap; }
-    table.data tr:hover { background: #fcfcfd; }
-
-    .muted { color: #6b7280; }
-    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .badges { display: inline-flex; gap: .35rem; }
-    .badge { font-size: .72rem; padding: .18rem .45rem; border-radius: .35rem; background: #eef2ff; color: #3730a3; border: 1px solid #e5e7eb; }
-
-    .btn { padding: .55rem .9rem; border-radius: .5rem; border: 1px solid #d1d5db; background: #fff; cursor: pointer; }
-    .btn:hover { background: #f9fafb; }
-    .btn-primary { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; font-weight: 600; }
-    .btn-primary:hover { background: #f7ca00; }
-    .row-actions { display: flex; gap: .5rem; align-items: center; }
-
-    .ok { color: #059669; }
-    .err { color: #dc2626; }
-    .warn { color: #b45309; }
-    .info { color: #2563eb; }
-    .message { margin-top: .6rem; font-size: .92rem; }
-    .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .75rem; }
-    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
-  </style>
 </head>
-
 <body>
   <header class="topbar">
-    <div class="brand">WapMarket</div>
+    <div class="brand">WapMarket — Admin</div>
     <nav class="nav">
-      <a href="index.html">Inicio</a>
+      <a href="inicio.html" class="btn-primary sm">Inicio</a>
     </nav>
   </header>
 
-  <main class="container admin-section">
-    <h2>Panel de administrador</h2>
+  <div class="main-layout">
+    <aside class="sidebar">
+      <details class="panel" open>
+        <summary class="panel-summary">
+          <span class="panel-title">Gestión</span>
+          <span class="chev"></span>
+        </summary>
+        <ul class="panel-list">
+          <li><a href="admin.html">Recargas</a></li>
+          <li><a href="seller.html">Saldos Vendedores</a></li>
+        </ul>
+      </details>
+    </aside>
 
-    <!-- Crear vendedor -->
-    <section class="card" id="createSellerCard">
-      <h3>Crear nuevo vendedor</h3>
-      <p class="desc">Genera una cuenta de vendedor y su tienda. Campos obligatorios: nombre, email y contraseña.</p>
-
-      <form id="createSellerForm">
-        <div class="grid">
-          <label>Nombre completo
-            <input type="text" name="name" required />
-          </label>
-
-          <label>Correo electrónico
-            <input type="email" name="email" required />
-          </label>
-        </div>
-
-        <div class="grid">
-          <label>Contraseña
-            <input type="password" name="password" required />
-          </label>
-
-          <label>Teléfono (opcional)
-            <input type="text" name="phone" />
-          </label>
-        </div>
-
-        <div class="grid">
-          <label>Nombre de la tienda (opcional)
-            <input type="text" name="store_name" placeholder="Ej. Tienda de Ana" />
-          </label>
-        </div>
-
-        <button type="submit" class="btn-primary">Crear vendedor</button>
-        <div id="sellerMessage" class="message"></div>
-      </form>
-    </section>
-
-    <!-- Tiendas -->
-    <section class="card" style="margin-top:1rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;">
-        <h3>Tiendas</h3>
-        <button id="refreshStores" class="btn">Refrescar</button>
+    <main class="products-area">
+      <div class="products-header">
+        <h2>Recargar WapCard</h2>
       </div>
-      <div class="table-wrap">
-        <table class="data" id="storesTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tienda</th>
-              <th>Vendedor</th>
-              <th>Productos</th>
-              <th>Activa</th>
-              <th>Creada</th>
-            </tr>
-          </thead>
-          <tbody><tr><td class="muted" colspan="6">Cargando…</td></tr></tbody>
-        </table>
+
+      <div class="card" style="padding:1rem; max-width:500px;">
+        <label>ID de Usuario</label>
+        <input type="text" id="rechargeUserId" placeholder="Ej: 64a5d..." />
+
+        <label>Monto a recargar</label>
+        <input type="number" id="rechargeAmount" placeholder="Monto en XAF" />
+
+        <button id="rechargeBtn" class="btn-primary wide" style="margin-top:1rem;">
+          Recargar
+        </button>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <!-- Usuarios -->
-    <section class="card" style="margin-top:1rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;">
-        <h3>Usuarios</h3>
-        <button id="refreshUsers" class="btn">Refrescar</button>
-      </div>
-      <div class="table-wrap">
-        <table class="data" id="usersTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Rol</th>
-              <th>Flags</th>
-              <th>Creado</th>
-            </tr>
-          </thead>
-          <tbody><tr><td class="muted" colspan="6">Cargando…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer"><span>© WapMarket</span></footer>
-
-  <!-- Tu app.js (si lo usas en otras páginas) -->
-  <script src="app.js"></script>
-
-  <!-- Lógica específica del panel admin -->
+  <script src="index (15).js"></script>
   <script>
-  (function() {
-    const API = "https://backend-wapmarket-production.up.railway.app";
-    const token = localStorage.getItem("wap_token") || localStorage.getItem("token");
-    const storedUser = localStorage.getItem("wap_user") || localStorage.getItem("user");
+    document.getElementById("rechargeBtn").addEventListener("click", async () => {
+      const userId = document.getElementById("rechargeUserId").value;
+      const amount = Number(document.getElementById("rechargeAmount").value);
 
-    const $ = (s, root=document) => root.querySelector(s);
-    const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+      if (!userId || !amount) return alert("Completa los campos");
 
-    // Referencias DOM
-    const form = $("#createSellerForm");
-    const msgBox = $("#sellerMessage");
-    const storesTable = $("#storesTable tbody");
-    const usersTable  = $("#usersTable tbody");
-    const createCard  = $("#createSellerCard");
-    const refreshStoresBtn = $("#refreshStores");
-    const refreshUsersBtn  = $("#refreshUsers");
-
-    // Redirección si no hay token desde el arranque
-    if (!token) {
-      window.location.href = "login.html";
-      return;
-    }
-
-    // Utilidad: fetch con auth
-    async function authFetch(path, opts={}) {
-      const res = await fetch(API + path, {
-        ...opts,
-        headers: {
-          "Content-Type": "application/json",
-          ...(opts.headers || {}),
-          "Authorization": "Bearer " + token
-        }
+      const res = await fetch("/admin/recharge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, amount })
       });
-      return res;
-    }
-
-    // Utilidades de UI
-    const fmtDate = (iso) => {
-      if (!iso) return "";
-      try {
-        const d = new Date(iso);
-        const y = d.getFullYear();
-        const m = String(d.getMonth()+1).padStart(2,"0");
-        const day = String(d.getDate()).padStart(2,"0");
-        const hh = String(d.getHours()).padStart(2,"0");
-        const mm = String(d.getMinutes()).padStart(2,"0");
-        return `${y}-${m}-${day} ${hh}:${mm}`;
-      } catch { return iso; }
-    };
-
-    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-    // 1) Verificar rol admin con backend
-    async function assertAdmin() {
-      try {
-        const res = await authFetch("/api/profile", { method: "GET" });
-        const data = await res.json();
-        if (!res.ok || (data.role !== "admin" && !data.is_admin)) {
-          createCard.innerHTML = `<div class="message err">⛔ Acceso denegado. Tu usuario no es administrador.</div>`;
-          throw new Error("not-admin");
-        }
-        // Mostrar pequeño saludo/estado si quieres
-        // msg en verde (opcional)
-        return data;
-      } catch (e) {
-        if (e.message !== "not-admin") {
-          createCard.innerHTML = `<div class="message err">❌ No se pudo verificar tu sesión. Inicia sesión de nuevo.</div>`;
-        }
-        throw e;
-      }
-    }
-
-    // 2) Crear vendedor
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const payload = Object.fromEntries(new FormData(form).entries());
-
-      // Sólo enviar las claves que acepta el backend
-      const body = {
-        name: payload.name?.trim(),
-        email: payload.email?.trim(),
-        password: payload.password,
-        phone: payload.phone?.trim() || undefined,
-        store_name: payload.store_name?.trim() || undefined
-      };
-
-      msgBox.textContent = "Creando vendedor…";
-      msgBox.className = "message info";
-
-      try {
-        const res = await authFetch("/api/admin/create-seller", {
-          method: "POST",
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-
-        if (res.ok) {
-          msgBox.textContent = `✅ Vendedor creado. store_id: ${data.store_id}`;
-          msgBox.className = "message ok";
-          form.reset();
-          // refrescar listas
-          loadStores();
-          loadUsers();
-        } else {
-          msgBox.textContent = `❌ ${data.error || "No se pudo crear el vendedor"}`;
-          msgBox.className = "message err";
-        }
-      } catch (err) {
-        console.error(err);
-        msgBox.textContent = "❌ Error de conexión con el servidor.";
-        msgBox.className = "message err";
-      }
+      const data = await res.json();
+      alert(data.message || "Recarga completada");
     });
-
-    // 3) Cargar tiendas
-    async function loadStores() {
-      storesTable.innerHTML = `<tr><td class="muted" colspan="6">Cargando…</td></tr>`;
-      try {
-        const res = await fetch(API + "/api/stores");
-        const data = await res.json();
-        const rows = (data.stores || []);
-        if (!rows.length) {
-          storesTable.innerHTML = `<tr><td class="muted" colspan="6">Sin tiendas</td></tr>`;
-          return;
-        }
-        storesTable.innerHTML = rows.map(s => `
-          <tr>
-            <td class="mono">${esc(s.id)}</td>
-            <td>${esc(s.name)}</td>
-            <td>
-              ${esc(s.seller_name || "")}
-              <div class="muted">${esc(s.seller_email || "")}</div>
-            </td>
-            <td class="mono">${esc(s.product_count ?? 0)}</td>
-            <td>${s.active ? "Sí" : "No"}</td>
-            <td class="mono">${fmtDate(s.created_at)}</td>
-          </tr>
-        `).join("");
-      } catch (e) {
-        console.error(e);
-        storesTable.innerHTML = `<tr><td class="err" colspan="6">No se pudieron cargar las tiendas.</td></tr>`;
-      }
-    }
-
-    // 4) Cargar usuarios
-    async function loadUsers() {
-      usersTable.innerHTML = `<tr><td class="muted" colspan="6">Cargando…</td></tr>`;
-      try {
-        const res = await authFetch("/api/admin/users", { method: "GET" });
-        const data = await res.json();
-        const rows = (data.users || []);
-        if (!rows.length) {
-          usersTable.innerHTML = `<tr><td class="muted" colspan="6">Sin usuarios</td></tr>`;
-          return;
-        }
-        usersTable.innerHTML = rows.map(u => `
-          <tr>
-            <td class="mono">${esc(u.id)}</td>
-            <td>${esc(u.name || "-")}</td>
-            <td>${esc(u.email)}</td>
-            <td>${esc(u.role || (u.is_admin ? "admin" : "buyer"))}</td>
-            <td>
-              <span class="badges">
-                ${u.is_admin ? '<span class="badge">admin</span>' : ''}
-                ${u.role === 'seller' || u.is_seller ? '<span class="badge">seller</span>' : ''}
-              </span>
-            </td>
-            <td class="mono">${fmtDate(u.created_at)}</td>
-          </tr>
-        `).join("");
-      } catch (e) {
-        console.error(e);
-        usersTable.innerHTML = `<tr><td class="err" colspan="6">No se pudieron cargar los usuarios.</td></tr>`;
-      }
-    }
-
-    // 5) Eventos de refresco
-    refreshStoresBtn.addEventListener("click", loadStores);
-    refreshUsersBtn.addEventListener("click", loadUsers);
-
-    // Boot
-    (async () => {
-      try {
-        await assertAdmin();
-        await Promise.all([loadStores(), loadUsers()]);
-      } catch {
-        // ya mostramos el error arriba
-      }
-    })();
-  })();
   </script>
-  
 </body>
 </html>
