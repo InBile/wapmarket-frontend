@@ -601,54 +601,81 @@ function addToCart(productId) {
 }
 
 // ------- RENDER
+// ------- RENDER
 function renderStores(stores) {
   const frag = document.createDocumentFragment();
 
-  const allBtn = document.createElement("button");
-  allBtn.className = "list-item";
-  allBtn.textContent = "Todos";
-  allBtn.addEventListener("click", () => {
-    currentStoreId = null;
-    loadProducts();
-  });
-  frag.appendChild(allBtn);
-
   stores.forEach(s => {
-    const li = document.createElement("button");
-    li.className = "list-item";
-    li.textContent = `${s.name} (${s.product_count})`;
-    li.addEventListener("click", () => {
-      currentStoreId = s.id;
-      loadProducts();
+    const btn = document.createElement("button");
+    btn.className = "list-item";
+    btn.textContent = `${s.name} (${s.product_count})`;
+    btn.addEventListener("click", () => {
+      SELECTED_STORE_ID = s.id;
+      localStorage.setItem("wap_selected_store", String(s.id));
+      reloadProducts();
     });
-    frag.appendChild(li);
+    frag.appendChild(btn);
   });
 
   els.businessesList.innerHTML = "";
   els.businessesList.appendChild(frag);
 }
 
-function renderProducts(list) {
-  const wrap = document.createDocumentFragment();
+// ============ RENDERIZAR PRODUCTOS ============
+function renderProducts(products, containerEl) {
+  if (!containerEl) return;
+  containerEl.innerHTML = "";
 
-  list.forEach(p => {
+  if (!products || !products.length) {
+    containerEl.innerHTML = `<p>No hay productos disponibles.</p>`;
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+
+  products.forEach(p => {
+    const id        = p.id;
+    const title     = (p.title || p.name || "").trim() || "Sin título";
+    const priceXaf  = Number(p.price_xaf ?? p.price ?? 0);
+    const category  = p.category || "Sin categoría";
+    const imgSrc    = p.image_url || "assets/no-image.png";
+    const stock     = Number(p.stock ?? 0);
+    const agotado   = stock <= 0;
+
     const card = document.createElement("article");
-    card.className = "card product-card";
+    card.className = "product-card";
 
     card.innerHTML = `
-      <div class="img-wrap">
-        <img src="${imgOf(p)}" alt="${p.name}"
-             onerror="this.src='assets/placeholder.png'"/>
+      <div class="product-image">
+        <img src="${imgSrc}" alt="${title}" loading="lazy"/>
       </div>
-      <h4>${p.name}</h4>
-      <p><b>Precio:</b> ${fmt(p.price_xaf ?? p.price)} XAF</p>
-      <p><b>Categoría:</b> ${p.category || "Sin categoría"}</p>
-      <button class="btn-primary add-to-cart" data-id="${p.id}">
-        Agregar al carrito
-      </button>
+
+      <div class="product-info">
+        <h4 class="product-title">${title}</h4>
+        <p class="product-price"><b>Precio:</b> ${priceXaf} XAF</p>
+        <p class="product-cat"><b>Categoría:</b> ${category}</p>
+      </div>
+
+      <div class="product-actions">
+        ${
+          agotado
+            ? `<button class="btn btn-disabled" disabled>Agotado</button>`
+            : `<button
+                 class="btn add-to-cart"
+                 data-id="${id}"
+                 data-title="${title.replace(/"/g, "&quot;")}"
+                 data-price="${priceXaf}"
+                 data-image="${imgSrc}"
+               >Agregar al carrito</button>`
+        }
+      </div>
     `;
-    wrap.appendChild(card);
+
+    frag.appendChild(card);
   });
+
+  containerEl.appendChild(frag);
+}
 
   els.productsList.innerHTML = "";
   els.productsList.appendChild(wrap);
