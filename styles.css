@@ -841,4 +841,86 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
 .product-card button{
   position:static !important;
 }
+/* === Card con imagen arriba y bloque blanco abajo === */
+.product-card{
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:0; /* 👈 cuadrada como te gusta */
+  overflow:hidden;
+  padding:0; /* sin padding directo, lo lleva el bloque de info */
+}
+
+/* Imagen ocupa toda la parte superior */
+.product-card .product-media{
+  width:100%;
+  flex:1 1 auto;          /* ocupa el espacio superior */
+  background:#f9fafb;
+}
+.product-card .product-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;       /* la foto llena el área */
+  display:block;
+}
+
+/* Bloque inferior para info y botón */
+.product-card .info-block{
+  background:#fff;
+  padding:0.8rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+}
+
+/* Título */
+.product-card h3{
+  font-size:.95rem;
+  font-weight:600;
+  margin:0 0 .4rem;
+  text-align:center;
+  line-height:1.3;
+  max-height:2.6em; 
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+
+/* Precio (solo número en verde) */
+.product-price{
+  color:#16a34a;
+  font-weight:700;
+  font-size:1rem;
+  margin:0 0 .6rem;
+}
+.product-price strong,
+.product-price b{display:none !important;}
+
+/* Botón fijo dentro del bloque blanco */
+.product-card .btn-add{
+  width:100%;
+  padding:.6rem;
+  font-size:.9rem;
+  border-radius:6px;
+  border:none;
+  background:#111;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.product-card .btn-add:hover{
+  background:#f59e0b;
+  color:#111;
+}
+
+/* === Responsive: en móviles la card ocupa más altura === */
+@media(max-width:500px){
+  .products-list{ grid-template-columns:1fr; }
+  .product-card{ min-height:420px; }
+  .product-card .product-media{ height:260px; }
+}
 
