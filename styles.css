@@ -609,3 +609,86 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   font-size: 0.9rem;
   border-radius: 0;
 }
+/* ==== Grilla de productos ==== */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Forzar mínimo 2 productos por fila en móviles */
+@media (max-width: 500px) {
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==== Tarjeta de producto ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;         /* 👈 sin bordes redondeados */
+  padding: 0.5rem;
+  text-align: center;
+  position: relative;
+  height: 220px;            /* altura fija compacta */
+}
+
+.product-card img {
+  max-height: 100px;
+  object-fit: contain;
+  margin: auto;
+}
+
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  flex: 0 0 auto;
+}
+
+.product-card p {
+  font-size: 0.8rem;
+  color: #666;
+  flex: 0 0 auto;
+}
+
+/* Botón añadir fijo abajo y centrado */
+.product-card .btn-add {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  padding: 0.4rem;
+  font-size: 0.85rem;
+  border-radius: 0;       /* 👈 sin bordes redondeados */
+}
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  max-width: 300px;
+  width: 90%;
+  border: 1px solid #ddd;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
