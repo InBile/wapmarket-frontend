@@ -690,5 +690,70 @@ th,td{padding:.5rem;border-bottom:1px solid #e5e7eb;text-align:left}
   justify-content: space-between;
   align-items: center;
 }
+/* ==== Ajustes de las tarjetas ==== */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  padding: 0.5rem;
+  text-align: center;
+  height: 240px;           /* altura fija */
+  position: relative;      /* para anclar el botón */
+  overflow: hidden;
+}
+
+.product-card img {
+  max-height: 100px;       /* fija altura de imagen */
+  width: auto;
+  object-fit: contain;
+  margin: 0.5rem auto;
+  flex-shrink: 0;
+}
+
+.product-card h3 {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+  flex: 0 0 auto;
+}
+
+.product-card .product-price {
+  color: #16a34a;          /* verde consistente */
+  font-weight: 700;
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+/* Botón añadir fijo abajo */
+.product-card .btn-add {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  padding: 0.45rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  background: #f3f4f6;   /* 👈 clarito para diferenciar */
+  color: #111;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+.product-card .btn-add:hover {
+  background: #e5e7eb;
+}
+
+/* ==== Buscador ==== */
+.search input {
+  flex: 1;
+  padding: .5rem .75rem;
+  border-radius: .25rem;   /* 👈 menos redondeado */
+  border: 1px solid #333;
+  background: #1f2937;     /* 👈 oscuro, no claro */
+  color: #fff;
+}
 
 
