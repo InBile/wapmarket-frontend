@@ -280,103 +280,80 @@ const api = {
 /* ==========================
    Render helpers (Index)
 ========================== */
-function renderProducts(list, container) {
-  if (!container) return;
-  container.innerHTML = "";
-  if (!list.length) {
-    container.innerHTML = `<div class="muted">No hay productos disponibles.</div>`;
+// ============ RENDERIZAR PRODUCTOS (única versión) ============
+function renderProducts(products, containerEl) {
+  if (!containerEl) return;
+  containerEl.innerHTML = "";
+
+  if (!products || !products.length) {
+    containerEl.innerHTML = `<p>No hay productos disponibles.</p>`;
     return;
   }
 
-  for (const p of list) {
-    const title = p.title || p.name || "Producto";
-    const price = Number(p.price_xaf ?? p.price ?? 0);
-    const img = p.image_url || "https://via.placeholder.com/300x200?text=Producto";
+  const frag = document.createDocumentFragment();
 
-    const card = document.createElement("div");
+  products.forEach(p => {
+    const id        = p.id;
+    const title     = (p.title || p.name || "").trim() || "Sin título";
+    const priceXaf  = Number(p.price_xaf ?? p.price ?? 0);
+    const category  = p.category || "Sin categoría";
+    const imgSrc    = p.image_url || "assets/no-image.png";
+    const stock     = Number(p.stock ?? 0);
+    const agotado   = stock <= 0;
+
+    const card = document.createElement("article");
     card.className = "product-card";
+
     card.innerHTML = `
-      <img class="product-thumb" src="${img}" alt="${title}">
+      <div class="product-image">
+        <img src="${imgSrc}" alt="${title}" loading="lazy"/>
+      </div>
+
       <div class="product-info">
-        <div class="product-title">${title}</div>
-        <div class="product-price">${currency(price)}</div>
-        <button class="product-btn">Añadir</button>
+        <h4 class="product-title">${title}</h4>
+        <p class="product-price"><b>Precio:</b> ${priceXaf} XAF</p>
+        <p class="product-cat"><b>Categoría:</b> ${category}</p>
+      </div>
+
+      <div class="product-actions">
+        ${
+          agotado
+            ? `<button class="btn btn-disabled" disabled>Agotado</button>`
+            : `<button
+                 class="btn add-to-cart"
+                 data-id="${id}"
+                 data-title="${title.replace(/"/g, "&quot;")}"
+                 data-price="${priceXaf}"
+                 data-image="${imgSrc}"
+               >Agregar al carrito</button>`
+        }
       </div>
     `;
-    $(".product-btn", card).addEventListener("click", () => {
-      addToCart({ id: p.id, title, price_xaf: price, image_url: img });
-      toast("Producto añadido al carrito");
-    });
-    container.appendChild(card);
-  }
-}
 
-function renderStores(list, container) {
-  if (!container) return;
-  container.innerHTML = "";
-  const head = document.createElement("div");
-  head.className = "businesses-header";
-  head.innerHTML = `<h3>Negocios</h3>`;
-  container.appendChild(head);
-
-
-  const wrap = document.createElement("div");
-  wrap.className = "business-list";
-  container.appendChild(wrap);
-
-  if (!list.length) {
-    wrap.innerHTML = `<div class="muted">Sin negocios</div>`;
-    return;
-  }
-
-  for (const s of list) {
-    const item = document.createElement("button");
-    item.className = "business-item";
-    item.dataset.storeId = s.id;
-    item.innerHTML = `
-      <div class="avatar">${(s.name || "Tienda").slice(0,1).toUpperCase()}</div>
-      <div class="business-meta">
-        <div class="business-name">${s.name || "Tienda"}</div>
-        <div class="business-sub">${(s.product_count ?? 0)} productos</div>
-      </div>
-    `;
-    item.addEventListener("click", async () => {
-      SELECTED_STORE_ID = s.id;
-      localStorage.setItem("wap_selected_store", String(s.id));
-      highlightActiveStore(s.id);
-      ensureCartScopedToStore(s.id);
-      updateProductsTitle();
-      await reloadProducts();
-      toast(`Filtrado por: ${s.name}`);
-    });
-    wrap.appendChild(item);
-  }
-
-  //$("#clearStoreFilter")?.addEventListener("click", async () => {
-   // SELECTED_STORE_ID = null;
-   // highlightActiveStore(null);
-    //await reloadProducts();
-  //});
-}
-
-function highlightActiveStore(storeId) {
-  $$(".business-item").forEach(btn => {
-    btn.classList.toggle("active", Number(btn.dataset.storeId) === Number(storeId));
+    frag.appendChild(card);
   });
+
+  containerEl.appendChild(frag);
 }
 
-async function reloadProducts() {
-  const container = $("#productsList");
-  if (!container) return;
-  container.innerHTML = `<div class="muted">Cargando productos…</div>`;
-  try {
-    const prods = await api.products({ store_id: SELECTED_STORE_ID });
-    renderProducts(prods, container);
-  } catch (e) {
-    console.error(e);
-    container.innerHTML = `<div class="error">Error cargando productos</div>`;
-  }
-}
+// ============ Delegación de eventos para "Agregar al carrito" ============
+const productsContainer = document.getElementById("productsList");
+productsContainer?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".add-to-cart");
+  if (!btn) return;
+
+  const item = {
+    id: Number(btn.dataset.id),
+    title: btn.dataset.title,
+    price_xaf: Number(btn.dataset.price),
+    unit_price_xaf: Number(btn.dataset.price),
+    image_url: btn.dataset.image,
+    qty: 1,
+  };
+
+  addToCart(item);
+  toast("Producto agregado al carrito");
+});
 
 /* ==========================
    Carrito UI / Checkout
