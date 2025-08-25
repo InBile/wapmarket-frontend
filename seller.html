@@ -30,16 +30,16 @@
     <h2>Panel del vendedor</h2>
 
     <!-- Formulario de producto -->
-    <form id="productForm" enctype="multipart/form-data">
-      <input type="text" name="name" placeholder="Nombre del producto" />
-      <input type="number" name="price" placeholder="Precio" />
-      <input type="number" name="stock" placeholder="Stock" />
-      <input type="text" name="category" placeholder="Categoría" />
-      <input type="file" name="image_file" accept="image/*" />
-      <input type="hidden" id="storeIdInput" name="store_id" />
-      <input type="hidden" id="sellerIdInput" name="seller_id" />
-      <button type="submit">Guardar</button>
-    </form>
+
+<form id="newProductForm" enctype="multipart/form-data">
+  <input type="text" name="name" id="productName" placeholder="Nombre del producto" required />
+  <input type="number" name="price" id="productPrice" placeholder="Precio" required />
+  <input type="number" name="stock" id="productStock" placeholder="Stock" />
+  <input type="text" name="category" id="productCategory" placeholder="Categoría" />
+  <input type="file" name="image_file" id="imageFile" accept="image/*" /> <!-- ✅ ahora coincide con backend -->
+  <button type="submit">Guardar</button>
+</form>
+
 
 
 
@@ -78,6 +78,7 @@
 
 
   <script>
+ <script>
   // ================= COMPRESIÓN DE IMÁGENES =================
   async function compressImage(file, maxSizeKB = 500) {
     return new Promise((resolve) => {
@@ -111,62 +112,51 @@
     });
   }
 
- // ================= CREAR PRODUCTO =================
-document.getElementById("productForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
+  // ================= CREAR PRODUCTO =================
+  document.getElementById("newProductForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
 
-  // Tomar el archivo correcto por name="image_file"
-  const fileInput = form.querySelector("input[name='image_file']");
-  if (fileInput && fileInput.files && fileInput.files.length > 0) {
-    let file = fileInput.files[0];
-    if ((file.size / 1024) > 500) {
-      file = await compressImage(file, 500);
+    const fileInput = document.getElementById("imageFile");
+    if (fileInput.files.length > 0) {
+      let file = fileInput.files[0];
+      if (file.size / 1024 > 500) {
+        file = await compressImage(file, 500);
+      }
+      formData.set("image_file", file); // ✅ aseguramos que se llame igual que en backend
     }
-    formData.set("image_file", file);
-  }
 
-  // Asegurar store_id / seller_id por si acaso
-  try {
-    const user = JSON.parse(localStorage.getItem("wap_user") || "{}");
-    if (user.store_id && !formData.get("store_id"))  formData.set("store_id", user.store_id);
-    if (user.id && !formData.get("seller_id"))       formData.set("seller_id", user.id);
-  } catch {}
+    const token = localStorage.getItem("wap_token");
+    const res = await fetch("https://backend-wapmarket-production.up.railway.app/products", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
 
-  const token = localStorage.getItem("wap_token");
-  const res = await fetch("https://backend-wapmarket-production.up.railway.app/products", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    const data = await res.json();
+    alert("✅ Producto añadido!");
+
+    // Agregar producto al DOM
+    const container = document.getElementById("sellerProducts");
+    const card = document.createElement("div");
+    card.classList.add("product-card");
+    card.innerHTML = `
+      <h4>${data.name}</h4>
+      <p><strong>Precio:</strong> ${data.price} XAF</p>
+      <p><strong>Stock:</strong> ${data.stock}</p>
+      <p><strong>Categoría:</strong> ${data.category || "Sin categoría"}</p>
+      ${
+        data.image_url
+          ? `<img src="${data.image_url}" alt="${data.name}" width="150"/>`
+          : `<p>⚠️ Sin imagen</p>`
+      }
+    `;
+    container.appendChild(card);
+
+    form.reset();
   });
-
-  const data = await res.json();
-  if (!res.ok) {
-    console.error("❌ Error creando producto:", data);
-    alert(data.error || "No se pudo crear el producto");
-    return;
-  }
-
-  alert("✅ Producto añadido!");
-  console.log("Nuevo producto:", data);
-
-  // Pintar en la lista del seller
-  const container = document.getElementById("sellerProducts");
-  const card = document.createElement("div");
-  card.className = "product-card";
-  card.innerHTML = `
-    <h4>${data.name}</h4>
-    <p><strong>Precio:</strong> ${data.price} XAF</p>
-    <p><strong>Stock:</strong> ${data.stock}</p>
-    <p><strong>Categoría:</strong> ${data.category || "Sin categoría"}</p>
-    ${data.image_url ? `<img src="${data.image_url}" alt="${data.name}" width="150" />` : `<p>⚠️ Sin imagen</p>`}
-  `;
-  container.prepend(card);
-
-  form.reset();
-});
-
+</script>
 
   // ================= CARGAR PEDIDOS DEL SELLER =================
 async function loadSellerOrders() {
