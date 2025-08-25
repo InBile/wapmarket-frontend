@@ -305,33 +305,32 @@ function renderProducts(products, containerEl) {
     card.className = "product-card";
 
     card.innerHTML = `
-      <div class="product-image">
-        <img src="${imgSrc}" 
-             alt="${title}" 
-             loading="lazy"
-             onerror="this.src='assets/no-image.png'"/>
-      </div>
+  <div class="product-content">
+    <div class="product-image">
+      <img src="${imgSrc}" alt="${title}" loading="lazy"/>
+    </div>
 
-      <div class="product-info">
-        <h4 class="product-title">${title}</h4>
-        <p class="product-price"><b>Precio:</b> ${priceXaf} XAF</p>
-        <p class="product-cat"><b>Categoría:</b> ${category}</p>
-      </div>
+    <div class="product-info">
+      <h4 class="product-title">${title}</h4>
+      <p class="product-price"><b>Precio:</b> ${priceXaf} XAF</p>
+      <p class="product-cat"><b>Categoría:</b> ${category}</p>
+    </div>
 
-      <div class="product-actions">
-        ${
-          agotado
-            ? `<button class="btn btn-disabled" disabled>Agotado</button>`
-            : `<button
-                 class="btn add-to-cart"
-                 data-id="${id}"
-                 data-title="${title.replace(/"/g, "&quot;")}"
-                 data-price="${priceXaf}"
-                 data-image="${imgSrc}"
-               >Agregar al carrito</button>`
-        }
-      </div>
-    `;
+    <div class="product-actions">
+      ${
+        agotado
+          ? `<button class="btn btn-disabled" disabled>Agotado</button>`
+          : `<button
+               class="btn add-to-cart"
+               data-id="${id}"
+               data-title="${title.replace(/"/g, "&quot;")}"
+               data-price="${priceXaf}"
+               data-image="${imgSrc}"
+             >Agregar al carrito</button>`
+      }
+    </div>
+  </div>
+`;
 
     frag.appendChild(card);
   });
