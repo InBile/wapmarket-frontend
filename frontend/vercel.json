@@ -2,22 +2,18 @@
   "version": 2,
   "name": "wapmarket-frontend",
   "public": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/index.html"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
-      "src": "/admin",
-      "dest": "/admin.html"
+      "source": "/admin",
+      "destination": "/admin.html"
     },
     {
-      "src": "/business",
-      "dest": "/business.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/business",
+      "destination": "/business.html"
     }
   ]
 }
