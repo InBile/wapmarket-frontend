@@ -14,33 +14,51 @@
 </header>
 
 <main class="wrapper">
-  <div class="card" style="max-width:760px;padding:16px">
+  <!-- LOGIN ADMIN -->
+  <div class="card" style="max-width:760px;padding:16px" id="loginCard">
     <h3>Login de administrador</h3>
-    <form id="loginForm" onsubmit="return false;">
-      <label>Email <input id="email" type="email" value="admin@wapmarket.com" required></label>
-      <label>Contraseña <input id="password" type="password" value="admin123" required></label>
-      <button class="btn" id="btnLogin">Entrar</button>
+    <form id="loginForm">
+      <label>Email 
+        <input id="email" type="email" value="admin@wapmarket.com" required>
+      </label>
+      <label>Contraseña 
+        <input id="password" type="password" value="admin123" required>
+      </label>
+      <button class="btn" type="submit">Entrar</button>
     </form>
   </div>
 
+  <!-- PANEL ADMIN -->
   <div id="panel" style="display:none">
     <h2>Panel Admin</h2>
     <div class="card" style="max-width:760px;padding:16px">
       <h3>Crear negocio</h3>
-      <form id="bizForm" onsubmit="return false;">
-        <label>Nombre <input id="nombre" required></label>
-        <label>Email <input id="bemail" type="email"></label>
-        <label>Teléfono <input id="phone"></label>
-        <label>Ubicación <input id="location"></label>
+      <form id="bizForm">
+        <label>Nombre 
+          <input id="name" name="name" required>
+        </label>
+        <label>Email 
+          <input id="biz_email" name="email" type="email">
+        </label>
+        <label>Teléfono 
+          <input id="phone" name="phone">
+        </label>
+        <label>Ubicación 
+          <input id="location" name="location">
+        </label>
         <label>Tipo
-          <select id="business_type">
+          <select id="business_type" name="business_type">
             <option value="verified">Verificado</option>
             <option value="unverified">No verificado</option>
           </select>
         </label>
-        <label>Login vendedor (email) <input id="login_email" type="email" required></label>
-        <label>Contraseña vendedor <input id="bpass" type="password" required></label>
-        <button class="btn" id="btnCrear">Crear negocio</button>
+        <label>Login vendedor (email) 
+          <input id="login_email" name="login_email" type="email" required>
+        </label>
+        <label>Contraseña vendedor 
+          <input id="biz_password" name="password" type="password" required>
+        </label>
+        <button class="btn" type="submit">Crear negocio</button>
       </form>
     </div>
 
@@ -49,56 +67,91 @@
   </div>
 </main>
 
-<script src="/api.js"></script>
 <script>
-let token = null;
-function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
+const API_URL = "https://wapmarket-backend-production.up.railway.app/api"; // 👈 tu backend
+let adminToken = localStorage.getItem("adminToken");
 
-document.getElementById('btnLogin').addEventListener('click', async ()=>{
-  const res = await API.post('/admin/login', { email: email.value, password: password.value });
-  if (res.error){ alert(res.error); return; }
-  token = res.token; localStorage.setItem('adminToken', token);
-  document.getElementById('panel').style.display = 'block';
-  document.getElementById('loginForm').style.display = 'none';
+// --- LOGIN ---
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch(`${API_URL}/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type":"application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || "Error en login");
+
+  adminToken = data.token;
+  localStorage.setItem("adminToken", adminToken);
+  document.getElementById("loginCard").style.display = "none";
+  document.getElementById("panel").style.display = "block";
   loadBusinesses();
 });
-token = localStorage.getItem('adminToken'); 
-if (token){ 
-  document.getElementById('panel').style.display = 'block'; 
-  document.getElementById('loginForm').style.display = 'none'; 
-  loadBusinesses(); 
+
+// Si ya estaba logueado
+if (adminToken){
+  document.getElementById("loginCard").style.display = "none";
+  document.getElementById("panel").style.display = "block";
+  loadBusinesses();
 }
 
+// --- CREAR NEGOCIO ---
+document.getElementById("bizForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const payload = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("biz_email").value,
+    phone: document.getElementById("phone").value,
+    location: document.getElementById("location").value,
+    business_type: document.getElementById("business_type").value,
+    login_email: document.getElementById("login_email").value,
+    password: document.getElementById("biz_password").value
+  };
+
+  const res = await fetch(`${API_URL}/admin/businesses`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization": "Bearer " + adminToken
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || "Error creando negocio");
+  alert("Negocio creado ✅");
+  loadBusinesses();
+});
+
+// --- LISTAR NEGOCIOS ---
 async function loadBusinesses(){
-  const data = await API.get('/admin/businesses', { headers: authHeaders() });
-  const grid = document.getElementById('bizList'); grid.innerHTML = '';
-  (data.items||[]).forEach(b=>{
-    const el = document.createElement('div'); el.className='card';
-    el.innerHTML = `<div class="body">
-      <div class="badge">${b.business_type}</div>
-      <h4>${b.nombre}</h4>
-      <div>${b.login_email||''}</div>
-      <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
-    </div>`;
+  const res = await fetch(`${API_URL}/admin/businesses`, {
+    headers: { "Authorization":"Bearer " + adminToken }
+  });
+  const data = await res.json();
+
+  const grid = document.getElementById("bizList");
+  grid.innerHTML = "";
+
+  (data.items || []).forEach(b=>{
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <div class="body">
+        <div class="badge">${b.business_type}</div>
+        <h4>${b.name}</h4>
+        <div>${b.login_email||''}</div>
+        <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
+      </div>
+    `;
     grid.appendChild(el);
   });
 }
-
-document.getElementById('btnCrear').addEventListener('click', async ()=>{
-  const payload = {
-    nombre: nombre.value, 
-    email: bemail.value, 
-    phone: phone.value, 
-    location: location.value,
-    business_type: business_type.value, 
-    login_email: login_email.value, 
-    password: bpass.value
-  };
-  const res = await API.post('/admin/businesses', payload, { headers: authHeaders() });
-  if (res.error){ alert(res.error); return; }
-  alert('Negocio creado');
-  loadBusinesses();
-});
 </script>
 </body>
 </html>
