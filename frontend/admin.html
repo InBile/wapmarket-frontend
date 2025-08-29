@@ -1,112 +1,252 @@
-<script>
-const API_URL = "https://wapmarket-backend-production.up.railway.app/api"; // 👈 tu backend
-let adminToken = localStorage.getItem("adminToken");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin</title>
+  <style>
+    body { font-family: sans-serif; padding:20px; }
+    .card { border:1px solid #ddd; border-radius:8px; padding:15px; margin:10px 0; }
+    .badge { background:#333; color:#fff; padding:2px 6px; border-radius:4px; font-size:12px; }
+    #panel { display:none; }
+    form input, form select { display:block; margin:8px 0; padding:6px; width:100%; }
+    form button { padding:8px 12px; }
+    #bizList { display:grid; gap:10px; }
+  </style>
+</head>
+<body>
 
-// --- LOGIN ---
-document.getElementById("loginForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  <!-- LOGIN -->
+  <div id="loginCard" class="card">
+    <h2>Login Administrador</h2>
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="Email admin" required>
+      <input id="password" type="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
 
-  const res = await fetch(`${API_URL}/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type":"application/json" },
-    body: JSON.stringify({ email, password })
-  });
+  <!-- PANEL -->
+  <div id="panel">
+    <h2>Crear Negocio</h2>
+    <form id="bizForm" class="card">
+      <input id="name" placeholder="Nombre del negocio" required>
+      <input id="biz_email" type="email" placeholder="Email de contacto">
+      <input id="phone" placeholder="Teléfono">
+      <input id="location" placeholder="Ubicación">
+      <select id="business_type">
+        <option value="unverified">Unverified</option>
+        <option value="verified">Verified</option>
+      </select>
+      <input id="login_email" type="email" placeholder="Email de login (dueño)" required>
+      <input id="biz_password" type="password" placeholder="Contraseña dueño" required>
+      <button type="submit">Crear negocio</button>
+    </form>
 
-  let data;
-  try {
-    data = await res.json();
-  } catch {
-    const txt = await res.text();
-    console.error("Error login:", txt);
-    return alert("Error en login (respuesta inválida)");
+    <h2>Negocios existentes</h2>
+    <div id="bizList"></div>
+  </div>
+
+  <!-- SCRIPT -->
+  <!-- 👇 Aquí pegas el script corregido que te pasé -->
+  <script>
+    <script>
+(function () {
+  const API_URL = "https://wapmarket-backend-production.up.railway.app/api";
+  let adminToken = localStorage.getItem("adminToken") || null;
+
+  // Helpers
+  const $ = (id) => document.getElementById(id);
+  function setView(loggedIn) {
+    if ($("loginCard")) $("loginCard").style.display = loggedIn ? "none" : "block";
+    if ($("panel")) $("panel").style.display = loggedIn ? "block" : "none";
+  }
+  function logout() {
+    adminToken = null;
+    localStorage.removeItem("adminToken");
+    setView(false);
+  }
+  async function fetchJSON(url, opts = {}) {
+    try {
+      const res = await fetch(url, opts);
+      const ct = res.headers.get("content-type") || "";
+      const isJSON = ct.includes("application/json");
+      const body = isJSON ? await res.json().catch(() => null) : await res.text();
+
+      if (!res.ok) {
+        const msg = (isJSON && body && body.error) ? body.error
+                  : (typeof body === "string" ? body.slice(0, 400) : "Error desconocido");
+        const err = new Error(msg);
+        err.status = res.status;
+        err.body = body;
+        throw err;
+      }
+      return body;
+    } catch (e) {
+      // fallbacks de red
+      if (!e.status) {
+        console.error("Network/Parse error:", e);
+        throw new Error("No se pudo conectar con el servidor.");
+      }
+      throw e;
+    }
   }
 
-  if (!res.ok) return alert(data.error || "Error en login");
+  async function loadBusinesses() {
+    const grid = $("bizList");
+    if (!grid) return;
+    grid.innerHTML = "<div class='card'><div class='body'>Cargando negocios...</div></div>";
+    try {
+      const data = await fetchJSON(`${API_URL}/admin/businesses`, {
+        headers: { "Authorization": "Bearer " + adminToken }
+      });
 
-  adminToken = data.token;
-  localStorage.setItem("adminToken", adminToken);
-  document.getElementById("loginCard").style.display = "none";
-  document.getElementById("panel").style.display = "block";
-  loadBusinesses();
-});
+      grid.innerHTML = "";
+      (data.items || []).forEach(b => {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.innerHTML = `
+          <div class="body">
+            <div class="badge">${b.business_type}</div>
+            <h4>${b.name}</h4>
+            <div>${b.login_email || ""}</div>
+            <div>${b.email || ""} ${b.phone ? "• " + b.phone : ""} ${b.location ? "• " + b.location : ""}</div>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
 
-// Si ya estaba logueado
-if (adminToken){
-  document.getElementById("loginCard").style.display = "none";
-  document.getElementById("panel").style.display = "block";
-  loadBusinesses();
-}
-
-// --- CREAR NEGOCIO ---
-document.getElementById("bizForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const payload = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("biz_email").value,
-    phone: document.getElementById("phone").value,
-    location: document.getElementById("location").value,
-    business_type: document.getElementById("business_type").value,
-    login_email: document.getElementById("login_email").value,
-    password: document.getElementById("biz_password").value
-  };
-
-  const res = await fetch(`${API_URL}/admin/businesses`, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization": "Bearer " + adminToken
-    },
-    body: JSON.stringify(payload)
-  });
-
-  let data;
-  try {
-    data = await res.json();
-  } catch {
-    const txt = await res.text();
-    console.error("Error creando negocio:", txt);
-    return alert("Error creando negocio (respuesta inválida)");
+      if (!(data.items || []).length) {
+        grid.innerHTML = "<div class='card'><div class='body'>No hay negocios todavía.</div></div>";
+      }
+    } catch (e) {
+      console.error("Error listando negocios:", e);
+      if (e.status === 401) {
+        alert("Sesión expirada. Inicia sesión de nuevo.");
+        logout();
+      } else {
+        alert("Error listando negocios: " + e.message);
+      }
+    }
   }
 
-  if (!res.ok) return alert(data.error || "Error creando negocio");
-  alert("Negocio creado ✅");
-  loadBusinesses();
-});
+  document.addEventListener("DOMContentLoaded", () => {
+    // Estado inicial de la vista
+    setView(!!adminToken);
 
-// --- LISTAR NEGOCIOS ---
-async function loadBusinesses(){
-  const res = await fetch(`${API_URL}/admin/businesses`, {
-    headers: { "Authorization":"Bearer " + adminToken }
+    // --- LOGIN ---
+    const loginForm = $("loginForm");
+    if (loginForm) {
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = loginForm.querySelector("button[type='submit']");
+        btn && (btn.disabled = true);
+
+        const email = $("email")?.value?.trim();
+        const password = $("password")?.value || "";
+
+        if (!email || !password) {
+          alert("Completa email y contraseña");
+          btn && (btn.disabled = false);
+          return;
+        }
+
+        try {
+          const data = await fetchJSON(`${API_URL}/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+
+          adminToken = data.token;
+          localStorage.setItem("adminToken", adminToken);
+          setView(true);
+          await loadBusinesses();
+        } catch (e) {
+          console.error("Error login:", e);
+          alert(e.message || "Error en login");
+        } finally {
+          btn && (btn.disabled = false);
+        }
+      });
+    }
+
+    // Si ya había token, intentamos cargar de una
+    if (adminToken) {
+      loadBusinesses().catch(err => {
+        console.error("Init load error:", err);
+        // si falla por 401, logout
+        if (err.status === 401) logout();
+      });
+    }
+
+    // --- CREAR NEGOCIO ---
+    const bizForm = $("bizForm");
+    if (bizForm) {
+      bizForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = bizForm.querySelector("button[type='submit']");
+        btn && (btn.disabled = true);
+
+        const payload = {
+          name: $("name")?.value?.trim(),
+          email: $("biz_email")?.value?.trim() || null,
+          phone: $("phone")?.value?.trim() || null,
+          location: $("location")?.value?.trim() || null,
+          business_type: $("business_type")?.value || "unverified",
+          login_email: $("login_email")?.value?.trim(),
+          password: $("biz_password")?.value || ""
+        };
+
+        // Validaciones mínimas
+        if (!payload.name) {
+          alert("El nombre es obligatorio.");
+          btn && (btn.disabled = false);
+          return;
+        }
+        if (!payload.login_email) {
+          alert("El email de login del vendedor es obligatorio.");
+          btn && (btn.disabled = false);
+          return;
+        }
+        if (!payload.password) {
+          alert("La contraseña del vendedor es obligatoria.");
+          btn && (btn.disabled = false);
+          return;
+        }
+
+        try {
+          await fetchJSON(`${API_URL}/admin/businesses`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + adminToken
+            },
+            body: JSON.stringify(payload)
+          });
+
+          alert("Negocio creado ✅");
+          // limpiamos campos críticos
+          bizForm.reset();
+          $("business_type").value = payload.business_type; // conserva selección si quieres
+          await loadBusinesses();
+        } catch (e) {
+          console.error("Error creando negocio:", e);
+          if (e.status === 401) {
+            alert("Sesión expirada. Inicia sesión otra vez.");
+            logout();
+          } else {
+            alert(e.message || "Error creando negocio");
+          }
+        } finally {
+          btn && (btn.disabled = false);
+        }
+      });
+    }
   });
-
-  let data;
-  try {
-    data = await res.json();
-  } catch {
-    const txt = await res.text();
-    console.error("Error listando negocios:", txt);
-    return alert("Error listando negocios (respuesta inválida)");
-  }
-
-  if (!res.ok) return alert(data.error || "Error listando negocios");
-
-  const grid = document.getElementById("bizList");
-  grid.innerHTML = "";
-
-  (data.items || []).forEach(b=>{
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
-      <div class="body">
-        <div class="badge">${b.business_type}</div>
-        <h4>${b.name}</h4>
-        <div>${b.login_email||''}</div>
-        <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
-      </div>
-    `;
-    grid.appendChild(el);
-  });
-}
+})();
 </script>
+
+  </script>
+
+</body>
+</html>
