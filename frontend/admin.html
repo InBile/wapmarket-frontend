@@ -28,7 +28,7 @@
     <div class="card" style="max-width:760px;padding:16px">
       <h3>Crear negocio</h3>
       <form id="bizForm" onsubmit="return false;">
-        <label>Nombre <input id="name" required></label>
+        <label>Nombre <input id="nombre" required></label>
         <label>Email <input id="bemail" type="email"></label>
         <label>Teléfono <input id="phone"></label>
         <label>Ubicación <input id="location"></label>
@@ -62,7 +62,12 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
   document.getElementById('loginForm').style.display = 'none';
   loadBusinesses();
 });
-token = localStorage.getItem('adminToken'); if (token){ document.getElementById('panel').style.display = 'block'; document.getElementById('loginForm').style.display = 'none'; loadBusinesses(); }
+token = localStorage.getItem('adminToken'); 
+if (token){ 
+  document.getElementById('panel').style.display = 'block'; 
+  document.getElementById('loginForm').style.display = 'none'; 
+  loadBusinesses(); 
+}
 
 async function loadBusinesses(){
   const data = await API.get('/admin/businesses', { headers: authHeaders() });
@@ -71,7 +76,7 @@ async function loadBusinesses(){
     const el = document.createElement('div'); el.className='card';
     el.innerHTML = `<div class="body">
       <div class="badge">${b.business_type}</div>
-      <h4>${b.name}</h4>
+      <h4>${b.nombre}</h4>
       <div>${b.login_email||''}</div>
       <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
     </div>`;
@@ -81,8 +86,13 @@ async function loadBusinesses(){
 
 document.getElementById('btnCrear').addEventListener('click', async ()=>{
   const payload = {
-    name: name.value, email: bemail.value, phone: phone.value, location: location.value,
-    business_type: business_type.value, login_email: login_email.value, password: bpass.value
+    nombre: nombre.value, 
+    email: bemail.value, 
+    phone: phone.value, 
+    location: location.value,
+    business_type: business_type.value, 
+    login_email: login_email.value, 
+    password: bpass.value
   };
   const res = await API.post('/admin/businesses', payload, { headers: authHeaders() });
   if (res.error){ alert(res.error); return; }
