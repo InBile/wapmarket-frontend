@@ -83,28 +83,34 @@ if (token){
 }
 
 // CREAR NEGOCIO
-document.getElementById('btnCrear').addEventListener('click', async ()=>{
-  const payload = {
-    name: document.getElementById('name').value,
-    email: document.getElementById('bemail').value,
-    phone: document.getElementById('phone').value,
-    location: document.getElementById('location').value,
-    business_type: document.getElementById('business_type').value,
-    login_email: document.getElementById('login_email').value,
-    password: document.getElementById('bpass').value
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch(`${API_URL}/api/admin/businesses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`, // 👈 token admin obligatorio
+      },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        location: form.location,
+        business_type: form.business_type || "unverified",
+        login_email: form.login_email,
+        password: form.password,
+      }),
+    });
 
-  console.log("Payload enviado:", payload);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Error creando negocio");
+    alert("Negocio creado con éxito ✅");
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+};
 
-  const res = await fetch(`${API_BASE}/admin/businesses`, {
-    method:'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  if (!res.ok){ alert(data.error || 'Error al crear negocio'); return; }
-  alert('✅ Negocio creado correctamente');
-  loadBusinesses();
 });
 
 // LISTAR NEGOCIOS
