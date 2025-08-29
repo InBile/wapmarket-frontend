@@ -46,27 +46,34 @@ if (bizForm){
     e.preventDefault();
     const payload = {
       name: document.getElementById('name').value,
-      email: document.getElementById('email').value,
+      email: document.getElementById('bemail').value,   // 👈 corregido
       phone: document.getElementById('phone').value,
       location: document.getElementById('location').value,
-      business_type: document.getElementById('business_type').value
+      business_type: document.getElementById('business_type').value,
+      login_email: document.getElementById('login_email').value, // 👈 añadido
+      password: document.getElementById('bpass').value          // 👈 añadido
     };
-    const secret = document.getElementById('adminSecret').value;
+
     const res = await fetch(`${window.API_BASE}/admin/businesses`, {
       method:'POST',
-      headers: headers({ Authorization: 'Bearer ' + secret }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('adminToken') // 👈 mejor así
+      },
       body: JSON.stringify(payload)
     });
+
     const data = await res.json();
     if (!res.ok) return alert(data.error || 'Error');
-    alert('Negocio creado. Ahora emite una API Key en la lista de abajo.');
+    alert('Negocio creado correctamente');
     loadBusinesses();
   });
 
   async function loadBusinesses(){
-    const secret = document.getElementById('adminSecret').value;
     const res = await fetch(`${window.API_BASE}/admin/businesses`, {
-      headers: headers({ Authorization: 'Bearer ' + secret })
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+      }
     });
     const data = await res.json();
     const list = document.getElementById('bizList');
@@ -78,29 +85,12 @@ if (bizForm){
         <div class="body">
           <div class="badge">${b.business_type}</div>
           <h4>${b.name}</h4>
-          <p>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</p>
-          <button data-id="${b.id}" class="issue">Emitir / Rotar API Key</button>
+          <p>${b.login_email||''} • ${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</p>
         </div>
       `;
       list.appendChild(el);
     });
-    list.addEventListener('click', async (e)=>{
-      const btn = e.target.closest('button.issue');
-      if (!btn) return;
-      const id = btn.getAttribute('data-id');
-      const res2 = await fetch(`${window.API_BASE}/admin/businesses/${id}/issue-key`, {
-        method:'POST',
-        headers: headers({ Authorization: 'Bearer ' + document.getElementById('adminSecret').value })
-      });
-      const data2 = await res2.json();
-      if (!res2.ok) return alert(data2.error || 'Error');
-      prompt('API Key (cópiala y compártela con el negocio, se muestra solo una vez):', data2.api_key);
-    }, { once: true });
   }
-
-  document.getElementById('adminSecret').addEventListener('change', ()=>{
-    if (document.getElementById('adminSecret').value.trim()) loadBusinesses();
-  });
 }
 
 // Business panel
