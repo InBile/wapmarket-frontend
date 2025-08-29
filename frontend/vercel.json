@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "name": "wapmarket-frontend",
+  "public": true,
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/admin.html"
+    },
+    {
+      "src": "/business",
+      "dest": "/business.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

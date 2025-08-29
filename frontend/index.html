@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>wapmarket — Encuentra productos y negocios</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <h1>wapmarket</h1>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="/admin">Admin</a>
+    <a href="/business">Negocio</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Conecta con negocios en Guinea Ecuatorial</h2>
+  <form id="searchForm">
+    <input id="q" placeholder="¿Qué necesitas?" />
+    <input id="location" placeholder="Ciudad o barrio (Malabo, Bata)" />
+    <select id="category">
+      <option value="">Todas las categorías</option>
+      <option>Servicios</option>
+      <option>Comida</option>
+      <option>Tiendas</option>
+      <option>Salud</option>
+      <option>Transporte</option>
+      <option>Tecnología</option>
+    </select>
+    <button type="submit">Buscar</button>
+  </form>
+</section>
+
+<section>
+  <h3>Resultados</h3>
+  <div id="results" class="grid"></div>
+</section>
+
+<footer>
+  <p>© wapmarket</p>
+</footer>
+
+<script src="/api.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

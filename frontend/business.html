@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Negocio — wapmarket</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header><h1>Panel de Negocio</h1><nav><a href="/">Inicio</a></nav></header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>Autenticación del negocio</h2>
+    <p>Introduce tu <strong>ID de negocio</strong> y tu <strong>API Key</strong> (te la da el administrador).</p>
+    <form id="bizAuth">
+      <label>ID negocio <input id="bid" type="number" required></label>
+      <label>API Key <input id="apiKey" required></label>
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Publicar producto</h2>
+    <form id="prodForm">
+      <label>Título <input id="title" required></label>
+      <label>Descripción <textarea id="description"></textarea></label>
+      <label>Categoría
+        <select id="category">
+          <option>Servicios</option>
+          <option>Comida</option>
+          <option>Tiendas</option>
+          <option>Salud</option>
+          <option>Transporte</option>
+          <option>Tecnología</option>
+        </select>
+      </label>
+      <label>Precio (XAF) <input id="price" type="number" min="0"></label>
+      <label>URL de imagen <input id="image_url"></label>
+      <button type="submit">Publicar</button>
+    </form>
+  </section>
+</main>
+
+<script src="/api.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

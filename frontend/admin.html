@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — wapmarket</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header><h1>Admin</h1><nav><a href="/">Inicio</a></nav></header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>Crear negocio</h2>
+    <form id="bizForm">
+      <label>Nombre <input id="name" required></label>
+      <label>Email <input id="email" type="email"></label>
+      <label>Teléfono <input id="phone"></label>
+      <label>Ubicación <input id="location"></label>
+      <label>Tipo
+        <select id="business_type">
+          <option value="verified">Verificado (más visibilidad)</option>
+          <option value="unverified">No verificado</option>
+        </select>
+      </label>
+      <label>Admin Secret <input id="adminSecret" required></label>
+      <button type="submit">Crear</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Negocios</h2>
+    <div id="bizList"></div>
+  </section>
+</main>
+
+<script src="/api.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
