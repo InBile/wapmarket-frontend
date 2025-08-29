@@ -3,16 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin — wapmarket</title>
+  <title>Admin — WapMarket</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<header><h1>Admin</h1><nav><a href="/">Inicio</a></nav></header>
+<header class="header">
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div>
+    <nav class="nav"><a href="/">Inicio</a></nav>
+  </div>
+</header>
 
-<main class="wrap">
-  <section class="card">
-    <h2>Crear negocio</h2>
-    <form id="bizForm">
+<main class="wrapper">
+  <h2>Crear negocio</h2>
+  <div class="card" style="max-width:720px;padding:16px">
+    <form id="bizForm" onsubmit="return false;">
       <label>Nombre <input id="name" required></label>
       <label>Email <input id="email" type="email"></label>
       <label>Teléfono <input id="phone"></label>
@@ -24,17 +29,57 @@
         </select>
       </label>
       <label>Admin Secret <input id="adminSecret" required></label>
-      <button type="submit">Crear</button>
+      <button class="btn" id="btnCrear">Crear negocio</button>
     </form>
-  </section>
-
-  <section class="card">
-    <h2>Negocios</h2>
-    <div id="bizList"></div>
-  </section>
+  </div>
+  <h3>Negocios</h3>
+  <div id="bizList" class="grid"></div>
 </main>
 
 <script src="/api.js"></script>
-<script src="/app.js"></script>
+<script>
+const headers = (secret)=>({ 'Authorization':'Bearer '+secret, 'Content-Type':'application/json' });
+
+async function loadBusinesses(){
+  const secret = document.getElementById('adminSecret').value;
+  if (!secret.trim()) return;
+  const res = await fetch(API_BASE + '/admin/businesses', { headers: headers(secret) });
+  const data = await res.json();
+  const grid = document.getElementById('bizList'); grid.innerHTML = '';
+  (data.items||[]).forEach(b=>{
+    const el = document.createElement('div'); el.className='card';
+    el.innerHTML = `<div class="body">
+      <div class="badge">${b.business_type}</div>
+      <h4>${b.name}</h4>
+      <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
+      <button class="btn" data-id="${b.id}">Emitir / Rotar API Key</button>
+    </div>`;
+    el.querySelector('button').addEventListener('click', async ()=>{
+      const res2 = await fetch(API_BASE + '/admin/businesses/'+b.id+'/issue-key', { method:'POST', headers: headers(secret) });
+      const data2 = await res2.json();
+      if (!res2.ok) return alert(data2.error||'Error');
+      prompt('API Key para '+b.name+' (cópiala ahora):', data2.api_key);
+    });
+    grid.appendChild(el);
+  });
+}
+
+document.getElementById('btnCrear').addEventListener('click', async ()=>{
+  const secret = document.getElementById('adminSecret').value;
+  const payload = {
+    name: name.value, email: email.value, phone: phone.value, location: location.value,
+    business_type: business_type.value
+  };
+  const res = await fetch(API_BASE + '/admin/businesses', {
+    method:'POST', headers: headers(secret), body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || 'Error');
+  alert('Negocio creado. Ahora emite una API Key.');
+  loadBusinesses();
+});
+
+document.getElementById('adminSecret').addEventListener('change', loadBusinesses);
+</script>
 </body>
 </html>
