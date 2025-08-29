@@ -3,47 +3,189 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>wapmarket — Encuentra productos y negocios</title>
+  <title>WapMarket — Marketplace GE</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<header>
-  <h1>wapmarket</h1>
-  <nav>
-    <a href="/">Inicio</a>
-    <a href="/admin">Admin</a>
-    <a href="/business">Negocio</a>
-  </nav>
+<header class="header">
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div>
+    <form id="searchForm" class="search" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos, servicios, tiendas..." />
+      <select id="category">
+        <option value="">Todas</option>
+        <option>Servicios</option>
+        <option>Comida</option>
+        <option>Tiendas</option>
+        <option>Salud</option>
+        <option>Transporte</option>
+        <option>Tecnología</option>
+      </select>
+      <input id="location" placeholder="Ciudad o barrio (Malabo, Bata)" />
+      <button class="btn" id="btnBuscar">Buscar</button>
+    </form>
+    <nav class="nav">
+      <a href="/admin">Admin</a>
+      <a href="/business">Vendedores</a>
+      <a href="#" id="btnOpenCart">Carrito (<span id="cartCount">0</span>)</a>
+    </nav>
+  </div>
 </header>
 
-<section class="hero">
-  <h2>Conecta con negocios en Guinea Ecuatorial</h2>
-  <form id="searchForm">
-    <input id="q" placeholder="¿Qué necesitas?" />
-    <input id="location" placeholder="Ciudad o barrio (Malabo, Bata)" />
-    <select id="category">
-      <option value="">Todas las categorías</option>
-      <option>Servicios</option>
-      <option>Comida</option>
-      <option>Tiendas</option>
-      <option>Salud</option>
-      <option>Transporte</option>
-      <option>Tecnología</option>
-    </select>
-    <button type="submit">Buscar</button>
-  </form>
-</section>
-
-<section>
-  <h3>Resultados</h3>
+<main class="wrapper">
+  <div class="hero"><h2>Encuentra lo que necesitas cerca de ti</h2></div>
+  <h3>Productos</h3>
   <div id="results" class="grid"></div>
-</section>
+</main>
 
-<footer>
-  <p>© wapmarket</p>
+<div class="modal" id="cartModal">
+  <div class="dialog">
+    <h3>Tu carrito</h3>
+    <div id="cartItems"></div>
+    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
+    <div id="addressBox" style="display:none">
+      <label>Dirección exacta
+        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
+      </label>
+      <small class="small">El vendedor te contactará para coordinar.</small>
+    </div>
+    <div id="totals" style="margin:12px 0;font-weight:800"></div>
+    <form id="checkoutForm">
+      <label>Tu nombre (opcional)<input id="cname"></label>
+      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
+      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" type="submit">Confirmar pedido</button>
+        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer class="footer">
+  © WapMarket — Pulsa <span class="kbd">/</span> para enfocar el buscador
 </footer>
 
 <script src="/api.js"></script>
-<script src="/app.js"></script>
+<script>
+const DELIVERY_FEE = 2000;
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+function updateCartCount(){ document.getElementById('cartCount').textContent = cart.reduce((a,c)=>a+Number(c.qty||1),0); }
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
+function openCart(){
+  renderCart();
+  document.getElementById('cartModal').style.display='flex';
+}
+document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+
+function renderCart(){
+  const box = document.getElementById('cartItems');
+  if (!cart.length){ box.innerHTML = '<p>Tu carrito está vacío.</p>'; document.getElementById('totals').textContent=''; return; }
+  box.innerHTML = '';
+  let subtotal = 0;
+  cart.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.style.margin='8px 0';
+    div.innerHTML = \`
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="\${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+        <div style="flex:1">
+          <div><strong>\${item.title}</strong></div>
+          <div class="small">\${(item.price_xaf||0).toLocaleString()} XAF • <span>\${item.category||''}</span></div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <button class="btn" data-idx="\${idx}" data-act="dec">-</button>
+            <span>\${item.qty}</span>
+            <button class="btn" data-idx="\${idx}" data-act="inc">+</button>
+            <button class="btn" data-idx="\${idx}" data-act="del">Quitar</button>
+          </div>
+        </div>
+      </div>
+    \`;
+    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+    box.appendChild(div);
+  });
+  const delivery = document.getElementById('deliveryChk').checked;
+  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+  document.getElementById('totals').textContent = 'Subtotal: ' + subtotal.toLocaleString() + ' XAF' + (delivery? ' + Envío: 2.000 XAF = Total: ' + total.toLocaleString() + ' XAF' : ' = Total: ' + total.toLocaleString() + ' XAF');
+  box.onclick = (e)=>{
+    const btn = e.target.closest('button.btn'); if(!btn) return;
+    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+    if (act==='del') cart.splice(i,1);
+    saveCart(); renderCart();
+  }
+}
+
+async function load(){
+  const q = document.getElementById('q').value.trim();
+  const cat = document.getElementById('category').value;
+  const loc = document.getElementById('location').value.trim();
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (cat) params.set('category', cat);
+  if (loc) params.set('location', loc);
+  const data = await API.get('/public/products?' + params.toString());
+  const list = document.getElementById('results');
+  list.innerHTML = '';
+  (data.items||[]).forEach(p=>{
+    const el = document.createElement('div');
+    el.className='card';
+    el.innerHTML = `
+      <img src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
+      <div class="body">
+        <div class="badge">${p.business_type === 'verified' ? '✔ Verificado' : 'No verificado'}</div>
+        <h4>${p.title}</h4>
+        <div>${p.category||''} • ${p.location||''}</div>
+        <div class="price">${p.price_xaf ? (p.price_xaf.toLocaleString() + ' XAF') : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" data-add="${p.id}">Añadir al carrito</button>
+          ${p.phone ? `<a class="btn" href="https://wa.me/${String(p.phone).replace(/[^0-9]/g,'')}" target="_blank">WhatsApp</a>`:''}
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+  list.onclick = (e)=>{
+    const btn = e.target.closest('button[data-add]'); if(!btn) return;
+    const id = Number(btn.getAttribute('data-add'));
+    const p = (data.items||[]).find(x=>x.id===id); if(!p) return;
+    const exists = cart.find(x=>x.id===p.id);
+    if (exists) exists.qty = Number(exists.qty||1)+1;
+    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1 });
+    saveCart();
+  };
+}
+
+document.getElementById('btnBuscar').addEventListener('click', load);
+document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
+updateCartCount();
+load();
+
+document.getElementById('deliveryChk').addEventListener('change', (e)=>{
+  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
+  renderCart();
+});
+
+document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (!cart.length) return alert('Tu carrito está vacío');
+  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+  const delivery = document.getElementById('deliveryChk').checked;
+  const payload = {
+    items,
+    customer_name: document.getElementById('cname').value,
+    customer_phone: document.getElementById('cphone').value,
+    address: delivery ? document.getElementById('address').value : undefined,
+    note: document.getElementById('cnote').value,
+    delivery
+  };
+  const res = await API.post('/public/cart/checkout', payload);
+  if (res.error){ alert(res.error); return; }
+  const total = (res.total_xaf || 0).toLocaleString();
+  alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + total + ' XAF. El/los vendedor(es) te contactarán por teléfono/WhatsApp.');
+  cart = []; saveCart(); closeCart();
+});
+</script>
 </body>
 </html>
