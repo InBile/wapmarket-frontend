@@ -10,76 +10,85 @@
 <header class="header">
   <div class="row wrapper">
     <div class="logo">WapMarket</div>
-    <nav class="nav"><a href="/">Inicio</a></nav>
   </div>
 </header>
 
 <main class="wrapper">
-  <h2>Crear negocio</h2>
-  <div class="card" style="max-width:720px;padding:16px">
-    <form id="bizForm" onsubmit="return false;">
-      <label>Nombre <input id="name" required></label>
-      <label>Email <input id="email" type="email"></label>
-      <label>Teléfono <input id="phone"></label>
-      <label>Ubicación <input id="location"></label>
-      <label>Tipo
-        <select id="business_type">
-          <option value="verified">Verificado (más visibilidad)</option>
-          <option value="unverified">No verificado</option>
-        </select>
-      </label>
-      <label>Admin Secret <input id="adminSecret" required></label>
-      <button class="btn" id="btnCrear">Crear negocio</button>
+  <div class="card" style="max-width:760px;padding:16px">
+    <h3>Login de administrador</h3>
+    <form id="loginForm" onsubmit="return false;">
+      <label>Email <input id="email" type="email" value="admin@wapmarket.com" required></label>
+      <label>Contraseña <input id="password" type="password" value="admin123" required></label>
+      <button class="btn" id="btnLogin">Entrar</button>
     </form>
   </div>
-  <h3>Negocios</h3>
-  <div id="bizList" class="grid"></div>
+
+  <div id="panel" style="display:none">
+    <h2>Panel Admin</h2>
+    <div class="card" style="max-width:760px;padding:16px">
+      <h3>Crear negocio</h3>
+      <form id="bizForm" onsubmit="return false;">
+        <label>Nombre <input id="name" required></label>
+        <label>Email <input id="bemail" type="email"></label>
+        <label>Teléfono <input id="phone"></label>
+        <label>Ubicación <input id="location"></label>
+        <label>Tipo
+          <select id="business_type">
+            <option value="verified">Verificado</option>
+            <option value="unverified">No verificado</option>
+          </select>
+        </label>
+        <label>Login vendedor (email) <input id="login_email" type="email" required></label>
+        <label>Contraseña vendedor <input id="bpass" type="password" required></label>
+        <button class="btn" id="btnCrear">Crear negocio</button>
+      </form>
+    </div>
+
+    <h3>Negocios</h3>
+    <div id="bizList" class="grid"></div>
+  </div>
 </main>
 
 <script src="/api.js"></script>
 <script>
-const headers = (secret)=>({ 'Authorization':'Bearer '+secret, 'Content-Type':'application/json' });
+let token = null;
+function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
+
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const res = await API.post('/admin/login', { email: email.value, password: password.value });
+  if (res.error){ alert(res.error); return; }
+  token = res.token; localStorage.setItem('adminToken', token);
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('loginForm').style.display = 'none';
+  loadBusinesses();
+});
+token = localStorage.getItem('adminToken'); if (token){ document.getElementById('panel').style.display = 'block'; document.getElementById('loginForm').style.display = 'none'; loadBusinesses(); }
 
 async function loadBusinesses(){
-  const secret = document.getElementById('adminSecret').value;
-  if (!secret.trim()) return;
-  const res = await fetch(API_BASE + '/admin/businesses', { headers: headers(secret) });
-  const data = await res.json();
+  const data = await API.get('/admin/businesses', { headers: authHeaders() });
   const grid = document.getElementById('bizList'); grid.innerHTML = '';
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div'); el.className='card';
     el.innerHTML = `<div class="body">
       <div class="badge">${b.business_type}</div>
       <h4>${b.name}</h4>
+      <div>${b.login_email||''}</div>
       <div>${b.email||''} ${b.phone? '• '+b.phone:''} ${b.location? '• '+b.location:''}</div>
-      <button class="btn" data-id="${b.id}">Emitir / Rotar API Key</button>
     </div>`;
-    el.querySelector('button').addEventListener('click', async ()=>{
-      const res2 = await fetch(API_BASE + '/admin/businesses/'+b.id+'/issue-key', { method:'POST', headers: headers(secret) });
-      const data2 = await res2.json();
-      if (!res2.ok) return alert(data2.error||'Error');
-      prompt('API Key para '+b.name+' (cópiala ahora):', data2.api_key);
-    });
     grid.appendChild(el);
   });
 }
 
 document.getElementById('btnCrear').addEventListener('click', async ()=>{
-  const secret = document.getElementById('adminSecret').value;
   const payload = {
-    name: name.value, email: email.value, phone: phone.value, location: location.value,
-    business_type: business_type.value
+    name: name.value, email: bemail.value, phone: phone.value, location: location.value,
+    business_type: business_type.value, login_email: login_email.value, password: bpass.value
   };
-  const res = await fetch(API_BASE + '/admin/businesses', {
-    method:'POST', headers: headers(secret), body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-  if (!res.ok) return alert(data.error || 'Error');
-  alert('Negocio creado. Ahora emite una API Key.');
+  const res = await API.post('/admin/businesses', payload, { headers: authHeaders() });
+  if (res.error){ alert(res.error); return; }
+  alert('Negocio creado');
   loadBusinesses();
 });
-
-document.getElementById('adminSecret').addEventListener('change', loadBusinesses);
 </script>
 </body>
 </html>
