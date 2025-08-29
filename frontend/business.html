@@ -3,46 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Negocio — wapmarket</title>
+  <title>Vendedor — WapMarket</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<header><h1>Panel de Negocio</h1><nav><a href="/">Inicio</a></nav></header>
+<header class="header">
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div>
+    <nav class="nav"><a href="/">Inicio</a></nav>
+  </div>
+</header>
 
-<main class="wrap">
-  <section class="card">
-    <h2>Autenticación del negocio</h2>
-    <p>Introduce tu <strong>ID de negocio</strong> y tu <strong>API Key</strong> (te la da el administrador).</p>
-    <form id="bizAuth">
+<main class="wrapper">
+  <h2>Panel de Negocio</h2>
+  <div class="card" style="padding:16px;max-width:800px">
+    <h3>Autenticación</h3>
+    <p>Introduce tu <strong>ID de negocio</strong> y tu <strong>API Key</strong> (proporcionada por el administrador).</p>
+    <form id="bizAuth" onsubmit="return false;">
       <label>ID negocio <input id="bid" type="number" required></label>
       <label>API Key <input id="apiKey" required></label>
-      <button type="submit">Entrar</button>
+      <button class="btn" id="btnLogin">Entrar</button>
     </form>
-  </section>
+  </div>
 
-  <section class="card">
-    <h2>Publicar producto</h2>
-    <form id="prodForm">
+  <div class="card" style="padding:16px;max-width:800px">
+    <h3>Publicar producto</h3>
+    <form id="prodForm" onsubmit="return false;">
       <label>Título <input id="title" required></label>
       <label>Descripción <textarea id="description"></textarea></label>
       <label>Categoría
         <select id="category">
-          <option>Servicios</option>
-          <option>Comida</option>
-          <option>Tiendas</option>
-          <option>Salud</option>
-          <option>Transporte</option>
-          <option>Tecnología</option>
+          <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
         </select>
       </label>
       <label>Precio (XAF) <input id="price" type="number" min="0"></label>
-      <label>URL de imagen <input id="image_url"></label>
-      <button type="submit">Publicar</button>
+      <label>Imagen (archivo) <input id="image" type="file" accept="image/*"></label>
+      <button class="btn" id="btnPublicar">Publicar</button>
     </form>
-  </section>
+  </div>
+
+  <div class="card" style="padding:16px;max-width:1100px">
+    <h3>Pedidos</h3>
+    <table class="table" id="ordersTable">
+      <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th><th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </main>
 
 <script src="/api.js"></script>
-<script src="/app.js"></script>
+<script>
+let auth = null;
+function authHeaders(){ return auth ? { 'Authorization':'Bearer '+auth.key, 'X-Business-Id': String(auth.id) } : {}; }
+
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  auth = { id: Number(document.getElementById('bid').value), key: document.getElementById('apiKey').value };
+  alert('Autenticado');
+  loadOrders();
+});
+
+document.getElementById('btnPublicar').addEventListener('click', async ()=>{
+  if (!auth) return alert('Primero inicia sesión del negocio');
+  let imageUrl = '';
+  const file = document.getElementById('image').files[0];
+  if (file){
+    const fd = new FormData(); fd.append('image', file);
+    const up = await API.upload('/business/upload-image', fd, { headers: authHeaders() });
+    if (up.error) return alert(up.error);
+    imageUrl = up.url; // URL absoluta
+  }
+  const payload = {
+    title: title.value, description: description.value, category: category.value,
+    price_xaf: Number(price.value || 0), image_url: imageUrl
+  };
+  const res = await fetch(API_BASE + '/products', {
+    method:'POST',
+    headers: { 'Content-Type':'application/json', ...authHeaders() },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) return alert(data.error || 'Error');
+  alert('Producto publicado');
+  document.getElementById('prodForm').reset();
+});
+
+async function loadOrders(){
+  if (!auth) return;
+  const res = await fetch(API_BASE + '/business/orders', { headers: authHeaders() });
+  const data = await res.json();
+  const tb = document.querySelector('#ordersTable tbody'); tb.innerHTML = '';
+  (data.items||[]).forEach(o=>{
+    const price = Number(o.price_xaf||0);
+    const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${price.toLocaleString()} XAF</td><td>${o.qty}</td>
+                    <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
+                    <td><span class="status">${o.status}</span></td>
+                    <td>
+                      <button class="btn" data-id="${o.id}" data-s="accepted">Aceptar</button>
+                      <button class="btn" data-id="${o.id}" data-s="rejected">Rechazar</button>
+                      <button class="btn" data-id="${o.id}" data-s="fulfilled">Entregado</button>
+                    </td>`;
+    tb.appendChild(tr);
+  });
+  tb.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('button.btn'); if (!btn) return;
+    const id = btn.getAttribute('data-id'); const s = btn.getAttribute('data-s');
+    const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
+    if (r.error) return alert(r.error);
+    loadOrders();
+  }, { once: true });
+}
+</script>
 </body>
 </html>
