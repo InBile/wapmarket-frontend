@@ -53,7 +53,8 @@
 <!-- API JS -->
 <script>
 // API base (Railway, ya con /api incluido)
-const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
+const up = await API.upload('/business/upload-image', fd, { headers: authHeaders() });
+
 
 const API = {
   async get(path, opts = {}) {
