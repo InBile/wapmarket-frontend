@@ -78,14 +78,14 @@ const API = {
   return r.json();
   },
   async upload(path, formData, opts = {}) {
-    const r = await fetch(API_BASE + path, {
-      method: 'POST',
-      body: formData,
-      ...(opts || {})
-    });
-    return r.json();
-  }
-};
+  const r = await fetch(API_BASE + path, {
+    method: 'POST',
+    body: formData,
+    ...(opts || {})
+  });
+  return r.json();
+}
+  },
 
 window.API = API;
 window.API_BASE = API_BASE;
