@@ -151,3 +151,8 @@ async function loadOrders(){
     const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
     if (r.error) return alert(r.error);
     loadOrders();
+  };
+}
+</script>
+</body>
+</html>
