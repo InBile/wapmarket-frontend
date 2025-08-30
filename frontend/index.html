@@ -5,21 +5,151 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>WapMarket — Marketplace GE</title>
   <link rel="stylesheet" href="/styles.css">
+
   <style>
-    .verified-badge {
-      display:inline-flex;
-      align-items:center;
-      margin-left:20px;
-      vertical-align: middle;
+    /* ====== RESET Y BASE ====== */
+    :root{
+      --gap:16px;
+      --aside-w:300px;
+      --footer-h:60px;
     }
-    .verified-badge img {
-      width:30px;
-      height:30px;
-      object-fit:contain;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      padding:0 0 var(--footer-h); /* espacio para footer fijo */
+      background:#f7f7f9; /* ajusta al fondo que uses */
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+
+    /* ====== HEADER ====== */
+    .header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #eee}
+    .wrapper{max-width:1200px;margin:0 auto;padding:10px 16px}
+    .row{display:flex;align-items:center;gap:12px}
+    .logo{font-weight:800}
+    .search{display:flex;gap:8px;flex:1}
+    .search input{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
+    .btn{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    /* ====== BOTÓN CARRITO BLANCO + INDICADOR ====== */
+    #btnOpenCart{
+      position:relative;
+      display:inline-flex;align-items:center;justify-content:center;
+      background:#fff;color:#111;border:1px solid #ddd;border-radius:8px;
+      width:46px;height:46px;padding:0;
+    }
+    #btnOpenCart img{width:26px;height:26px;object-fit:contain}
+    /* Puntito indicador cuando hay ítems */
+    #btnOpenCart[data-has-items="true"]::after{
+      content:"";
+      position:absolute;top:6px;right:6px;
+      width:8px;height:8px;border-radius:50%;
+      background:#ff3b30; /* rojo tipo notificación */
+    }
+
+    /* ====== LAYOUT PRINCIPAL ====== */
+    .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap)}
+    aside{margin-left:-8px;} /* empuja un poco más a la izquierda */
+    /* Contenedores (negocios/filtros) sin bordes redondeados */
+    .card{background:#fff;border:1px solid #eee;border-radius:0}
+    .card .body{padding:12px 12px}
+
+    /* Lista negocios: scroll cuando >10 */
+    #bizList{display:flex;flex-direction:column;gap:8px}
+    #bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
+
+    /* Contenedor de resultados: productos SIN card visual */
+    section .card{background:transparent;border:none}
+    #results.grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:var(--gap);
+    }
+    /* Tarjeta visual de producto sin redondeos ni sombra */
+    .product-item{
+      background:transparent;border:none;border-radius:0; /* sin bordes redondeados */
+    }
+    .product-item .thumb{
+      width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+      border:1px solid #e9e9ee; /* delineado sutil para separar del fondo */
+    }
+    .product-item .meta{
+      padding:8px 2px;
+    }
+    .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
+    .price{font-weight:800;margin:4px 0}
+
+    /* ====== NAVBAR SUPERIOR AUTO-SCROLL ====== */
+    .autonav{
+      width:100%;
+      overflow:hidden;
+      border-bottom:1px solid #eee;
+      background:#fff;
+    }
+    .autonav-track{
+      display:flex;gap:14px;align-items:center;
+      padding:8px 16px;
+      animation: autoscroll 30s linear infinite;
+      will-change: transform;
+    }
+    .autonav:hover .autonav-track{animation-play-state:paused}
+    .autonav-item{
+      flex:0 0 auto; width:90px; height:60px; display:flex; align-items:center; justify-content:center;
+      border:1px solid #eee; background:#fff; cursor:pointer;
+    }
+    .autonav-item img{max-width:100%;max-height:100%;object-fit:cover}
+
+    @keyframes autoscroll{
+      from{transform: translateX(0)}
+      to{transform: translateX(-50%)}
+    }
+
+    /* ====== MODAL, FOOTER ====== */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
+    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:auto}
+    .small{font-size:.9em;color:#555}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
+
+    .footer{
+      position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);
+      display:flex;align-items:center;justify-content:center;gap:18px;
+      background:#fff;border-top:1px solid #eee;
+      z-index:9;
+      padding:0 12px;
+      flex-wrap:wrap;
+    }
+    .footer a{color:#111;text-decoration:underline}
+
+    /* Verified badge (se mantiene) */
+    .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
+    .verified-badge img{width:22px;height:22px;object-fit:contain}
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width:1100px){
+      #results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}
+      :root{--aside-w:260px}
+    }
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+      aside{order:2}
+      section{order:1}
+      #results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}
+    }
+    @media (max-width:520px){
+      .search input{padding:10px}
+      #results.grid{grid-template-columns: 1fr;}
+      .dialog{padding:12px}
     }
   </style>
 </head>
 <body>
+
+<!-- NAVBAR AUTO-SCROLL CON IMÁGENES -->
+<div class="autonav" id="autoNav">
+  <div class="autonav-track" id="autoNavTrack"><!-- se llena por JS --></div>
+</div>
+
 <header class="header">
   <div class="row wrapper">
     <div class="logo">WapMarket</div>
@@ -27,7 +157,11 @@
       <input id="q" placeholder="Buscar productos o servicios..." />
       <button class="btn" id="btnBuscar">Buscar</button>
     </form>
-    <a href="#" class="btn" id="btnOpenCart">Carrito (<span id="cartCount">0</span>)</a>
+
+    <!-- Botón carrito: blanco, sin contador, con icono y puntito indicador -->
+    <a href="#" class="btn" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
+      <img src="/aset/icons8-buy-64.png" alt="Carrito">
+    </a>
   </div>
 </header>
 
@@ -43,8 +177,8 @@
       <div class="card" style="margin-top:16px">
         <div class="body">
           <h3>Filtros</h3>
-          <label>Categoría
-            <select id="category">
+          <label style="display:block">Categoría
+            <select id="category" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:0">
               <option value="">Todas</option>
               <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
             </select>
@@ -52,11 +186,17 @@
         </div>
       </div>
     </aside>
+
     <section>
       <div class="card">
         <div class="body">
           <h3 id="bizTitle">Selecciona un negocio</h3>
           <div id="results" class="grid"></div>
+
+          <!-- “Next” aparece cuando hay más de 20 productos -->
+          <div style="display:flex;justify-content:center;margin-top:12px">
+            <button id="nextBtn" class="btn" style="display:none">Next</button>
+          </div>
         </div>
       </div>
     </section>
@@ -88,47 +228,78 @@
 </div>
 
 <footer class="footer">
-  © WapMarket — Pulsa <span class="kbd">/</span> para buscar
+  <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
+  <a href="#">comprar</a>
+  <a href="#">reserva hotel</a>
+  <a href="#">restaurantes</a>
+  <a href="#">negocios</a>
+  <a href="#">comprar billetes</a>
+  <a href="#">empleos</a>
 </footer>
 
 <script src="/api.js"></script>
 <script>
+/* ====== MANTIENE TU LÓGICA, AÑADE PAGINACIÓN Y UI ====== */
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentProducts = [];
 
+/* Paginación frontend */
+let pageSize = 20;
+let currentPage = 1;
+
 function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-function updateCartCount(){ document.getElementById('cartCount').textContent = cart.reduce((a,c)=>a+Number(c.qty||1),0); }
-function closeCart(){ document.getElementById('cartModal').style.display='none'; }
-function openCart(){
-  document.getElementById('cartModal').style.display='flex';
-  renderCart();
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  // Indicador (puntito). Ya no mostramos número.
+  document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
 }
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
+function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
 
 document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
 
 function setBusiness(b){
   selectedBusiness = b;
-  document.getElementById('bizTitle').innerHTML = 
-    'Productos de ' + b.name + (b.business_type==='verified' ? 
-      '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' 
+  document.getElementById('bizTitle').innerHTML =
+    'Productos de ' + b.name + (b.business_type==='verified'
+      ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>'
       : '');
   if (cart.length && cart[0].business_id !== b.id){
     if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
       cart = []; saveCart();
     }
   }
+  currentPage = 1;
   loadProducts();
+}
+
+/* Navbar superior: llena con imágenes (de productos del negocio actual) */
+function refreshAutoNav(images){
+  const track = document.getElementById('autoNavTrack');
+  track.innerHTML = '';
+  const imgs = (images||[]).slice(0,14);
+  // Duplicamos para scroll infinito
+  const twice = imgs.concat(imgs);
+  twice.forEach(src=>{
+    const item = document.createElement('div');
+    item.className='autonav-item';
+    item.innerHTML = `<img src="${src}" alt="producto">`;
+    // NOTE: Aquí abrimos el carrito al hacer click. Si más adelante tienes el wa.me del negocio,
+    // reemplaza por: window.open('https://wa.me/NUMERO','_blank')
+    item.addEventListener('click', ()=> openCart());
+    track.appendChild(item);
+  });
 }
 
 async function loadBusinesses(){
   const data = await API.get('/public/businesses');
-  const box = document.getElementById('bizList'); 
+  const box = document.getElementById('bizList');
   box.innerHTML = '';
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div');
-    el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:10px;margin:8px 0;cursor:pointer;';
+    el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:0;margin:8px 0;cursor:pointer;background:#fff;';
     el.innerHTML = `
       <strong>${b.name}</strong>
       ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
@@ -136,7 +307,58 @@ async function loadBusinesses(){
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
   });
+  // Activa scroll si hay >10 negocios
+  if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
+
   if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+}
+
+function renderProductsPage(){
+  const list = document.getElementById('results');
+  list.innerHTML = '';
+  const start = (currentPage-1)*pageSize;
+  const pageItems = currentProducts.slice(start, start+pageSize);
+
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'product-item';
+    el.innerHTML = `
+      <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
+      <div class="meta">
+        <div class="badge">${p.category || ''}</div>
+        <h4 style="margin:6px 0 2px">${p.title}</h4>
+        <div class="price">${p.price_xaf ? (Number(p.price_xaf).toLocaleString() + ' XAF') : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" data-id="${p.id}">Añadir</button>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+
+  // Botón Next visible si hay más de 20 productos
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentProducts.length > pageSize){
+    nextBtn.style.display = (start + pageSize) < currentProducts.length ? 'inline-block' : 'none';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  // Delegación de clicks Añadir
+  list.onclick = (e)=>{
+    const btn = e.target.closest('button[data-id]'); if(!btn) return;
+    const id = btn.dataset.id;
+    const p = currentProducts.find(x=>x.id == id);
+    if (!p) return;
+
+    if (cart.length && cart[0].business_id !== p.business_id){
+      if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
+      cart = [];
+    }
+    const exists = cart.find(x=>x.id===p.id);
+    if (exists) exists.qty = Number(exists.qty||1)+1;
+    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+    saveCart();
+  };
 }
 
 async function loadProducts(){
@@ -149,41 +371,13 @@ async function loadProducts(){
   if (cat) params.set('category', cat);
   const data = await API.get('/public/products?' + params.toString());
   currentProducts = data.items || [];
-  const list = document.getElementById('results');
-  list.innerHTML = '';
-  currentProducts.forEach(p=>{
-    const el = document.createElement('div');
-    el.className = 'product-card';
-    el.innerHTML = `
-      <div class="card" style="padding:10px">
-        <img src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
-        <div class="body">
-          <div class="badge">${p.category || ''}</div>
-          <h4>${p.title}</h4>
-          <div class="price">${p.price_xaf ? (p.price_xaf.toLocaleString() + ' XAF') : ''}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" data-id="${p.id}">Añadir</button>
-          </div>
-        </div>
-      </div>`;
-    list.appendChild(el);
-  });
+  currentPage = 1;
 
-  list.onclick = (e)=>{
-    const btn = e.target.closest('button[data-id]'); if(!btn) return;
-    const id = btn.dataset.id;
-    const p = currentProducts.find(x=>x.id == id);
-    if (!p) return;
+  // Rellena navbar con imágenes de productos
+  const imgs = currentProducts.map(p=>p.image_url).filter(Boolean);
+  refreshAutoNav(imgs.length ? imgs : ["/aset/icons8-buy-64.png"]);
 
-    if (cart.length && cart[0].business_id !== p.business_id){
-      if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + selectedBusiness.name + '?')) return;
-      cart = [];
-    }
-    const exists = cart.find(x=>x.id===p.id);
-    if (exists) exists.qty = Number(exists.qty||1)+1;
-    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
-    saveCart();
-  };
+  renderProductsPage();
 }
 
 function renderCart(){
@@ -236,6 +430,7 @@ document.getElementById('btnBuscar').addEventListener('click', ()=>{
   if (selectedBusiness) loadProducts();
 });
 document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
+document.getElementById('category').addEventListener('change', ()=>{ if (selectedBusiness) loadProducts(); });
 
 document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -254,6 +449,12 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   if (res.error){ alert(res.error); return; }
   alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
   cart = []; saveCart(); closeCart();
+});
+
+/* Botón Next: pasa a la siguiente “página” de 20 items */
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const maxPages = Math.ceil(currentProducts.length / pageSize);
+  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
 });
 
 updateCartCount();
