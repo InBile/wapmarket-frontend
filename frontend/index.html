@@ -111,7 +111,7 @@ function setBusiness(b){
   selectedBusiness = b;
   document.getElementById('bizTitle').innerHTML = 
     'Productos de ' + b.name + (b.business_type==='verified' ? 
-      '<span class="verified-badge"><img src="/aseo/icons8-verified-50.png" alt="Verificado"></span>' 
+      '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' 
       : '');
   if (cart.length && cart[0].business_id !== b.id){
     if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
