@@ -83,6 +83,7 @@
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let currentProducts = []; // almacenamos productos cargados
 
 function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
 function updateCartCount(){ document.getElementById('cartCount').textContent = cart.reduce((a,c)=>a+Number(c.qty||1),0); }
@@ -97,7 +98,6 @@ document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preven
 function setBusiness(b){
   selectedBusiness = b;
   document.getElementById('bizTitle').textContent = 'Productos de ' + b.name + (b.business_type==='verified' ? ' ✔' : '');
-  // Enforce single-business cart
   if (cart.length && cart[0].business_id !== b.id){
     if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
       cart = []; saveCart();
@@ -128,9 +128,10 @@ async function loadProducts(){
   if (q) params.set('q', q);
   if (cat) params.set('category', cat);
   const data = await API.get('/public/products?' + params.toString());
+  currentProducts = data.items || [];
   const list = document.getElementById('results');
   list.innerHTML = '';
-  (data.items||[]).forEach(p=>{
+  currentProducts.forEach(p=>{
     const el = document.createElement('div');
     el.className = 'product-card';
     el.innerHTML = `
@@ -141,15 +142,19 @@ async function loadProducts(){
           <h4>${p.title}</h4>
           <div class="price">${p.price_xaf ? (p.price_xaf.toLocaleString() + ' XAF') : ''}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" data-add='${JSON.stringify(p).replace(/'/g,"&apos;")}' >Añadir</button>
+            <button class="btn" data-id="${p.id}">Añadir</button>
           </div>
         </div>
       </div>`;
     list.appendChild(el);
   });
+
   list.onclick = (e)=>{
-    const btn = e.target.closest('button[data-add]'); if(!btn) return;
-    const p = JSON.parse(btn.getAttribute('data-add').replace(/&apos;/g,"'"));
+    const btn = e.target.closest('button[data-id]'); if(!btn) return;
+    const id = btn.dataset.id;
+    const p = currentProducts.find(x=>x.id == id);
+    if (!p) return;
+
     if (cart.length && cart[0].business_id !== p.business_id){
       if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + selectedBusiness.name + '?')) return;
       cart = [];
@@ -171,21 +176,21 @@ function renderCart(){
   cart.forEach((item, idx)=>{
     const div = document.createElement('div');
     div.style.margin='8px 0';
-    div.innerHTML = \`
+    div.innerHTML = `
       <div style="display:flex;gap:10px;align-items:center">
-        <img src="\${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
         <div style="flex:1">
-          <div><strong>\${item.title}</strong></div>
-          <div class="small">\${(item.price_xaf||0).toLocaleString()} XAF • <span>\${item.category||''}</span></div>
+          <div><strong>${item.title}</strong></div>
+          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
           <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-            <button class="btn" data-idx="\${idx}" data-act="dec">-</button>
-            <span>\${item.qty}</span>
-            <button class="btn" data-idx="\${idx}" data-act="inc">+</button>
-            <button class="btn" data-idx="\${idx}" data-act="del">Quitar</button>
+            <button class="btn" data-idx="${idx}" data-act="dec">-</button>
+            <span>${item.qty}</span>
+            <button class="btn" data-idx="${idx}" data-act="inc">+</button>
+            <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
           </div>
         </div>
       </div>
-    \`;
+    `;
     subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
     box.appendChild(div);
   });
