@@ -14,6 +14,7 @@
 </header>
 
 <main class="wrapper">
+  <!-- Login -->
   <div class="card" style="padding:16px;max-width:800px" id="loginBox">
     <h3>Login de Negocio</h3>
     <form onsubmit="return false;">
@@ -23,7 +24,9 @@
     </form>
   </div>
 
+  <!-- Panel negocio -->
   <div id="panel" style="display:none">
+    <!-- Publicar producto -->
     <div class="card" style="padding:16px;max-width:800px">
       <h3>Publicar producto</h3>
       <form id="prodForm" onsubmit="return false;">
@@ -31,7 +34,8 @@
         <label>Descripción <textarea id="description"></textarea></label>
         <label>Categoría
           <select id="category">
-            <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
+            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
+            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
           </select>
         </label>
         <label>Precio (XAF) <input id="price" type="number" min="0"></label>
@@ -40,32 +44,30 @@
       </form>
     </div>
 
+    <!-- Pedidos -->
     <div class="card" style="padding:16px;max-width:1100px">
       <h3>Pedidos</h3>
       <table class="table" id="ordersTable">
-        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th><th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
+        <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Productos -->
+    <div class="card" style="padding:16px;max-width:1100px">
+      <h3>Mis Productos</h3>
+      <table class="table" id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Título</th><th>Categoría</th><th>Precio</th><th>Imagen</th><th>Creado</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
 </main>
-  <div class="card" style="padding:16px;max-width:1100px">
-    <h3>Mis Productos</h3>
-    <table class="table" id="productsTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Título</th>
-          <th>Categoría</th>
-          <th>Precio</th>
-          <th>Imagen</th>
-          <th>Creado</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
 
 <script src="/api.js"></script>
 <script>
@@ -73,6 +75,7 @@ let token = null;
 let business_id = null;
 function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
 
+// ================== LOGIN ==================
 document.getElementById('btnLogin').addEventListener('click', async ()=>{
   const res = await API.post('/business/login', { email: lemail.value, password: lpass.value });
   if (res.error){ alert(res.error); return; }
@@ -82,16 +85,20 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
   document.getElementById('loginBox').style.display='none';
   document.getElementById('panel').style.display='block';
   loadOrders();
+  loadProducts(); // ✅ cargar productos al entrar
 });
 
+// Autologin si ya hay token guardado
 token = localStorage.getItem('bizToken'); 
 business_id = Number(localStorage.getItem('bizId')||0);
 if (token && business_id){ 
   document.getElementById('loginBox').style.display='none'; 
   document.getElementById('panel').style.display='block'; 
   loadOrders(); 
+  loadProducts(); // ✅ también aquí
 }
 
+// ================== PUBLICAR PRODUCTO ==================
 document.getElementById('btnPublicar').addEventListener('click', async ()=>{
   if (!token) return alert('Primero inicia sesión');
   let imageUrl = '';
@@ -114,8 +121,10 @@ document.getElementById('btnPublicar').addEventListener('click', async ()=>{
   if (res.error){ alert(res.error); return; }
   alert('Producto publicado');
   document.getElementById('prodForm').reset();
+  loadProducts(); // ✅ refrescar lista tras publicar
 });
 
+// ================== CARGAR PEDIDOS ==================
 async function loadOrders(){
   if (!token) return;
   const data = await API.get('/business/orders', { headers: authHeaders() });
@@ -143,7 +152,9 @@ async function loadOrders(){
     loadOrders();
   };
 }
-  async function loadProducts(){
+
+// ================== CARGAR PRODUCTOS ==================
+async function loadProducts(){
   if (!token) return;
   const data = await API.get('/business/products', { headers: authHeaders() });
   console.log("Productos del negocio:", data); // 🔎 debug
@@ -160,13 +171,8 @@ async function loadOrders(){
       <td>${new Date(p.created_at).toLocaleString()}</td>
     `;
     tb.appendChild(tr);
-    if (token && business_id){ 
-      document.getElementById('loginBox').style.display='none'; 
-      document.getElementById('panel').style.display='block'; 
-      loadProducts(); // ✅ importante
   });
 }
-
 </script>
 </body>
 </html>
