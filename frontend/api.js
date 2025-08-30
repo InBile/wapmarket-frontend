@@ -1,5 +1,5 @@
 // API base (Railway)
-const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
+const API_BASE = 'https://wapmarket-backend-production.up.railway.app';
 
 const API = {
   async get(path, opts = {}) {
