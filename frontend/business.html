@@ -71,7 +71,7 @@ function authHeaders(){
 
 // Login negocio
 document.getElementById('btnLogin').addEventListener('click', async ()=>{
-  const res = await API.post('api/business/login', { email: lemail.value, password: lpass.value });
+  const res = await API.post('/api/business/login', { email: lemail.value, password: lpass.value });
   if (res.error){ alert(res.error); return; }
   token = res.token; business_id = res.business_id;
   localStorage.setItem('bizToken', token);
@@ -97,7 +97,7 @@ document.getElementById('btnPublicar').addEventListener('click', async ()=>{
   const file = document.getElementById('image').files[0];
   if (file){
     const fd = new FormData(); fd.append('image', file);
-    const up = await API.upload('api/business/upload-image', fd, { headers: authHeaders() });
+    const up = await API.upload('/api/business/upload-image', fd, { headers: authHeaders() });
     if (up.error) return alert(up.error);
     imageUrl = up.url;
   }
@@ -108,7 +108,7 @@ document.getElementById('btnPublicar').addEventListener('click', async ()=>{
     price_xaf: Number(price.value || 0), 
     image_url: imageUrl
   };
-  const res = await API.post('api/products', payload, { headers: authHeaders() });
+  const res = await API.post('/api/products', payload, { headers: authHeaders() });
   if (res.error){ alert(res.error); return; }
   alert('Producto publicado');
   document.getElementById('prodForm').reset();
@@ -117,7 +117,7 @@ document.getElementById('btnPublicar').addEventListener('click', async ()=>{
 // Cargar pedidos
 async function loadOrders(){
   if (!token) return;
-  const data = await API.get('/business/orders', { headers: authHeaders() });
+  const data = await API.get('/api/business/orders', { headers: authHeaders() });
   const tb = document.querySelector('#ordersTable tbody'); 
   tb.innerHTML='';
   (data.items||[]).forEach(o=>{
