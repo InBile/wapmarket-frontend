@@ -31,8 +31,7 @@
         <label>Descripción <textarea id="description"></textarea></label>
         <label>Categoría
           <select id="category">
-            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
-            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
+            <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
           </select>
         </label>
         <label>Precio (XAF) <input id="price" type="number" min="0"></label>
@@ -44,32 +43,19 @@
     <div class="card" style="padding:16px;max-width:1100px">
       <h3>Pedidos</h3>
       <table class="table" id="ordersTable">
-        <thead>
-          <tr>
-            <th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
-            <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th>
-            <th>Estado</th><th>Acciones</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th><th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
 </main>
 
-<!-- ✅ primero cargamos API -->
 <script src="/api.js"></script>
-
-<!-- ✅ después tu lógica -->
 <script>
 let token = null; 
 let business_id = null;
+function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
 
-function authHeaders(){ 
-  return token ? { 'Authorization':'Bearer '+token } : {}; 
-}
-
-// Login negocio
 document.getElementById('btnLogin').addEventListener('click', async ()=>{
   const res = await API.post('/api/business/login', { email: lemail.value, password: lpass.value });
   if (res.error){ alert(res.error); return; }
@@ -81,7 +67,6 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
   loadOrders();
 });
 
-// Si ya estaba logueado en localStorage
 token = localStorage.getItem('bizToken'); 
 business_id = Number(localStorage.getItem('bizId')||0);
 if (token && business_id){ 
@@ -90,13 +75,13 @@ if (token && business_id){
   loadOrders(); 
 }
 
-// Publicar producto
 document.getElementById('btnPublicar').addEventListener('click', async ()=>{
   if (!token) return alert('Primero inicia sesión');
   let imageUrl = '';
   const file = document.getElementById('image').files[0];
   if (file){
-    const fd = new FormData(); fd.append('image', file);
+    const fd = new FormData(); 
+    fd.append('image', file);
     const up = await API.upload('/api/business/upload-image', fd, { headers: authHeaders() });
     if (up.error) return alert(up.error);
     imageUrl = up.url;
@@ -108,13 +93,12 @@ document.getElementById('btnPublicar').addEventListener('click', async ()=>{
     price_xaf: Number(price.value || 0), 
     image_url: imageUrl
   };
-  const res = await API.post('/api/products', payload, { headers: authHeaders() });
+  const res = await API.post('/api/business/products', payload, { headers: authHeaders() });
   if (res.error){ alert(res.error); return; }
   alert('Producto publicado');
   document.getElementById('prodForm').reset();
 });
 
-// Cargar pedidos
 async function loadOrders(){
   if (!token) return;
   const data = await API.get('/api/business/orders', { headers: authHeaders() });
@@ -123,23 +107,21 @@ async function loadOrders(){
   (data.items||[]).forEach(o=>{
     const tr = document.createElement('tr');
     const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
-    tr.innerHTML = `
-      <td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td>
-      <td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
-      <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td>
-      <td>${deliveryTxt}</td><td>${o.address||''}</td>
-      <td><span class="small">${o.status}</span></td>
-      <td>
-        <button class="btn" data-id="${o.id}" data-s="accepted">Aceptar</button>
-        <button class="btn" data-id="${o.id}" data-s="rejected">Rechazar</button>
-        <button class="btn" data-id="${o.id}" data-s="fulfilled">Entregado</button>
-      </td>`;
+    tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
+                    <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
+                    <td><span class="small">${o.status}</span></td>
+                    <td>
+                      <button class="btn" data-id="${o.id}" data-s="accepted">Aceptar</button>
+                      <button class="btn" data-id="${o.id}" data-s="rejected">Rechazar</button>
+                      <button class="btn" data-id="${o.id}" data-s="fulfilled">Entregado</button>
+                    </td>`;
     tb.appendChild(tr);
   });
   tb.onclick = async (e)=>{
     const btn = e.target.closest('button.btn'); if (!btn) return;
-    const id = btn.getAttribute('data-id'); const s = btn.getAttribute('data-s');
-    const r = await API.put('api/business/orders/'+id, { status:s }, { headers: authHeaders() });
+    const id = btn.getAttribute('data-id'); 
+    const s = btn.getAttribute('data-s');
+    const r = await API.put('/api/business/orders/'+id, { status:s }, { headers: authHeaders() });
     if (r.error) return alert(r.error);
     loadOrders();
   };
