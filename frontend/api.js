@@ -1,5 +1,5 @@
-// ✅ Base API (sin /api)
-const API_BASE = 'https://wapmarket-backend-production.up.railway.app';
+// API base (Railway)
+const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
 
 const API = {
   async get(path, opts = {}) {
@@ -26,7 +26,7 @@ const API = {
     const r = await fetch(API_BASE + path, {
       method: 'POST',
       body: formData,
-      headers: { ...(opts.headers || {}) } // ✅ ahora headers se pasan bien
+      headers: { ...(opts.headers || {}) } // ✅ fix cabeceras
     });
     return r.json();
   }
