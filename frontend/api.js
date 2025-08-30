@@ -1,5 +1,4 @@
-<script>
-// API base (Railway, ya con /api incluido)
+// API base (Railway)
 const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
 
 const API = {
@@ -27,7 +26,7 @@ const API = {
     const r = await fetch(API_BASE + path, {
       method: 'POST',
       body: formData,
-      ...(opts || {})
+      headers: { ...(opts.headers || {}) } // ✅ fix cabeceras
     });
     return r.json();
   }
@@ -35,4 +34,3 @@ const API = {
 
 window.API = API;
 window.API_BASE = API_BASE;
-</script>
