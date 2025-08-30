@@ -1,5 +1,6 @@
-// API base (Railway)
-const API_BASE = 'https://wapmarket-backend-production.up.railway.app';
+<script>
+// API base (Railway, ya con /api incluido)
+const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
 
 const API = {
   async get(path, opts = {}) {
@@ -34,3 +35,4 @@ const API = {
 
 window.API = API;
 window.API_BASE = API_BASE;
+</script>
