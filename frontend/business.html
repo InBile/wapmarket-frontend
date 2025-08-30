@@ -68,13 +68,14 @@ const API = {
     });
     return r.json();
   },
-  async put(path, data, opts = {}) {
-    const r = await fetch(API_BASE + path, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
-      body: JSON.stringify(data)
-    });
-    return r.json();
+  async upload(path, formData, opts = {}) {
+  const r = await fetch(API_BASE + path, {
+    method: 'POST',
+    body: formData,
+    headers: { ...(opts.headers || {}) } // ✅ aquí se mezclan bien las cabeceras
+  });
+  return r.json();
+}
   },
   async upload(path, formData, opts = {}) {
     const r = await fetch(API_BASE + path, {
