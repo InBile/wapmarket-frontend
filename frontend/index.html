@@ -111,7 +111,8 @@ function setBusiness(b){
   selectedBusiness = b;
   document.getElementById('bizTitle').innerHTML = 
     'Productos de ' + b.name + (b.business_type==='verified' ? 
-      '<span class="verified-badge"><img src="/aseo/icons8-verified-50.png" alt="Verificado"></span>' : '');
+      '<span class="verified-badge"><img src="/aseo/icons8-verified-50.png" alt="Verificado"></span>' 
+      : '');
   if (cart.length && cart[0].business_id !== b.id){
     if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
       cart = []; saveCart();
@@ -122,13 +123,14 @@ function setBusiness(b){
 
 async function loadBusinesses(){
   const data = await API.get('/public/businesses');
-  const box = document.getElementById('bizList'); box.innerHTML = '';
+  const box = document.getElementById('bizList'); 
+  box.innerHTML = '';
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div');
     el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:10px;margin:8px 0;cursor:pointer;';
     el.innerHTML = `
       <strong>${b.name}</strong>
-      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
+      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aseo/icons8-verified-50.png" alt="Verificado"></span>' : ''}
       <div class="small">${b.location||''}</div>`;
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
