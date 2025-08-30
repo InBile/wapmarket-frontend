@@ -160,6 +160,10 @@ async function loadOrders(){
       <td>${new Date(p.created_at).toLocaleString()}</td>
     `;
     tb.appendChild(tr);
+    if (token && business_id){ 
+      document.getElementById('loginBox').style.display='none'; 
+      document.getElementById('panel').style.display='block'; 
+      loadProducts(); // ✅ importante
   });
 }
 
