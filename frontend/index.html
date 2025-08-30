@@ -130,7 +130,7 @@ async function loadBusinesses(){
     el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:10px;margin:8px 0;cursor:pointer;';
     el.innerHTML = `
       <strong>${b.name}</strong>
-      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aseo/icons8-verified-50.png" alt="Verificado"></span>' : ''}
+      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
       <div class="small">${b.location||''}</div>`;
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
