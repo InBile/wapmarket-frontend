@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>WapMarket — Marketplace GE</title>
   <link rel="stylesheet" href="/styles.css">
+  <style>
+    :root{
+      --brand:#2B6CB0; --brand-600:#2563eb;
+      --success:#16A34A; --danger:#DC2626;
+      --text:#0F172A; --muted:#64748B; --bg:#F8FAFC; --card:#FFFFFF;
+      --radius:12px; --shadow:0 8px 24px rgba(0,0,0,.08);
+    }
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);background:var(--bg);}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .btn{background:var(--brand);color:#fff;border:0;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn:hover{background:var(--brand-600)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;}
+    .badge.verified{background:rgba(22,163,74,.12);color:var(--success);border:1px solid rgba(22,163,74,.25);}
+    .badge.unverified{background:#F1F5F9;color:#64748B;border:1px solid #E2E8F0;}
+    .product-card .card img{width:100%;height:180px;object-fit:cover;border-radius:10px;}
+    .product-card h4{margin:8px 0 4px;font-size:16px}
+    .product-card .price{font-weight:800;margin-bottom:8px}
+  </style>
 </head>
 <body>
 <header class="header">
@@ -27,17 +45,6 @@
           <div id="bizList"></div>
         </div>
       </div>
-      <div class="card" style="margin-top:16px">
-        <div class="body">
-          <h3>Filtros</h3>
-          <label>Categoría
-            <select id="category">
-              <option value="">Todas</option>
-              <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
-            </select>
-          </label>
-        </div>
-      </div>
     </aside>
     <section>
       <div class="card">
@@ -50,59 +57,32 @@
   </div>
 </main>
 
-<div class="modal" id="cartModal">
-  <div class="dialog">
-    <h3>Tu carrito</h3>
-    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
-    <div id="cartItems"></div>
-    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
-    <div id="addressBox" style="display:none">
-      <label>Dirección exacta
-        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
-      </label>
-    </div>
-    <div id="totals" style="margin:12px 0;font-weight:800"></div>
-    <form id="checkoutForm">
-      <label>Tu nombre (opcional)<input id="cname"></label>
-      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
-      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn" type="submit">Confirmar pedido</button>
-        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <footer class="footer">
-  © WapMarket — Pulsa <span class="kbd">/</span> para buscar
+  © WapMarket
 </footer>
 
 <script src="/api.js"></script>
 <script>
-const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-let currentProducts = []; // almacenamos productos cargados
+let currentProducts = [];
 
-function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-function updateCartCount(){ document.getElementById('cartCount').textContent = cart.reduce((a,c)=>a+Number(c.qty||1),0); }
-function closeCart(){ document.getElementById('cartModal').style.display='none'; }
-function openCart(){
-  document.getElementById('cartModal').style.display='flex';
-  renderCart();
+function updateCartCount(){
+  document.getElementById('cartCount').textContent =
+    cart.reduce((a,c)=>a+Number(c.qty||1),0);
 }
 
-document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+function badgeHtml(type){
+  if(type==='verified'){
+    return '<span class="badge verified">✔ Verificado</span>';
+  }
+  return '<span class="badge unverified">No verificado</span>';
+}
 
 function setBusiness(b){
   selectedBusiness = b;
-  document.getElementById('bizTitle').textContent = 'Productos de ' + b.name + (b.business_type==='verified' ? ' ✔' : '');
-  if (cart.length && cart[0].business_id !== b.id){
-    if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
-      cart = []; saveCart();
-    }
-  }
+  document.getElementById('bizTitle').innerHTML =
+    'Productos de ' + b.name + ' ' + badgeHtml(b.business_type);
   loadProducts();
 }
 
@@ -112,7 +92,12 @@ async function loadBusinesses(){
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div');
     el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:10px;margin:8px 0;cursor:pointer;';
-    el.innerHTML = '<strong>' + b.name + '</strong><div class="small">' + (b.location||'') + (b.business_type==='verified' ? ' • ✔ Verificado' : '') + '</div>';
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>${b.name}</strong>
+        ${badgeHtml(b.business_type)}
+      </div>
+      <div class="small">${b.location||''}</div>`;
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
   });
@@ -121,12 +106,7 @@ async function loadBusinesses(){
 
 async function loadProducts(){
   if (!selectedBusiness) return;
-  const q = document.getElementById('q').value.trim();
-  const cat = document.getElementById('category').value;
-  const params = new URLSearchParams();
-  params.set('business_id', selectedBusiness.id);
-  if (q) params.set('q', q);
-  if (cat) params.set('category', cat);
+  const params = new URLSearchParams({ business_id: selectedBusiness.id });
   const data = await API.get('/public/products?' + params.toString());
   currentProducts = data.items || [];
   const list = document.getElementById('results');
@@ -141,100 +121,11 @@ async function loadProducts(){
           <div class="badge">${p.category || ''}</div>
           <h4>${p.title}</h4>
           <div class="price">${p.price_xaf ? (p.price_xaf.toLocaleString() + ' XAF') : ''}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" data-id="${p.id}">Añadir</button>
-          </div>
         </div>
       </div>`;
     list.appendChild(el);
   });
-
-  list.onclick = (e)=>{
-    const btn = e.target.closest('button[data-id]'); if(!btn) return;
-    const id = btn.dataset.id;
-    const p = currentProducts.find(x=>x.id == id);
-    if (!p) return;
-
-    if (cart.length && cart[0].business_id !== p.business_id){
-      if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + selectedBusiness.name + '?')) return;
-      cart = [];
-    }
-    const exists = cart.find(x=>x.id===p.id);
-    if (exists) exists.qty = Number(exists.qty||1)+1;
-    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
-    saveCart();
-  };
 }
-
-function renderCart(){
-  const box = document.getElementById('cartItems');
-  const info = document.getElementById('cartInfo');
-  if (!cart.length){ box.innerHTML = '<p>Tu carrito está vacío.</p>'; info.textContent=''; document.getElementById('totals').textContent=''; return; }
-  info.textContent = 'Negocio: ' + (selectedBusiness && cart[0].business_id===selectedBusiness.id ? selectedBusiness.name : ('#' + cart[0].business_id));
-  box.innerHTML = '';
-  let subtotal = 0;
-  cart.forEach((item, idx)=>{
-    const div = document.createElement('div');
-    div.style.margin='8px 0';
-    div.innerHTML = `
-      <div style="display:flex;gap:10px;align-items:center">
-        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
-        <div style="flex:1">
-          <div><strong>${item.title}</strong></div>
-          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
-          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-            <button class="btn" data-idx="${idx}" data-act="dec">-</button>
-            <span>${item.qty}</span>
-            <button class="btn" data-idx="${idx}" data-act="inc">+</button>
-            <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
-          </div>
-        </div>
-      </div>
-    `;
-    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
-    box.appendChild(div);
-  });
-  const delivery = document.getElementById('deliveryChk').checked;
-  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
-  document.getElementById('totals').textContent = 'Subtotal: ' + subtotal.toLocaleString() + ' XAF' + (delivery? ' + Envío: 2.000 XAF = Total: ' + total.toLocaleString() + ' XAF' : ' = Total: ' + total.toLocaleString() + ' XAF');
-  box.onclick = (e)=>{
-    const btn = e.target.closest('button.btn'); if(!btn) return;
-    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-    if (act==='del') cart.splice(i,1);
-    saveCart(); renderCart();
-  }
-}
-
-document.getElementById('deliveryChk').addEventListener('change', (e)=>{
-  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
-  renderCart();
-});
-
-document.getElementById('btnBuscar').addEventListener('click', ()=>{
-  if (selectedBusiness) loadProducts();
-});
-document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
-
-document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  if (!cart.length) return alert('Tu carrito está vacío');
-  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
-  const delivery = document.getElementById('deliveryChk').checked;
-  const payload = {
-    items,
-    customer_name: document.getElementById('cname').value,
-    customer_phone: document.getElementById('cphone').value,
-    address: delivery ? document.getElementById('address').value : undefined,
-    note: document.getElementById('cnote').value,
-    delivery
-  };
-  const res = await API.post('/public/cart/checkout', payload);
-  if (res.error){ alert(res.error); return; }
-  alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
-  cart = []; saveCart(); closeCart();
-});
 
 updateCartCount();
 loadBusinesses();
