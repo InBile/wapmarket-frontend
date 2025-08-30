@@ -49,10 +49,19 @@
     </div>
   </div>
 </main>
-    <div class="card" style="padding:16px;max-width:1100px; margin-top:20px">
-      <h3>Mis Productos</h3>
-      <table class="table" id="productsTable">
-        <thead><tr><th>ID</th><th>Título</th><th>Categoría</th><th>Precio</th><th>Imagen</th><th>Creado</th></tr></thead>
+  <div class="card" style="padding:16px;max-width:1100px">
+    <h3>Mis Productos</h3>
+    <table class="table" id="productsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Imagen</th>
+          <th>Creado</th>
+        </tr>
+      </thead>
       <tbody></tbody>
     </table>
   </div>
@@ -134,6 +143,26 @@ async function loadOrders(){
     loadOrders();
   };
 }
+  async function loadProducts(){
+  if (!token) return;
+  const data = await API.get('/business/products', { headers: authHeaders() });
+  console.log("Productos del negocio:", data); // 🔎 debug
+  const tb = document.querySelector('#productsTable tbody');
+  tb.innerHTML='';
+  (data.items||[]).forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.id}</td>
+      <td>${p.title}</td>
+      <td>${p.category||''}</td>
+      <td>${Number(p.price_xaf||0).toLocaleString()} XAF</td>
+      <td>${p.image_url ? `<img src="${p.image_url}" style="max-height:50px">` : ''}</td>
+      <td>${new Date(p.created_at).toLocaleString()}</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
 </script>
 </body>
 </html>
