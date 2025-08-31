@@ -1,902 +1,551 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WapMarket — Mercado</title>
-  <!--
-    =============================================================
-    MARKET PAGE (single file ~1000 lines)
-    - Estilo completamente diferente al landing
-    - Cards sin bordes redondeados, sin hover effects
-    - Sección de publicidad atractiva
-    - Responsive y accesible
-    - Insignia de verificado junto al título del negocio
-    - UI limpia, tipografía Poppins, layout con CSS Grid
-    - Compatible con /api.js ya existente (API.get / API.post)
-    =============================================================
-  -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WapMarket — Marketplace GE</title>
+  <link rel="stylesheet" href="/styles.css">
 
-  <!-- Fuente + Iconos -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/J6MdGctVnY+QfJ7SkF0v2c2nF8A5p2x4YfJ7yK3Cw1YbC2e9Nq3JwKk5b2zXKZppcLt4i5v5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+  <!-- Fuente Futura PT -->
   <style>
-    /* =============================================================
-       RESET BÁSICO
-       ============================================================= */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
-      color: #111;
-      background: #f2f3f5;
-      line-height: 1.35;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+    @import url('https://fonts.cdnfonts.com/css/futura-pt');
+
+    :root{
+      --gap:16px;
+      --aside-w:300px;
     }
-    img { max-width: 100%; display: block; }
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; }
-
-    /* =============================================================
-       PALETA & TOKENS
-       ============================================================= */
-    :root {
-      --bg: #f2f3f5;
-      --panel: #ffffff;
-      --ink: #111111;
-      --muted: #6b7280;  /* gris */
-      --border: #e5e7eb;
-      --accent: #0f62fe; /* IBM Blue vibe */
-      --accent-ink: #ffffff;
-      --accent-2: #111827; /* gris carbón */
-      --callout: #ff6f00; /* naranja publicidad */
-      --good: #059669; /* verde */
-      --warn: #b45309; /* ámbar */
-      --danger: #b91c1c; /* rojo */
-
-      --shadow-1: 0 1px 0 rgba(17,17,17,.05), 0 0 0 1px rgba(17,17,17,.04);
-      --shadow-2: 0 8px 20px rgba(17,17,17,.08);
-
-      --maxw: 1280px;
-      --gap: 16px;
-      --aside: 300px; /* anchura sidebar */
-
-      --grid-gap: 16px;
-      --grid-cols: 4;
-
-      --banner-h: 56px; /* topbar */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      padding:0;
+      background:#f7f7f9;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
 
-    /* =============================================================
-       TOPBAR (estilo distinto, sólido, sin gradientes)
-       ============================================================= */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      height: var(--banner-h);
-      border-bottom: 1px solid var(--border);
-      background: #131921; /* tono Amazon-like pero propio */
-      color: #fff;
-    }
-    .topbar .inner {
-      max-width: var(--maxw);
-      margin: 0 auto;
-      height: 100%;
-      display: grid;
-      grid-template-columns: 160px 1fr auto;
-      gap: var(--gap);
-      align-items: center;
-      padding: 0 16px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-    }
-    .brand .mark {
-      font-weight: 800;
-      letter-spacing: .5px;
-      font-size: 1.1rem;
-      text-transform: uppercase;
-    }
-    .brand .submark {
-      font-weight: 300; font-size: .75rem; opacity: .8;
-    }
+/* ====== HEADER ====== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #131921; /* azul amazon */
+  border-bottom: 1px solid #222;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.logo {
+  font-family: 'Futura PT', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #fff;
+}
 
-    .searchbar {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-      height: 38px;
-    }
-    .searchbar input {
-      width: 100%;
-      height: 38px;
-      border: 1px solid #2a2f36;
-      background: #0d1117;
-      color: #fff;
-      padding: 0 12px;
-      outline: none;
-      border-radius: 0; /* sin bordes redondeados */
-    }
-    .searchbar button {
-      height: 38px;
-      border: 1px solid #2a2f36;
-      background: #232f3e;
-      color: #fff;
-      padding: 0 16px;
-      cursor: pointer;
-      border-radius: 0;
-    }
+/* buscador */
+.search {
+  display: flex;
+  flex: 1;
+  max-width: 700px;
+}
+.search input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  width: 100%;
+}
+#btnBuscar {
+  background: #f90; /* Amazon naranja */
+  color: #111;
+  border: none;
+  padding: 0 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
 
-    /* Botón Carrito (blanco, pegado al buscar) */
-    .cart-wrap {
-      display: inline-grid;
-      grid-auto-flow: column;
-      gap: 8px;
-      align-items: center;
-    }
-    #btnOpenCart {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px; height: 38px; /* mismo alto que buscador */
-      background: #fff;
-      color: #111;
-      border: 1px solid #2a2f36;
-      border-radius: 0; /* sin rounded */
-      padding: 0;
-      outline: none;
-      cursor: pointer;
-    }
-    #btnOpenCart img { width: 22px; height: 22px; object-fit: contain; }
-    #btnOpenCart[data-has-items="true"]::after {
-      content: "";
-      position: absolute; top: 6px; right: 6px;
-      width: 8px; height: 8px; border-radius: 50%; background: #ff3b30;
-    }
+/* ====== BOTÓN CARRITO ====== */
+#btnOpenCart {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;   /* fondo blanco */
+  color: #111;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  height: 40px;
+  padding: 0 12px;
+  margin-left: 4px;   /* pegado al buscar */
+}
+#btnOpenCart img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+#btnOpenCart[data-has-items="true"]::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b30;
+}
 
-    /* =============================================================
-       LAYOUT PRINCIPAL
-       ============================================================= */
-    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
-    .grid-layout {
-      display: grid;
-      grid-template-columns: var(--aside) 1fr;
-      gap: var(--gap);
-      align-items: start;
-      min-height: calc(100vh - var(--banner-h));
-    }
+/* ====== RESPONSIVE ====== */
+@media (max-width: 520px) {
+  .row {
+    flex-direction: column;
+    align-items: center;  /* centrado en móvil */
+    gap: 8px;
+  }
+  .search {
+    width: 100%;
+    justify-content: center;
+  }
+  .search input {
+    width: 100%;
+  }
+  #btnOpenCart {
+    width: auto;
+    padding: 6px 16px;
+    height: 44px;
+  }
+}
 
-    aside.sidebar {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-1);
-      padding: 0;
-    }
 
-    .side-block { border-bottom: 1px solid var(--border); padding: 12px; }
-    .side-block:last-child { border-bottom: none; }
-    .side-title { font-weight: 700; margin: 0 0 10px 0; font-size: 1rem; }
+    /* ====== LAYOUT ====== */
+    .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap);flex:1}
+    aside{margin-left:-8px;}
+    .card{background:#fff;border:1px solid #eee;border-radius:0}
+    .card .body{padding:12px 12px}
+    #bizList{display:flex;flex-direction:column;gap:8px}
+    #bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
 
-    .biz-list { display: flex; flex-direction: column; gap: 8px; }
-    .biz-item {
-      display: grid;
-      grid-template-columns: 36px 1fr auto;
-      gap: 10px;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid var(--border);
-      background: #fff;
-      cursor: pointer;
-      /* sin hover effects */
-    }
-    .biz-item .avatar {
-      width: 36px; height: 36px; background: #f3f4f6; display: grid; place-items: center; font-size:.9rem; color:#555;
-    }
-    .biz-item .title {
-      font-weight: 600;
-      display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .badge-verified { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; color: var(--good); border:1px solid #d1fae5; padding:2px 6px; background:#ecfdf5; }
-    .badge-verified i { color: var(--good); }
-    .biz-item .meta { font-size: .8rem; color: var(--muted); }
+    section .card{background:transparent;border:none}
+    #results.grid{display:grid;grid-template-columns: repeat(4, minmax(0,1fr));gap:var(--gap)}
+    .product-item{background:transparent;border:none;border-radius:0;}
+    .product-item .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border:1px solid #e9e9ee}
+    .product-item .meta{padding:8px 2px}
+    .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
+    .price{font-weight:800;margin:4px 0}
 
-    .filters .control { display: grid; gap: 6px; margin-top: 8px; }
-    .filters select, .filters input[type="text"], .filters input[type="number"] {
-      height: 36px; border:1px solid var(--border); background:#fff; padding: 0 10px; border-radius:0;
-    }
+    /* ====== CONTENEDOR PUBLICITARIO ====== */
+    .ads-container{background:#fff;border:1px solid #eee;margin-top:16px;padding:12px;position:relative}
+    .ads-container img{max-width:100%;display:block;margin-bottom:8px}
+    .ads-info-btn{position:absolute;top:8px;right:8px;background:#007bff;color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:800;font-size:14px}
 
-    /* =============================================================
-       BARRA DE ESTADO/SELECCIÓN
-       ============================================================= */
-    .statusbar {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-1);
-      padding: 14px 16px;
-      margin-bottom: var(--gap);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-    }
-    .statusbar .path { font-weight: 600; }
-    .statusbar .actions { display: inline-grid; grid-auto-flow: column; gap: 8px; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      height: 38px; padding: 0 14px; border: 1px solid var(--ink); background: #fff; color: var(--ink);
-      cursor: pointer; user-select: none; border-radius: 0; font-weight: 600; text-transform: none; letter-spacing: .2px;
-    }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-    .btn.ghost { background: transparent; border-color: var(--border); color: var(--ink); }
+    /* ====== MODAL ====== */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
+    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:500px;width:100%;max-height:80vh;overflow:auto}
+    .small{font-size:.9em;color:#555}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
 
-    /* =============================================================
-       SECCIÓN PUBLICIDAD DESTACADA (visual)
-       ============================================================= */
-    .ads-featured {
-      background: linear-gradient(180deg, #fff 0%, #fff 60%, #f7f7fb 100%);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-1);
-      padding: 0;
-    }
-    .ads-header { padding: 14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
-    .ads-title { font-weight: 800; letter-spacing: .3px; }
-    .ads-body { padding: 16px; }
-    .ads-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr; /* uno grande + dos medianos */
-      gap: var(--grid-gap);
-    }
-    .ad {
-      border: 1px solid var(--border);
-      background: #fff;
-      min-height: 160px;
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-    .ad .poster { width: 100%; height: 160px; object-fit: cover; }
-    .ad .content { padding: 12px; display: grid; gap: 6px; align-content: start; }
-    .ad .tag { font-size: .72rem; color: #fff; background: var(--callout); padding: 2px 8px; display: inline-block; }
-    .ad .headline { font-weight: 700; line-height: 1.2; }
-    .ad .cta { display: inline-flex; height: 36px; padding: 0 12px; border:1px solid var(--ink); background:#fff; color:var(--ink); align-items:center; gap:8px; border-radius:0; cursor:pointer; }
+    /* ====== FOOTER ====== */
+    .footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center;margin-top:auto}
+    .footer a{margin:0 8px;color:#111;text-decoration:underline;transition:color .2s}
+    .footer a:hover{color:#007bff;}
 
-    .ad.hero { grid-column: 1 / span 1; display: grid; grid-template-columns: 1fr 1.2fr; }
-    .ad.hero .poster { height: 100%; }
-    .ad.hero .content { padding: 18px; }
+    .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
+    .verified-badge img{width:22px;height:22px;object-fit:contain}
 
-    /* =============================================================
-       LISTADO DE PRODUCTOS
-       ============================================================= */
-    .products { background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow-1); }
-    .products-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
-    .products-grid {
-      padding: 16px;
-      display: grid;
-      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
-      gap: var(--grid-gap);
-      align-items: start;
-    }
+    /* ====== RESPONSIVE ====== */
+    @media (max-width:1100px){#results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}:root{--aside-w:260px}}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}aside{order:2}section{order:1}#results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}}
+    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}.search{width:100%}.search input{width:100%}#results.grid{grid-template-columns: 1fr;}.dialog{padding:12px}.logo{text-align:center;margin-bottom:8px}}
+    /* ====== PUBLICIDAD LOCAL ====== */
+.local-ads {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
 
-    .card {
-      background: #fff;
-      border: 1px solid var(--border);
-      /* sin bordes redondeados, sin hover */
-    }
-    .card .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-bottom: 1px solid var(--border); }
-    .card .pad { padding: 12px; display: grid; gap: 8px; }
-    .card .kicker { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
-    .card .title { font-weight: 700; line-height: 1.25; }
-    .card .price { font-weight: 800; }
-    .card .row { display: flex; align-items: center; gap: 8px; }
+.local-ads h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #222;
+  font-weight: 600;
+}
 
-    .pagination { border-top:1px solid var(--border); padding: 12px 16px; display:flex; justify-content:center; gap: 8px; }
+.ads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
 
-    /* =============================================================
-       STRIP DE CATEGORÍAS
-       ============================================================= */
-    .cats-strip { margin-top: var(--gap); border:1px solid var(--border); background:#fff; }
-    .cats-strip .inner { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 1fr); gap: 0; overflow-x: auto; }
-    .cats-strip .pill { display:grid; place-items:center; border-right:1px solid var(--border); height: 60px; font-weight:600; white-space:nowrap; }
+.ad-card {
+  text-align: center;
+  background: #fff;
+  border: 1px solid #eee;
+  padding: 8px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
 
-    /* =============================================================
-       BARRA INFORMATIVA
-       ============================================================= */
-    .info-bar { background:#111827; color:#fff; padding: 10px 16px; border:1px solid #0b1220; display:flex; align-items:center; gap:12px; }
-    .info-bar i { color:#60a5fa; }
+.ad-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
 
-    /* =============================================================
-       SECCIÓN DE PUBLICIDAD EXTENDIDA (bloque exclusivo)
-       ============================================================= */
-    .ads-exclusive {
-      margin-top: var(--gap);
-      border: 1px solid var(--border);
-      background: #0b1220; /* dark premium */
-      color: #e5e7eb;
-    }
-    .ads-exclusive .hd { padding: 14px 16px; border-bottom:1px solid #1f2937; display:flex; align-items:center; justify-content: space-between; }
-    .ads-exclusive .body { padding: 16px; }
-    .ads-exclusive .mosaic {
-      display: grid; gap: 12px;
-      grid-template-columns: repeat(12, 1fr);
-      grid-auto-rows: 110px;
-    }
-    .tile { border:1px solid #1f2937; background:#0f172a; display:grid; grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
-    .tile .art { width:100%; height:100%; object-fit: cover; filter: contrast(1.02) saturate(1.02); }
-    .tile .cap { padding: 8px 10px; font-size:.9rem; color:#cbd5e1; display:flex; align-items:center; justify-content: space-between; }
-    .tile .cap .cta { border:1px solid #334155; padding: 6px 10px; background: transparent; color:#e5e7eb; border-radius:0; cursor:pointer; }
+.ad-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
 
-    .tile.x2x2 { grid-column: span 4; grid-row: span 2; }
-    .tile.x3x2 { grid-column: span 6; grid-row: span 2; }
-    .tile.x2x1 { grid-column: span 4; grid-row: span 1; }
-    .tile.x3x3 { grid-column: span 6; grid-row: span 3; }
+.ad-card p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #444;
+}
 
-    /* =============================================================
-       MODAL CARRITO
-       ============================================================= */
-    .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.5); padding: 16px; z-index: 60; }
-    .dialog { background:#fff; border:1px solid var(--border); width: 100%; max-width: 720px; max-height: 85vh; overflow:auto; }
-    .dialog .head { padding: 12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
-    .dialog .body { padding: 14px; }
-    .dialog .foot { padding: 12px 14px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap: 8px; }
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .ads-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
-    .line { border-top:1px solid var(--border); margin: 12px 0; }
+@media (max-width: 480px) {
+  .ads-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
-    .qty-ctrl { display:flex; align-items:center; gap: 6px; }
-    .qty-ctrl .btn { height: 32px; padding: 0 10px; }
-
-    /* =============================================================
-       FOOTER
-       ============================================================= */
-    footer {
-      margin-top: 24px;
-      border-top: 1px solid var(--border);
-      background: #111827;
-      color: #cbd5e1;
-    }
-    .footer-inner { max-width: var(--maxw); margin: 0 auto; padding: 24px 16px; display: grid; gap: 16px; }
-    .links { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; gap: 16px; overflow-x: auto; }
-    .links a { text-decoration: underline; }
-    .copy { font-size: .9rem; opacity: .9; }
-
-    /* =============================================================
-       RESPONSIVE
-       ============================================================= */
-    @media (max-width: 1200px) {
-      :root { --grid-cols: 3; --aside: 280px; }
-      .ads-grid { grid-template-columns: 1.5fr 1fr 1fr; }
-    }
-    @media (max-width: 992px) {
-      :root { --grid-cols: 3; --aside: 100%; }
-      .grid-layout { grid-template-columns: 1fr; }
-      aside.sidebar { order: 2; }
-      .content-col { order: 1; }
-      .ads-grid { grid-template-columns: 1fr 1fr; }
-      .ad.hero { grid-template-columns: 1fr; }
-      .topbar .inner { grid-template-columns: 1fr auto; }
-      .brand { display:none; }
-    }
-    @media (max-width: 768px) {
-      :root { --grid-cols: 2; }
-      .searchbar { grid-template-columns: 1fr auto; }
-      #btnOpenCart { width: 46px; height: 46px; }
-      .searchbar input { height: 46px; }
-      .searchbar button { height: 46px; }
-      .ads-exclusive .mosaic { grid-auto-rows: 90px; }
-      .tile.x3x3 { grid-column: span 12; grid-row: span 3; }
-      .tile.x3x2 { grid-column: span 12; grid-row: span 2; }
-      .tile.x2x2 { grid-column: span 6; grid-row: span 2; }
-      .tile.x2x1 { grid-column: span 6; grid-row: span 1; }
-    }
-    @media (max-width: 520px) {
-      :root { --grid-cols: 2; }
-      .topbar .inner { grid-template-columns: 1fr auto; gap: 8px; }
-      .searchbar { grid-template-columns: 1fr auto; gap: 6px; }
-      .cats-strip .inner { grid-auto-columns: minmax(120px, 1fr); }
-    }
-
-    /* =============================================================
-       UTILIDADES
-       ============================================================= */
-    .muted { color: var(--muted); }
-    .sm { font-size: .9rem; }
-    .xs { font-size: .78rem; }
-    .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
-    .center { display:grid; place-items:center; }
-    .hide { display:none !important; }
   </style>
 </head>
 <body>
-  <!-- =============================================================
-       TOPBAR
-       ============================================================= -->
-  <header class="topbar" role="banner">
-    <div class="inner">
-      <div class="brand" aria-label="WapMarket">
-        <div class="mark">WapMarket</div>
-        <div class="submark">Mercado local</div>
-      </div>
-      <form id="searchForm" class="searchbar" role="search" aria-label="Buscar" onsubmit="return false;">
-        <input id="q" name="q" placeholder="Buscar productos o servicios…" autocomplete="off" />
-        <button id="btnBuscar" type="button" class="btn primary"><i class="fa-solid fa-magnifying-glass"></i><span class="xs">Buscar</span></button>
-      </form>
-      <div class="cart-wrap">
-        <a id="btnOpenCart" href="#" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
-          <img src="/aset/icons8-buy-64.png" alt="Carrito" />
-        </a>
-      </div>
-    </div>
-  </header>
 
-  <!-- =============================================================
-       CONTENIDO
-       ============================================================= -->
-  <main class="wrap" role="main">
-    <div class="grid-layout">
-      <!-- ================= SIDEBAR ================= -->
-      <aside class="sidebar" aria-label="Barra lateral">
-        <div class="side-block">
-          <div class="side-title">Negocios disponibles</div>
-          <div id="bizList" class="biz-list" role="list"></div>
+<header class="header">
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div>
+    <form id="searchForm" class="search" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos o servicios..." />
+      <button class="btn" id="btnBuscar">Buscar</button>
+    </form>
+    <a href="#" class="btn" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
+      <img src="/aset/icons8-buy-64.png" alt="Carrito">
+    </a>
+  </div>
+</header>
+
+<main class="wrapper">
+  <div class="layout">
+    <aside>
+      <div class="card">
+        <div class="body">
+          <h3>Negocios disponibles</h3>
+          <div id="bizList"></div>
         </div>
-        <div class="side-block filters">
-          <div class="side-title">Filtros</div>
-          <label class="control">
-            <span class="xs muted">Categoría</span>
-            <select id="category">
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="body">
+          <h3>Filtros</h3>
+          <label style="display:block">Categoría
+            <select id="category" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:0">
               <option value="">Todas</option>
-              <option>Servicios</option>
-              <option>Comida</option>
-              <option>Tiendas</option>
-              <option>Salud</option>
-              <option>Transporte</option>
-              <option>Tecnología</option>
+              <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
             </select>
           </label>
-          <label class="control">
-            <span class="xs muted">Precio máx. (XAF)</span>
-            <input id="priceMax" type="number" min="0" placeholder="Ej: 50000" />
-          </label>
-          <button class="btn" id="btnApplyFilters" type="button"><i class="fa-solid fa-filter"></i> Aplicar</button>
         </div>
-        <div class="side-block">
-          <div class="side-title">Ayuda</div>
-          <div class="xs muted">Pulsa <span class="mono">/</span> para enfocar el buscador rápidamente.</div>
-        </div>
-      </aside>
-
-      <!-- ================= COL PRINCIPAL ================= -->
-      <div class="content-col">
-        <!-- Statusbar (negocio seleccionado, verificación al lado del título) -->
-        <div class="statusbar">
-          <div class="path" id="bizTitle">Selecciona un negocio</div>
-          <div class="actions">
-            <button class="btn ghost" id="btnRefresh"><i class="fa-solid fa-rotate"></i><span class="xs">Refrescar</span></button>
-          </div>
-        </div>
-
-        <!-- Publicidad destacada superior -->
-        <section class="ads-featured" aria-label="Publicidad destacada">
-          <div class="ads-header">
-            <div class="ads-title">Promociones de la semana</div>
-            <div class="xs muted">Anuncia tu marca aquí</div>
-          </div>
-          <div class="ads-body">
-            <div class="ads-grid">
-              <article class="ad hero" aria-label="Anuncio principal">
-                <img class="poster" src="/aset/sample-ad-hero.jpg" alt="Promo principal" />
-                <div class="content">
-                  <span class="tag">Destacado</span>
-                  <div class="headline">Entrega en el mismo día en zonas seleccionadas</div>
-                  <div class="xs muted">Explora negocios con envíos rápidos y seguimiento por WhatsApp.</div>
-                  <button class="cta" type="button"><i class="fa-solid fa-bolt"></i> Ver negocios</button>
-                </div>
-              </article>
-              <article class="ad">
-                <img class="poster" src="/aset/sample-ad1.jpg" alt="Promo 1" />
-                <div class="content">
-                  <span class="tag">Oferta</span>
-                  <div class="headline">-20% en restaurantes verificados</div>
-                  <button class="cta" type="button">Descubrir</button>
-                </div>
-              </article>
-              <article class="ad">
-                <img class="poster" src="/aset/sample-ad2.jpg" alt="Promo 2" />
-                <div class="content">
-                  <span class="tag">Nuevo</span>
-                  <div class="headline">Tecnología y accesorios</div>
-                  <button class="cta" type="button">Explorar</button>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- Franja de categorías -->
-        <section class="cats-strip" aria-label="Categorías populares">
-          <div class="inner" id="catsStrip">
-            <div class="pill">Top — Hoy</div>
-            <div class="pill">Comida</div>
-            <div class="pill">Hogar</div>
-            <div class="pill">Transporte</div>
-            <div class="pill">Tecnología</div>
-            <div class="pill">Belleza</div>
-            <div class="pill">Servicios</div>
-            <div class="pill">Salud</div>
-            <div class="pill">Moda</div>
-          </div>
-        </section>
-
-        <!-- Barra informativa -->
-        <section class="info-bar" aria-live="polite">
-          <i class="fa-solid fa-circle-info"></i>
-          <div class="xs">Pide a varios negocios, pero recuerda: cada carrito pertenece a un solo negocio a la vez.</div>
-        </section>
-
-        <!-- Listado de productos -->
-        <section class="products" aria-label="Productos">
-          <div class="products-header">
-            <div class="xs muted">Mostrando <span id="countProducts">0</span> productos</div>
-            <div>
-              <button class="btn" id="btnGrid2">2/col</button>
-              <button class="btn" id="btnGrid3">3/col</button>
-              <button class="btn" id="btnGrid4">4/col</button>
-            </div>
-          </div>
-          <div class="products-grid" id="results"></div>
-          <div class="pagination">
-            <button class="btn" id="prevBtn" disabled><i class="fa-solid fa-arrow-left"></i> Anterior</button>
-            <button class="btn" id="nextBtn" disabled>Siguiente <i class="fa-solid fa-arrow-right"></i></button>
-          </div>
-        </section>
-
-        <!-- Bloque de publicidad exclusivo y atractivo -->
-        <section class="ads-exclusive" aria-label="Publicidad premium">
-          <div class="hd">
-            <div><i class="fa-solid fa-bullhorn"></i> Espacio para marcas locales</div>
-            <div class="xs muted">Formatos adaptables • Click tracking básico • Curación manual</div>
-          </div>
-          <div class="body">
-            <div class="mosaic">
-              <div class="tile x3x3">
-                <img class="art" src="/aset/ad-x3x3.jpg" alt="Banner grande" />
-                <div class="cap">
-                  <div class="xs">Patrocinado: SuperMarket Prime</div>
-                  <button class="cta" type="button">Visitar</button>
-                </div>
-              </div>
-              <div class="tile x2x2">
-                <img class="art" src="/aset/ad-x2x2-1.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">Clínica Salud+</span><button class="cta" type="button">Citas</button></div>
-              </div>
-              <div class="tile x2x1">
-                <img class="art" src="/aset/ad-x2x1-1.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">Moto Envios 24/7</span><button class="cta" type="button">Contactar</button></div>
-              </div>
-              <div class="tile x2x1">
-                <img class="art" src="/aset/ad-x2x1-2.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">Hotel Bahia</span><button class="cta" type="button">Reservar</button></div>
-              </div>
-              <div class="tile x3x2">
-                <img class="art" src="/aset/ad-x3x2.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">ElectroCenter</span><button class="cta" type="button">Ver catálogo</button></div>
-              </div>
-              <div class="tile x2x2">
-                <img class="art" src="/aset/ad-x2x2-2.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">Academia Tech</span><button class="cta" type="button">Inscribirse</button></div>
-              </div>
-              <div class="tile x2x1">
-                <img class="art" src="/aset/ad-x2x1-3.jpg" alt="Banner" />
-                <div class="cap"><span class="xs">TaxiApp</span><button class="cta" type="button">Descargar</button></div>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
-    </div>
-  </main>
 
-  <!-- =============================================================
-       MODAL CARRITO
-       ============================================================= -->
-  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-    <div class="dialog">
-      <div class="head">
-        <div id="cartTitle"><i class="fa-solid fa-bag-shopping"></i> Tu carrito</div>
+      <!-- CONTENEDOR PUBLICITARIO -->
+      <div class="ads-container">
+        <button class="ads-info-btn" onclick="openAdsInfo()">i</button>
+        <!-- Aquí puedes pegar imágenes publicitarias -->
+        <img src="/aset/Fachada.jpg" alt="Publicidad">
+      </div>
+    </aside>
+
+    <section>
+      <div class="card">
+        <div class="body">
+          <h3 id="bizTitle">Selecciona un negocio</h3>
+          <div id="results" class="grid"></div>
+          <div style="display:flex;justify-content:center;margin-top:12px">
+            <button id="nextBtn" class="btn" style="display:none">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- 📢 Publicidad de negocios locales -->
+<section class="local-ads">
+  <h3>Publicidad</h3>
+  <div class="ads-grid">
+    <div class="ad-card">
+      <a href="https://wa.me/240555218661" target="_blank">
+        <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
+        <p>Wap Tech & Services</p>
+      </a>
+    </div>
+
+    <div class="ad-card">
+      <a href="https://wa.me/240555218661" target="_blank">
+        <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
+        <p>CiberSegurida Prisma</p>
+      </a>
+    </div>
+</section>
+
+  </div>
+</main>
+
+<!-- Modal carrito -->
+<div class="modal" id="cartModal">
+  <div class="dialog">
+    <h3>Tu carrito</h3>
+    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
+    <div id="cartItems"></div>
+    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
+    <div id="addressBox" style="display:none">
+      <label>Dirección exacta
+        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
+      </label>
+    </div>
+    <div id="totals" style="margin:12px 0;font-weight:800"></div>
+    <form id="checkoutForm">
+      <label>Tu nombre (opcional)<input id="cname"></label>
+      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
+      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" type="submit">Confirmar pedido</button>
         <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
       </div>
-      <div class="body">
-        <div id="cartInfo" class="xs muted" style="margin-bottom:8px"></div>
-        <div id="cartItems"></div>
-        <div class="line"></div>
-        <label class="xs" style="display:flex; align-items:center; gap:8px;">
-          <input type="checkbox" id="deliveryChk" /> Envío a domicilio (+2000 XAF)
-        </label>
-        <div id="addressBox" class="hide" style="margin-top:8px;">
-          <label class="xs" style="display:grid; gap:6px;">
-            Dirección exacta
-            <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
-          </label>
-        </div>
-        <div id="totals" style="margin:12px 0; font-weight:800"></div>
-        <form id="checkoutForm">
-          <div style="display:grid; gap:10px; grid-template-columns: 1fr 1fr;">
-            <label class="xs" style="display:grid; gap:6px;">Tu nombre (opcional)
-              <input id="cname" style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
-            </label>
-            <label class="xs" style="display:grid; gap:6px;">Teléfono (WhatsApp)
-              <input id="cphone" required style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
-            </label>
-          </div>
-          <label class="xs" style="display:grid; gap:6px; margin-top:10px;">Nota
-            <textarea id="cnote" placeholder="Ej: Entrega 18:00" style="min-height:80px; border:1px solid var(--border); padding:8px 10px; border-radius:0;"></textarea>
-          </label>
-          <div class="foot">
-            <button class="btn primary" type="submit">Confirmar pedido</button>
-          </div>
-        </form>
-      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal publicidad info -->
+<div class="modal" id="adsModal">
+  <div class="dialog">
+    <h3>Promociona tu negocio</h3>
+    <p>Puedes promocionar tus productos o servicios en WapMarket con banners publicitarios.</p>
+    <ul>
+      <li><a href="#">Más información</a></li>
+      <li><a href="#">Contactar soporte</a></li>
+      <li><a href="#">Enviar tu publicidad</a></li>
+    </ul>
+    <div style="text-align:right;margin-top:10px">
+      <button class="btn" onclick="closeAdsInfo()">Cerrar</button>
     </div>
   </div>
+</div>
 
-  <!-- =============================================================
-       FOOTER
-       ============================================================= -->
-  <footer role="contentinfo">
-    <div class="footer-inner">
-      <nav class="links" aria-label="Links de utilidad">
-        <a href="#">comprar</a>
-        <a href="#">reserva hotel</a>
-        <a href="#">restaurantes</a>
-        <a href="#">negocios</a>
-        <a href="#">comprar billetes</a>
-        <a href="#">empleos</a>
-      </nav>
-      <div class="copy">© Wap Tech &amp; Services Development - WapMarket | Bata (GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025</div>
-    </div>
-  </footer>
+<footer class="footer">
+  <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
+  <a href="#">comprar</a>
+  <a href="#">reserva hotel</a>
+  <a href="#">restaurantes</a>
+  <a href="#">negocios</a>
+  <a href="#">comprar billetes</a>
+  <a href="#">empleos</a>
+</footer>
 
-  <!-- =============================================================
-       SCRIPTS
-       ============================================================= -->
-  <script src="/api.js"></script>
-  <script>
-    // =============================================================
-    // JS: Estado y utilidades
-    // =============================================================
-    const DELIVERY_FEE = 2000;
-    let selectedBusiness = null;
-    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    let currentProducts = [];
+<script src="/api.js"></script>
+<script>
+/* ====== JS PRINCIPAL ====== */
+const DELIVERY_FEE = 2000;
+let selectedBusiness = null;
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let currentProducts = [];
 
-    let pageSize = 24; // productos por página UI
-    let pageIndex = 0; // índice página actual
+let pageSize = 20;
+let currentPage = 1;
 
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => document.querySelectorAll(sel);
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
+}
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
+function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
 
-    function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-    function updateCartCount(){
-      const count = cart.reduce((a,c)=> a + Number(c.qty||1), 0);
-      $('#btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
+/* Publicidad modal */
+function openAdsInfo(){ document.getElementById('adsModal').style.display='flex'; }
+function closeAdsInfo(){ document.getElementById('adsModal').style.display='none'; }
+
+document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+
+function setBusiness(b){
+  selectedBusiness = b;
+  document.getElementById('bizTitle').innerHTML =
+    'Productos de ' + b.name + (b.business_type==='verified'
+      ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>'
+      : '');
+  if (cart.length && cart[0].business_id !== b.id){
+    if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
+      cart = []; saveCart();
     }
-    function openCart(){ $('#cartModal').style.display = 'flex'; renderCart(); }
-    function closeCart(){ $('#cartModal').style.display = 'none'; }
+  }
+  currentPage = 1;
+  loadProducts();
+}
 
-    function fmt(x){ return Number(x||0).toLocaleString(); }
+async function loadBusinesses(){
+  const data = await API.get('/public/businesses');
+  const box = document.getElementById('bizList');
+  box.innerHTML = '';
+  (data.items||[]).forEach(b=>{
+    const el = document.createElement('div');
+    el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:0;margin:8px 0;cursor:pointer;background:#fff;';
+    el.innerHTML = `
+      <strong>${b.name}</strong>
+      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
+      <div class="small">${b.location||''}</div>`;
+    el.addEventListener('click', ()=> setBusiness(b));
+    box.appendChild(el);
+  });
+  if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
+  if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+}
 
-    // =============================================================
-    // Cargar negocios
-    // =============================================================
-    async function loadBusinesses(){
-      const data = await API.get('/public/businesses');
-      const list = $('#bizList');
-      list.innerHTML = '';
-      (data.items||[]).forEach(b => {
-        const row = document.createElement('div');
-        row.className = 'biz-item';
-        row.innerHTML = `
-          <div class="avatar">${(b.name||'?').slice(0,2).toUpperCase()}</div>
-          <div>
-            <div class="title">
-              <span>${b.name}</span>
-              ${b.business_type==='verified' ? '<span class="badge-verified"><i class="fa-solid fa-badge-check"></i> Verificado</span>' : ''}
-            </div>
-            <div class="meta xs">${b.location||''}</div>
+function renderProductsPage(){
+  const list = document.getElementById('results');
+  list.innerHTML = '';
+  const start = (currentPage-1)*pageSize;
+  const pageItems = currentProducts.slice(start, start+pageSize);
+
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'product-item';
+    el.innerHTML = `
+      <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
+      <div class="meta">
+        <div class="badge">${p.category || ''}</div>
+        <h4 style="margin:6px 0 2px">${p.title}</h4>
+        <div class="price">${p.price_xaf ? (Number(p.price_xaf).toLocaleString() + ' XAF') : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" data-id="${p.id}">Añadir</button>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentProducts.length > pageSize){
+    nextBtn.style.display = (start + pageSize) < currentProducts.length ? 'inline-block' : 'none';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  list.onclick = (e)=>{
+    const btn = e.target.closest('button[data-id]'); if(!btn) return;
+    const id = btn.dataset.id;
+    const p = currentProducts.find(x=>x.id == id);
+    if (!p) return;
+
+    if (cart.length && cart[0].business_id !== p.business_id){
+      if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
+      cart = [];
+    }
+    const exists = cart.find(x=>x.id===p.id);
+    if (exists) exists.qty = Number(exists.qty||1)+1;
+    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+    saveCart();
+  };
+}
+
+async function loadProducts(){
+  if (!selectedBusiness) return;
+  const q = document.getElementById('q').value.trim();
+  const cat = document.getElementById('category').value;
+  const params = new URLSearchParams();
+  params.set('business_id', selectedBusiness.id);
+  if (q) params.set('q', q);
+  if (cat) params.set('category', cat);
+  const data = await API.get('/public/products?' + params.toString());
+  currentProducts = data.items || [];
+  currentPage = 1;
+  renderProductsPage();
+}
+
+function renderCart(){
+  const box = document.getElementById('cartItems');
+  const info = document.getElementById('cartInfo');
+  if (!cart.length){ box.innerHTML = '<p>Tu carrito está vacío.</p>'; info.textContent=''; document.getElementById('totals').textContent=''; return; }
+  info.textContent = 'Negocio: ' + (selectedBusiness && cart[0].business_id===selectedBusiness.id ? selectedBusiness.name : ('#' + cart[0].business_id));
+  box.innerHTML = '';
+  let subtotal = 0;
+  cart.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.style.margin='8px 0';
+    div.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+        <div style="flex:1">
+          <div><strong>${item.title}</strong></div>
+          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <button class="btn" data-idx="${idx}" data-act="dec">-</button>
+            <span>${item.qty}</span>
+            <button class="btn" data-idx="${idx}" data-act="inc">+</button>
+            <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
           </div>
-          <div class="xs muted">${b.phone||''}</div>
-        `;
-        row.addEventListener('click', () => setBusiness(b));
-        list.appendChild(row);
-      });
-      if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
-    }
+        </div>
+      </div>
+    `;
+    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+    box.appendChild(div);
+  });
+  const delivery = document.getElementById('deliveryChk').checked;
+  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+  document.getElementById('totals').textContent = 'Subtotal: ' + subtotal.toLocaleString() + ' XAF' + (delivery? ' + Envío: 2.000 XAF = Total: ' + total.toLocaleString() + ' XAF' : ' = Total: ' + total.toLocaleString() + ' XAF');
+  box.onclick = (e)=>{
+    const btn = e.target.closest('button.btn'); if(!btn) return;
+    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+    if (act==='del') cart.splice(i,1);
+    saveCart(); renderCart();
+  }
+}
 
-    // =============================================================
-    // Seleccionar negocio
-    // =============================================================
-    function setBusiness(b){
-      selectedBusiness = b;
-      const verified = b.business_type==='verified' ? ' <span class="badge-verified"><i class="fa-solid fa-badge-check"></i> Verificado</span>' : '';
-      $('#bizTitle').innerHTML = `${b.name}${verified}`;
-      if (cart.length && cart[0].business_id !== b.id){
-        if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con '+b.name+'?')){
-          cart = []; saveCart();
-        }
-      }
-      pageIndex = 0;
-      loadProducts();
-    }
+document.getElementById('deliveryChk').addEventListener('change', (e)=>{
+  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
+  renderCart();
+});
 
-    // =============================================================
-    // Consultar productos del negocio + filtros
-    // =============================================================
-    async function loadProducts(){
-      if (!selectedBusiness) return;
-      const params = new URLSearchParams();
-      params.set('business_id', selectedBusiness.id);
-      const q = $('#q').value.trim();
-      const cat = $('#category').value;
-      const maxp = Number($('#priceMax').value||0);
-      if (q) params.set('q', q);
-      if (cat) params.set('category', cat);
-      const data = await API.get('/public/products?'+params.toString());
-      let items = data.items || [];
-      if (maxp>0) items = items.filter(x => Number(x.price_xaf||0) <= maxp);
-      currentProducts = items;
-      $('#countProducts').textContent = currentProducts.length;
-      renderProducts();
-    }
+document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
+document.getElementById('category').addEventListener('change', ()=>{ if (selectedBusiness) loadProducts(); });
 
-    function renderProducts(){
-      const list = $('#results');
-      list.innerHTML = '';
-      const start = pageIndex * pageSize;
-      const page = currentProducts.slice(start, start + pageSize);
+document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (!cart.length) return alert('Tu carrito está vacío');
+  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+  const delivery = document.getElementById('deliveryChk').checked;
+  const payload = {
+    items,
+    customer_name: document.getElementById('cname').value,
+    customer_phone: document.getElementById('cphone').value,
+    address: delivery ? document.getElementById('address').value : undefined,
+    note: document.getElementById('cnote').value,
+    delivery
+  };
+  const res = await API.post('/public/cart/checkout', payload);
+  if (res.error){ alert(res.error); return; }
+  alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
+  cart = []; saveCart(); closeCart();
+});
 
-      page.forEach(p => {
-        const el = document.createElement('article');
-        el.className = 'card';
-        el.innerHTML = `
-          <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="${p.title || ''}">
-          <div class="pad">
-            <div class="kicker xs">${p.category || ''}</div>
-            <div class="title">${p.title}</div>
-            <div class="row">
-              <div class="price">${p.price_xaf ? fmt(p.price_xaf) + ' XAF' : ''}</div>
-            </div>
-            <div class="row">
-              <button class="btn" data-id="${p.id}"><i class="fa-solid fa-plus"></i> Añadir</button>
-            </div>
-          </div>
-        `;
-        list.appendChild(el);
-      });
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const maxPages = Math.ceil(currentProducts.length / pageSize);
+  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
+});
 
-      // Paginación
-      const hasPrev = pageIndex > 0;
-      const hasNext = (start + pageSize) < currentProducts.length;
-      $('#prevBtn').disabled = !hasPrev;
-      $('#nextBtn').disabled = !hasNext;
-    }
-
-    // =============================================================
-    // Carrito
-    // =============================================================
-    function renderCart(){
-      const box = $('#cartItems');
-      const info = $('#cartInfo');
-      if (!cart.length){
-        box.innerHTML = '<p class="xs muted">Tu carrito está vacío.</p>';
-        info.textContent = '';
-        $('#totals').textContent = '';
-        return;
-      }
-      const sameBiz = selectedBusiness && cart[0].business_id === selectedBusiness.id;
-      info.textContent = 'Negocio: ' + (sameBiz ? selectedBusiness.name : ('#'+cart[0].business_id));
-      box.innerHTML = '';
-      let subtotal = 0;
-      cart.forEach((item, idx) => {
-        const row = document.createElement('div');
-        row.style.cssText = 'display:grid; grid-template-columns: 80px 1fr auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);';
-        row.innerHTML = `
-          <img src="${item.image_url || 'https://placehold.co/80'}" style="width:80px; height:60px; object-fit:cover;" alt="${item.title}">
-          <div>
-            <div style="font-weight:700">${item.title}</div>
-            <div class="xs muted">${fmt(item.price_xaf)} XAF • ${item.category||''}</div>
-            <div class="qty-ctrl" style="margin-top:6px;">
-              <button class="btn" data-idx="${idx}" data-act="dec">-</button>
-              <span>${item.qty}</span>
-              <button class="btn" data-idx="${idx}" data-act="inc">+</button>
-              <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
-            </div>
-          </div>
-          <div style="font-weight:700">${fmt(Number(item.price_xaf||0) * Number(item.qty||1))} XAF</div>
-        `;
-        subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
-        box.appendChild(row);
-      });
-      const delivery = $('#deliveryChk').checked;
-      const total = subtotal + (delivery ? DELIVERY_FEE : 0);
-      $('#totals').textContent = 'Subtotal: ' + fmt(subtotal) + ' XAF' + (delivery ? ' + Envío: 2.000 XAF = Total: ' + fmt(total) + ' XAF' : ' = Total: ' + fmt(total) + ' XAF');
-
-      box.onclick = (e) => {
-        const btn = e.target.closest('button.btn'); if (!btn) return;
-        const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-        if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-        if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-        if (act==='del') cart.splice(i,1);
-        saveCart(); renderCart();
-      };
-    }
-
-    // =============================================================
-    // Eventos UI
-    // =============================================================
-    $('#btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
-    $('#deliveryChk').addEventListener('change', (e)=>{ $('#addressBox').classList.toggle('hide', !e.target.checked); renderCart(); });
-    $('#btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
-    $('#btnApplyFilters').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
-    $('#btnRefresh').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
-
-    document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); $('#q').focus(); } });
-
-    $('#results').addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-id]'); if(!btn) return;
-      const id = Number(btn.getAttribute('data-id'));
-      const p = currentProducts.find(x=> x.id === id);
-      if (!p) return;
-      if (cart.length && cart[0].business_id !== p.business_id){
-        if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a '+(selectedBusiness?.name||'este negocio')+'?')) return;
-        cart = [];
-      }
-      const exists = cart.find(x=> x.id===p.id);
-      if (exists) exists.qty = Number(exists.qty||1)+1; else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
-      saveCart();
-    });
-
-    $('#prevBtn').addEventListener('click', ()=>{ if (pageIndex>0){ pageIndex--; renderProducts(); window.scrollTo({top:0, behavior:'smooth'}); } });
-    $('#nextBtn').addEventListener('click', ()=>{
-      const max = Math.ceil(currentProducts.length / pageSize) - 1;
-      if (pageIndex < max){ pageIndex++; renderProducts(); window.scrollTo({top:0, behavior:'smooth'}); }
-    });
-
-    $('#checkoutForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      if (!cart.length) return alert('Tu carrito está vacío');
-      const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
-      const delivery = $('#deliveryChk').checked;
-      const payload = {
-        items,
-        customer_name: $('#cname').value,
-        customer_phone: $('#cphone').value,
-        address: delivery ? $('#address').value : undefined,
-        note: $('#cnote').value,
-        delivery
-      };
-      const res = await API.post('/public/cart/checkout', payload);
-      if (res.error){ alert(res.error); return; }
-      alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
-      cart = []; saveCart(); closeCart();
-    });
-
-    // Cambio de columnas del grid
-    $('#btnGrid2').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 2); });
-    $('#btnGrid3').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 3); });
-    $('#btnGrid4').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 4); });
-
-    // =============================================================
-    // Inicio
-    // =============================================================
-    updateCartCount();
-    loadBusinesses();
-  </script>
+updateCartCount();
+loadBusinesses();
+</script>
 </body>
 </html>
