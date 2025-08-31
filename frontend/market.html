@@ -1,551 +1,700 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WapMarket — Marketplace GE</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WapMarket — Compra local con estilo</title>
+  <meta name="description" content="Explora negocios verificados, añade productos al carrito y paga fácil en WapMarket." />
 
-  <!-- Fuente Futura PT -->
+  <!-- Fuente & performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
-    @import url('https://fonts.cdnfonts.com/css/futura-pt');
-
+    /* ==========================================================================
+       SISTEMA DE DISEÑO (idéntico al index)
+       ========================================================================== */
     :root{
-      --gap:16px;
-      --aside-w:300px;
+      --bg:#f7f8fb;
+      --panel:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --brand:#ff7a00;     /* naranja cálido */
+      --brand-2:#ffb43a;   /* apoyo */
+      --brand-ink:#2b1600;
+      --ok:#00b894;
+      --warn:#ffb300;
+      --ring: 0 10px 30px rgba(0,0,0,.08);
+      --ring-2: 0 20px 60px rgba(0,0,0,.12);
+      --radius:18px;
+      --container: 1200px;
+      --pad: clamp(18px,2.5vw,28px);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      padding:0;
-      background:#f7f7f9;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      background:var(--bg);
+      color:var(--ink);
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+      overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:var(--container); margin:0 auto; padding:0 var(--pad)}
+
+    /* Botones base (mismo estilo del index) */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px; padding:12px 18px; border-radius:14px; border:1px solid #e5e7eb;
+      background:linear-gradient(180deg,#fff,#f4f4f6);
+      color:#111; font-weight:600; box-shadow:var(--ring);
+      transition:transform .15s ease, box-shadow .2s ease, background .2s;
+      cursor:pointer; user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--ring-2)}
+    .btn:active{transform:translateY(0)}
+    .btn--brand{
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#fff; border:none;
+    }
+    .btn--ghost{background:#fff;border:1px solid #e5e7eb}
+    .btn--chip{
+      background:#fff; border:1px solid #eceff3; border-radius:999px; padding:8px 12px; font-size:.9rem;
     }
 
-/* ====== HEADER ====== */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #131921; /* azul amazon */
-  border-bottom: 1px solid #222;
-}
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.logo {
-  font-family: 'Futura PT', sans-serif;
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: #fff;
-}
+    /* ==========================================================================
+       NAVBAR (claro, pegajoso, consistente con index)  :contentReference[oaicite:0]{index=0}
+       ========================================================================== */
+    .nav{
+      position:sticky; top:0; z-index:60; backdrop-filter:saturate(160%) blur(6px);
+      background:rgba(255,255,255,.75); border-bottom:1px solid rgba(0,0,0,.05);
+    }
+    .nav__row{display:flex; align-items:center; gap:12px; height:70px}
+    .logo{font-weight:800; letter-spacing:-.5px}
+    .logo b{color:var(--brand)}
+    .nav__spacer{flex:1}
+    .nav__links{display:flex; gap:10px}
+    .nav__links a{padding:8px 10px; border-radius:10px; color:#1f2937}
+    .nav__links a:hover{background:#f2f3f7}
+    .nav__cta{display:flex; gap:10px}
 
-/* buscador */
-.search {
-  display: flex;
-  flex: 1;
-  max-width: 700px;
-}
-.search input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 0;
-  width: 100%;
-}
-#btnBuscar {
-  background: #f90; /* Amazon naranja */
-  color: #111;
-  border: none;
-  padding: 0 16px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
+    /* Buscador principal en navbar */
+    .searchbar{
+      display:flex; align-items:center; gap:8px;
+      background:#fff; border:1px solid #eceff3; border-radius:14px; padding:6px 8px;
+      box-shadow:var(--ring); width:min(680px, 100%);
+    }
+    .searchbar input{
+      flex:1; border:none; outline:none; background:transparent; font-size:1rem; padding:8px;
+    }
+    .searchbar .btn{padding:10px 14px}
 
-/* ====== BOTÓN CARRITO ====== */
-#btnOpenCart {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;   /* fondo blanco */
-  color: #111;
-  border: 1px solid #ddd;
-  border-radius: 0;
-  height: 40px;
-  padding: 0 12px;
-  margin-left: 4px;   /* pegado al buscar */
-}
-#btnOpenCart img {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-}
-#btnOpenCart[data-has-items="true"]::after {
-  content: "";
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ff3b30;
-}
+    /* Botón carrito con contador */
+    #btnOpenCart{
+      position:relative; padding:10px 14px; height:44px;
+      display:inline-flex; align-items:center; gap:10px;
+    }
+    #btnOpenCart .count{
+      position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; border-radius:20px;
+      background:#ff3b30; color:#fff; font-size:.75rem; display:grid; place-items:center; padding:0 6px;
+      box-shadow:0 6px 14px rgba(255,59,48,.35);
+      transform:scale(.9);
+    }
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 520px) {
-  .row {
-    flex-direction: column;
-    align-items: center;  /* centrado en móvil */
-    gap: 8px;
-  }
-  .search {
-    width: 100%;
-    justify-content: center;
-  }
-  .search input {
-    width: 100%;
-  }
-  #btnOpenCart {
-    width: auto;
-    padding: 6px 16px;
-    height: 44px;
-  }
-}
+    /* ==========================================================================
+       SUBHEADER de tienda: chips de filtros y orden
+       ========================================================================== */
+    .subhead{position:relative; background:#fff; border-bottom:1px solid #eceff3}
+    .subhead__row{display:flex; align-items:center; gap:10px; height:66px; overflow:auto}
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+      background:#fff; border:1px solid #eceff3; white-space:nowrap; box-shadow:var(--ring)}
+    .chip select, .chip input{border:none; outline:none; background:transparent}
+    .chip i{font-style:normal; font-weight:800; color:var(--brand)}
 
+    /* ==========================================================================
+       LAYOUT: aside + grid productos (inspirado en tu market actual)  :contentReference[oaicite:1]{index=1}
+       ========================================================================== */
+    .layout{display:grid; grid-template-columns: 320px 1fr; gap:20px; align-items:start; padding:24px 0}
+    aside{
+      position:sticky; top:126px; align-self:start;
+      background:var(--panel); border:1px solid #eceff3; border-radius:var(--radius); box-shadow:var(--ring);
+      padding:16px;
+    }
+    .aside__block + .aside__block{margin-top:16px}
+    .aside__title{margin:0 0 8px; font-size:1rem; font-weight:800}
+    .aside__group{display:grid; gap:8px}
+    .aside__group label{display:flex; align-items:center; gap:8px}
+    .aside__search{display:flex; gap:8px; background:#fff; border:1px solid #eceff3; border-radius:12px; padding:8px}
+    .aside__search input{flex:1; border:none; outline:none; background:transparent}
 
-    /* ====== LAYOUT ====== */
-    .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap);flex:1}
-    aside{margin-left:-8px;}
-    .card{background:#fff;border:1px solid #eee;border-radius:0}
-    .card .body{padding:12px 12px}
-    #bizList{display:flex;flex-direction:column;gap:8px}
-    #bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
+    /* Grid de productos */
+    .board{
+      display:grid; gap:16px;
+    }
+    .products{
+      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px;
+    }
+    .card{
+      background:var(--panel); border:1px solid #eceff3; border-radius:16px; padding:14px;
+      box-shadow:var(--ring); transition:transform .15s ease, box-shadow .2s ease;
+    }
+    .card:hover{transform:translateY(-4px); box-shadow:var(--ring-2)}
+    .product{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .thumb{
+      width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; border:1px solid #eee; background:#fff;
+    }
+    .meta h4{margin:2px 0 0; font-size:1rem}
+    .badge{display:inline-block; font-size:.78rem; padding:4px 10px; border-radius:999px; background:#fff1dc; border:1px solid #ffd9a6; color:#8a4b00}
+    .price{font-weight:800; font-size:1.05rem}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .empty{padding:32px; text-align:center; color:var(--muted)}
 
-    section .card{background:transparent;border:none}
-    #results.grid{display:grid;grid-template-columns: repeat(4, minmax(0,1fr));gap:var(--gap)}
-    .product-item{background:transparent;border:none;border-radius:0;}
-    .product-item .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border:1px solid #e9e9ee}
-    .product-item .meta{padding:8px 2px}
-    .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
-    .price{font-weight:800;margin:4px 0}
+    /* Barra superior del grid: título y paginación/controles */
+    .board__top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .pager{display:flex; align-items:center; gap:8px}
 
-    /* ====== CONTENEDOR PUBLICITARIO ====== */
-    .ads-container{background:#fff;border:1px solid #eee;margin-top:16px;padding:12px;position:relative}
-    .ads-container img{max-width:100%;display:block;margin-bottom:8px}
-    .ads-info-btn{position:absolute;top:8px;right:8px;background:#007bff;color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:800;font-size:14px}
+    /* ==========================================================================
+       CARRUSEL Negocios
+       ========================================================================== */
+    .bizbar{
+      background:linear-gradient(90deg,#fff,#fff6ec); border:1px solid #f5ede4; border-radius:16px;
+      padding:14px; display:flex; align-items:center; gap:12px; overflow:auto; box-shadow:var(--ring);
+    }
+    .biz{
+      flex:0 0 auto; min-width:220px; border:1px solid #eceff3; background:#fff; border-radius:12px; padding:10px;
+      display:flex; align-items:center; gap:10px; cursor:pointer; transition:transform .15s ease;
+    }
+    .biz:hover{transform:translateY(-2px)}
+    .biz__logo{width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid #eee;background:#fff}
+    .verified{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; color:#0f5132; background:#d1fae5; border:1px solid #a7f3d0; padding:4px 8px; border-radius:999px}
 
-    /* ====== MODAL ====== */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
-    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:500px;width:100%;max-height:80vh;overflow:auto}
-    .small{font-size:.9em;color:#555}
-    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
+    /* ==========================================================================
+       PUBLICIDAD LOCAL (adaptado a tu versión previa)  :contentReference[oaicite:2]{index=2}
+       ========================================================================== */
+    .ads{
+      background:#fff; border:1px solid #eceff3; border-radius:16px; padding:14px; box-shadow:var(--ring)
+    }
+    .ads__grid{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px}
+    .ad{border:1px solid #eee; border-radius:12px; overflow:hidden; background:#fff; transition:transform .2s ease, box-shadow .2s ease}
+    .ad:hover{transform:translateY(-3px); box-shadow:var(--ring-2)}
+    .ad img{width:100%; height:140px; object-fit:cover}
+    .ad p{margin:8px; font-size:.9rem}
 
-    /* ====== FOOTER ====== */
-    .footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center;margin-top:auto}
-    .footer a{margin:0 8px;color:#111;text-decoration:underline;transition:color .2s}
-    .footer a:hover{color:#007bff;}
+    /* ==========================================================================
+       DRAWER Carrito (sustituye modal por slide-over)
+       ========================================================================== */
+    .drawer{position:fixed; inset:0; display:none; z-index:80}
+    .drawer.open{display:block}
+    .drawer__mask{position:absolute; inset:0; background:rgba(0,0,0,.35); opacity:0; transition:opacity .25s ease}
+    .drawer.open .drawer__mask{opacity:1}
+    .drawer__panel{
+      position:absolute; top:0; right:-420px; width:min(420px, 100%); height:100%; background:#fff;
+      box-shadow: -24px 0 60px rgba(0,0,0,.15); transition:right .28s ease; display:flex; flex-direction:column;
+    }
+    .drawer.open .drawer__panel{ right:0 }
+    .drawer__head{padding:16px; border-bottom:1px solid #eceff3; display:flex; align-items:center; justify-content:space-between}
+    .drawer__body{padding:16px; overflow:auto; flex:1}
+    .drawer__foot{padding:14px; border-top:1px solid #eceff3; display:grid; gap:10px}
+    .line{display:flex; gap:10px; align-items:center}
+    .line img{width:64px;height:64px;border-radius:10px;border:1px solid #eee;object-fit:cover}
 
-    .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
-    .verified-badge img{width:22px;height:22px;object-fit:contain}
+    /* ==========================================================================
+       REVEAL
+       ========================================================================== */
+    .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease}
+    .reveal.is-in{opacity:1; transform:none}
 
-    /* ====== RESPONSIVE ====== */
-    @media (max-width:1100px){#results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}:root{--aside-w:260px}}
-    @media (max-width:900px){.layout{grid-template-columns:1fr}aside{order:2}section{order:1}#results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}}
-    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}.search{width:100%}.search input{width:100%}#results.grid{grid-template-columns: 1fr;}.dialog{padding:12px}.logo{text-align:center;margin-bottom:8px}}
-    /* ====== PUBLICIDAD LOCAL ====== */
-.local-ads {
-  margin: 20px 0;
-  padding: 16px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-}
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    footer{padding:26px 0; color:#6b7280; text-align:center}
 
-.local-ads h3 {
-  margin-bottom: 12px;
-  font-size: 18px;
-  color: #222;
-  font-weight: 600;
-}
-
-.ads-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.ad-card {
-  text-align: center;
-  background: #fff;
-  border: 1px solid #eee;
-  padding: 8px;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.ad-card img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.ad-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.ad-card p {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #444;
-}
-
-/* 📱 Responsive */
-@media (max-width: 768px) {
-  .ads-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .ads-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
+    /* ==========================================================================
+       RESPONSIVE
+       ========================================================================== */
+    @media (max-width:1100px){
+      .products{grid-template-columns:repeat(2, minmax(0,1fr))}
+      .ads__grid{grid-template-columns:repeat(3, minmax(0,1fr))}
+      .layout{grid-template-columns:1fr}
+      aside{position:static; order:2}
+    }
+    @media (max-width:680px){
+      .nav__links{display:none}
+      .searchbar{width:100%}
+      .products{grid-template-columns:1fr}
+      .ads__grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+      .biz{min-width:200px}
+      .drawer__panel{width:100%}
+    }
+    @media (max-width:420px){
+      .ads__grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="row wrapper">
-    <div class="logo">WapMarket</div>
-    <form id="searchForm" class="search" onsubmit="return false;">
-      <input id="q" placeholder="Buscar productos o servicios..." />
-      <button class="btn" id="btnBuscar">Buscar</button>
-    </form>
-    <a href="#" class="btn" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
-      <img src="/aset/icons8-buy-64.png" alt="Carrito">
-    </a>
-  </div>
-</header>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav__row">
+      <div class="logo">Wap<b>Market</b></div>
+      <div class="nav__spacer"></div>
 
-<main class="wrapper">
-  <div class="layout">
-    <aside>
-      <div class="card">
-        <div class="body">
-          <h3>Negocios disponibles</h3>
-          <div id="bizList"></div>
-        </div>
+      <!-- Buscador global -->
+      <form id="searchForm" class="searchbar" onsubmit="return false" role="search" aria-label="Buscar productos o servicios">
+        <input id="q" placeholder="Buscar productos o servicios..." autocomplete="off" />
+        <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
+      </form>
+
+      <div class="nav__cta">
+        <a class="btn btn--ghost" href="index.html" aria-label="Volver al inicio">Inicio</a>
+        <button class="btn" id="btnOpenCart" aria-label="Abrir carrito">
+          <span>Carrito</span>
+          <span class="count" id="cartCount">0</span>
+        </button>
       </div>
-      <div class="card" style="margin-top:16px">
-        <div class="body">
-          <h3>Filtros</h3>
-          <label style="display:block">Categoría
-            <select id="category" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:0">
-              <option value="">Todas</option>
-              <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
-            </select>
+    </div>
+  </nav>
+
+  <!-- SUBHEADER: chips y orden -->
+  <div class="subhead">
+    <div class="container subhead__row">
+      <div class="chip">
+        <i>⟲</i>
+        <select id="sort">
+          <option value="">Ordenar</option>
+          <option value="recent">Más recientes</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+      <div class="chip">
+        <i>🏷</i>
+        <select id="category">
+          <option value="">Todas las categorías</option>
+          <option>Servicios</option><option>Comida</option><option>Tiendas</option>
+          <option>Salud</option><option>Transporte</option><option>Tecnología</option>
+        </select>
+      </div>
+      <div class="chip">
+        <i>💰</i>
+        <input id="maxPrice" type="number" inputmode="numeric" min="0" placeholder="Precio máx. XAF" style="width:140px">
+      </div>
+      <button class="btn btn--ghost" id="resetFilters">Limpiar filtros</button>
+    </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <main class="container">
+    <!-- Carrusel de negocios -->
+    <section style="padding-top:18px" class="reveal">
+      <div class="bizbar" id="bizBar" aria-label="Negocios disponibles"></div>
+    </section>
+
+    <div class="layout">
+      <!-- Aside filtros adicionales -->
+      <aside class="reveal" aria-label="Filtros avanzados">
+        <div class="aside__block">
+          <h4 class="aside__title">Buscar en negocio</h4>
+          <div class="aside__search">
+            <input id="inBizQuery" placeholder="Ej: pollo, cargador..." />
+            <button class="btn" id="inBizBtn">Buscar</button>
+          </div>
+        </div>
+
+        <div class="aside__block">
+          <h4 class="aside__title">Tipo de envío</h4>
+          <div class="aside__group">
+            <label><input type="checkbox" id="shipHome"> Envío a domicilio</label>
+            <label><input type="checkbox" id="pickStore"> Recogida en tienda</label>
+          </div>
+        </div>
+
+        <div class="aside__block">
+          <h4 class="aside__title">Rango de precio</h4>
+          <div class="aside__group">
+            <label><input type="radio" name="p" value="" checked> Cualquiera</label>
+            <label><input type="radio" name="p" value="0-10000"> 0–10k XAF</label>
+            <label><input type="radio" name="p" value="10000-25000"> 10k–25k XAF</label>
+            <label><input type="radio" name="p" value="25000-50000"> 25k–50k XAF</label>
+            <label><input type="radio" name="p" value="50000-9999999"> +50k XAF</label>
+          </div>
+        </div>
+
+        <div class="aside__block ads">
+          <h4 class="aside__title">Publicidad</h4>
+          <div class="ads__grid">
+            <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
+              <img src="/aset/Fachada.jpg" alt="Wap Tech & Services">
+              <p>Wap Tech & Services</p>
+            </a>
+            <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
+              <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
+              <p>CiberSeguridad Prisma</p>
+            </a>
+            <a class="ad" href="#" target="_blank" rel="noopener">
+              <img src="https://placehold.co/600x400?text=Tu+banner+aqui" alt="Promoción">
+              <p>Promociona tu negocio</p>
+            </a>
+            <a class="ad" href="#" target="_blank" rel="noopener">
+              <img src="https://placehold.co/600x400?text=Oferta+local" alt="Oferta">
+              <p>Ofertas locales</p>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Board productos -->
+      <section class="board">
+        <div class="board__top reveal">
+          <div>
+            <h2 id="bizTitle" style="margin:0">Selecciona un negocio</h2>
+            <small id="bizMeta" style="color:var(--muted)"></small>
+          </div>
+          <div class="pager">
+            <button class="btn" id="prevBtn" disabled>Anterior</button>
+            <button class="btn" id="nextBtn" disabled>Siguiente</button>
+          </div>
+        </div>
+
+        <div id="results" class="products reveal" role="list"></div>
+        <div id="emptyState" class="card empty reveal" style="display:none">
+          No encontramos resultados con esos filtros. Intenta limpiar o cambiar tu búsqueda.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- DRAWER CARRITO -->
+  <div class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer__mask" id="cartMask"></div>
+    <aside class="drawer__panel" role="dialog" aria-label="Carrito">
+      <div class="drawer__head">
+        <strong>Tu carrito</strong>
+        <button class="btn" id="closeCart">Cerrar</button>
+      </div>
+
+      <div class="drawer__body" id="cartItems"></div>
+
+      <div class="drawer__foot">
+        <div id="totals" style="font-weight:800">Subtotal: 0 XAF</div>
+        <label style="display:flex; gap:8px; align-items:center">
+          <input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)
+        </label>
+        <div id="addressBox" style="display:none">
+          <label>Dirección exacta
+            <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="width:100%; padding:10px; border:1px solid #eceff3; border-radius:10px; margin-top:6px">
           </label>
         </div>
-      </div>
-
-      <!-- CONTENEDOR PUBLICITARIO -->
-      <div class="ads-container">
-        <button class="ads-info-btn" onclick="openAdsInfo()">i</button>
-        <!-- Aquí puedes pegar imágenes publicitarias -->
-        <img src="/aset/Fachada.jpg" alt="Publicidad">
+        <form id="checkoutForm">
+          <div style="display:grid; gap:10px">
+            <input id="cname" placeholder="Tu nombre (opcional)" style="padding:10px; border:1px solid #eceff3; border-radius:10px">
+            <input id="cphone" placeholder="Teléfono (WhatsApp)" required style="padding:10px; border:1px solid #eceff3; border-radius:10px">
+            <textarea id="cnote" placeholder="Nota (Ej: Entrega 18:00)" rows="3" style="padding:10px; border:1px solid #eceff3; border-radius:10px"></textarea>
+          </div>
+          <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+            <button class="btn btn--brand" type="submit">Confirmar pedido</button>
+          </div>
+        </form>
       </div>
     </aside>
+  </div>
 
-    <section>
-      <div class="card">
-        <div class="body">
-          <h3 id="bizTitle">Selecciona un negocio</h3>
-          <div id="results" class="grid"></div>
-          <div style="display:flex;justify-content:center;margin-top:12px">
-            <button id="nextBtn" class="btn" style="display:none">Next</button>
-          </div>
+  <!-- FOOTER -->
+  <footer>
+    ©  Wap Tech & Services Development - WapMarket | Bata(GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025
+  </footer>
+
+  <!-- API loader (tu archivo) -->
+  <script src="/api.js"></script>
+
+  <script>
+  /* ==========================================================================
+     JS — Mercado con UX avanzada (basado en tu market y estilo del index)
+     ========================================================================== */
+
+  // ===== Estado
+  const DELIVERY_FEE = 2000;
+  const pageSize = 18;
+  let currentPage = 1;
+  let selectedBusiness = null;
+  let currentProducts = [];
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+  // ===== Utiles
+  const $ = (sel, root=document)=>root.querySelector(sel);
+  const $$ = (sel, root=document)=>[...root.querySelectorAll(sel)];
+  const money = n => (Number(n)||0).toLocaleString() + ' XAF';
+  const clamp = (n,min,max)=>Math.min(max,Math.max(min,n));
+  function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+  function updateCartCount(){
+    const count = cart.reduce((a,c)=>a + Number(c.qty||1),0);
+    $('#cartCount').textContent = clamp(count,0,999);
+  }
+
+  // ===== Drawer Carrito
+  const drawer = $('#cartDrawer'), mask = $('#cartMask');
+  function openCart(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); renderCart(); }
+  function closeCart(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
+  $('#btnOpenCart').addEventListener('click', openCart);
+  $('#closeCart').addEventListener('click', closeCart);
+  mask.addEventListener('click', closeCart);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCart(); });
+
+  // ===== Reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target);} });
+  }, {threshold:.12});
+  $$('.reveal').forEach(el=>io.observe(el));
+
+  // ===== Controles básicos
+  $('#btnBuscar').addEventListener('click', ()=>{ if(selectedBusiness) loadProducts(true); });
+  $('#inBizBtn').addEventListener('click', ()=>{ if(selectedBusiness) loadProducts(true); });
+  $('#category').addEventListener('change', ()=>{ if(selectedBusiness) loadProducts(true); });
+  $('#sort').addEventListener('change', ()=>{ if(selectedBusiness) renderProductsPage(); });
+  $('#maxPrice').addEventListener('input', ()=>{ if(selectedBusiness) renderProductsPage(); });
+  $('#resetFilters').addEventListener('click', ()=>{
+    $('#q').value=''; $('#inBizQuery').value=''; $('#category').value='';
+    $('#sort').value=''; $('#maxPrice').value='';
+    $$('input[name="p"]').forEach(r=> r.checked = r.value==='');
+    loadProducts(true);
+  });
+  document.addEventListener('keydown', e=>{ if(e.key==='/'){ e.preventDefault(); $('#q').focus(); } });
+
+  // ===== Navegación por páginas
+  $('#prevBtn').addEventListener('click', ()=>{ if(currentPage>1){ currentPage--; renderProductsPage(true); } });
+  $('#nextBtn').addEventListener('click', ()=>{
+    const maxPages = Math.ceil(filteredProducts().length / pageSize);
+    if(currentPage < maxPages){ currentPage++; renderProductsPage(true); }
+  });
+
+  // ===== Carga Negocios
+  async function loadBusinesses(){
+    const data = await API.get('/public/businesses');
+    const items = data.items || [];
+    const bar = $('#bizBar'); bar.innerHTML = '';
+    items.forEach(b=>{
+      const el = document.createElement('button');
+      el.className = 'biz';
+      el.innerHTML = `
+        <img class="biz__logo" src="${b.logo_url || 'https://placehold.co/80?text=WM'}" alt="">
+        <div style="text-align:left">
+          <div style="font-weight:800">${b.name}</div>
+          <div style="color:var(--muted); font-size:.85rem">${b.location||'Local'}</div>
+          ${b.business_type==='verified' ? '<div class="verified">✔ Verificado</div>' : ''}
         </div>
-      </div>
-    </section>
-    <!-- 📢 Publicidad de negocios locales -->
-<section class="local-ads">
-  <h3>Publicidad</h3>
-  <div class="ads-grid">
-    <div class="ad-card">
-      <a href="https://wa.me/240555218661" target="_blank">
-        <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
-        <p>Wap Tech & Services</p>
-      </a>
-    </div>
+      `;
+      el.addEventListener('click', ()=> setBusiness(b));
+      bar.appendChild(el);
+    });
+    if(!selectedBusiness && items.length) setBusiness(items[0]);
+  }
 
-    <div class="ad-card">
-      <a href="https://wa.me/240555218661" target="_blank">
-        <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
-        <p>CiberSegurida Prisma</p>
-      </a>
-    </div>
-</section>
-
-  </div>
-</main>
-
-<!-- Modal carrito -->
-<div class="modal" id="cartModal">
-  <div class="dialog">
-    <h3>Tu carrito</h3>
-    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
-    <div id="cartItems"></div>
-    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
-    <div id="addressBox" style="display:none">
-      <label>Dirección exacta
-        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
-      </label>
-    </div>
-    <div id="totals" style="margin:12px 0;font-weight:800"></div>
-    <form id="checkoutForm">
-      <label>Tu nombre (opcional)<input id="cname"></label>
-      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
-      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn" type="submit">Confirmar pedido</button>
-        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal publicidad info -->
-<div class="modal" id="adsModal">
-  <div class="dialog">
-    <h3>Promociona tu negocio</h3>
-    <p>Puedes promocionar tus productos o servicios en WapMarket con banners publicitarios.</p>
-    <ul>
-      <li><a href="#">Más información</a></li>
-      <li><a href="#">Contactar soporte</a></li>
-      <li><a href="#">Enviar tu publicidad</a></li>
-    </ul>
-    <div style="text-align:right;margin-top:10px">
-      <button class="btn" onclick="closeAdsInfo()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<footer class="footer">
-  <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
-  <a href="#">comprar</a>
-  <a href="#">reserva hotel</a>
-  <a href="#">restaurantes</a>
-  <a href="#">negocios</a>
-  <a href="#">comprar billetes</a>
-  <a href="#">empleos</a>
-</footer>
-
-<script src="/api.js"></script>
-<script>
-/* ====== JS PRINCIPAL ====== */
-const DELIVERY_FEE = 2000;
-let selectedBusiness = null;
-let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-let currentProducts = [];
-
-let pageSize = 20;
-let currentPage = 1;
-
-function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-function updateCartCount(){
-  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
-  document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
-}
-function closeCart(){ document.getElementById('cartModal').style.display='none'; }
-function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
-
-/* Publicidad modal */
-function openAdsInfo(){ document.getElementById('adsModal').style.display='flex'; }
-function closeAdsInfo(){ document.getElementById('adsModal').style.display='none'; }
-
-document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
-
-function setBusiness(b){
-  selectedBusiness = b;
-  document.getElementById('bizTitle').innerHTML =
-    'Productos de ' + b.name + (b.business_type==='verified'
-      ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>'
-      : '');
-  if (cart.length && cart[0].business_id !== b.id){
-    if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
-      cart = []; saveCart();
+  // ===== Seleccionar negocio
+  function setBusiness(b){
+    selectedBusiness = b;
+    $('#bizTitle').textContent = 'Productos de ' + b.name;
+    $('#bizMeta').textContent = (b.business_type==='verified' ? 'Negocio verificado • ' : '') + (b.location||'');
+    // Si el carrito es de otro negocio
+    if (cart.length && cart[0].business_id !== b.id){
+      if(confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
+        cart = []; saveCart();
+      }
     }
+    currentPage = 1;
+    loadProducts(true);
   }
-  currentPage = 1;
-  loadProducts();
-}
 
-async function loadBusinesses(){
-  const data = await API.get('/public/businesses');
-  const box = document.getElementById('bizList');
-  box.innerHTML = '';
-  (data.items||[]).forEach(b=>{
-    const el = document.createElement('div');
-    el.style.cssText = 'padding:10px;border:1px solid #eee;border-radius:0;margin:8px 0;cursor:pointer;background:#fff;';
-    el.innerHTML = `
-      <strong>${b.name}</strong>
-      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
-      <div class="small">${b.location||''}</div>`;
-    el.addEventListener('click', ()=> setBusiness(b));
-    box.appendChild(el);
-  });
-  if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
-  if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
-}
+  // ===== Carga Productos
+  async function loadProducts(applyNewQuery){
+    if(!selectedBusiness) return;
+    const params = new URLSearchParams();
+    params.set('business_id', selectedBusiness.id);
+    const qMain = $('#q').value.trim();
+    const qSide = $('#inBizQuery').value.trim();
+    const finalQ = (applyNewQuery ? (qSide || qMain) : qMain) || '';
+    if(finalQ) params.set('q', finalQ);
+    const cat = $('#category').value;
+    if(cat) params.set('category', cat);
+    const data = await API.get('/public/products?' + params.toString());
+    currentProducts = data.items || [];
+    currentPage = 1;
+    renderProductsPage(true);
+  }
 
-function renderProductsPage(){
-  const list = document.getElementById('results');
-  list.innerHTML = '';
-  const start = (currentPage-1)*pageSize;
-  const pageItems = currentProducts.slice(start, start+pageSize);
+  // ===== Filtro y orden en cliente
+  function filteredProducts(){
+    let list = currentProducts.slice();
+    // filtro precio max
+    const mx = Number($('#maxPrice').value || 0);
+    if(mx>0) list = list.filter(p => Number(p.price_xaf||0) <= mx);
 
-  pageItems.forEach(p=>{
-    const el = document.createElement('div');
-    el.className = 'product-item';
-    el.innerHTML = `
-      <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
-      <div class="meta">
-        <div class="badge">${p.category || ''}</div>
-        <h4 style="margin:6px 0 2px">${p.title}</h4>
-        <div class="price">${p.price_xaf ? (Number(p.price_xaf).toLocaleString() + ' XAF') : ''}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" data-id="${p.id}">Añadir</button>
+    // rango radio
+    const rv = ($$('input[name="p"]').find(r=>r.checked) || {}).value || '';
+    if(rv){
+      const [a,b] = rv.split('-').map(Number);
+      list = list.filter(p=>{
+        const v = Number(p.price_xaf||0);
+        return v >= a && v <= b;
+      });
+    }
+
+    // envío/recogida (demo, se filtra por tag en category/nota)
+    const ship = $('#shipHome').checked;
+    const pick = $('#pickStore').checked;
+    if(ship) list = list.filter(p => (p.tags||'').toString().toLowerCase().includes('envío') || (p.category||'').toLowerCase().includes('delivery'));
+    if(pick) list = list.filter(p => (p.tags||'').toString().toLowerCase().includes('recogida') || (p.category||'').toLowerCase().includes('pickup'));
+
+    // orden
+    const s = $('#sort').value;
+    if(s==='recent') list.sort((a,b)=> (b.created_at||0) - (a.created_at||0));
+    if(s==='price-asc') list.sort((a,b)=> (a.price_xaf||0) - (b.price_xaf||0));
+    if(s==='price-desc') list.sort((a,b)=> (b.price_xaf||0) - (a.price_xaf||0));
+
+    return list;
+  }
+
+  // ===== Render Página de productos
+  function renderProductsPage(scrollTop){
+    const list = filteredProducts();
+    const grid = $('#results');
+    const empty = $('#emptyState');
+    grid.innerHTML = '';
+    empty.style.display = list.length ? 'none' : 'block';
+
+    const start = (currentPage-1)*pageSize;
+    const page = list.slice(start, start+pageSize);
+
+    page.forEach(p=>{
+      const el = document.createElement('article');
+      el.className = 'card product';
+      el.setAttribute('role','listitem');
+      el.innerHTML = `
+        <img class="thumb" src="${p.image_url || 'https://placehold.co/800x600?text=WapMarket'}" alt="${(p.title||'Producto')}" loading="lazy">
+        <div class="meta">
+          ${p.category ? `<span class="badge">${p.category}</span>` : ''}
+          <h4>${p.title || ''}</h4>
+          <div class="price">${p.price_xaf ? money(p.price_xaf) : ''}</div>
         </div>
-      </div>`;
-    list.appendChild(el);
-  });
+        <div class="actions">
+          <button class="btn btn--brand" data-id="${p.id}">Añadir</button>
+          <button class="btn btn--ghost" data-id="${p.id}" data-act="quick">Vista rápida</button>
+        </div>
+      `;
+      grid.appendChild(el);
+    });
 
-  const nextBtn = document.getElementById('nextBtn');
-  if (currentProducts.length > pageSize){
-    nextBtn.style.display = (start + pageSize) < currentProducts.length ? 'inline-block' : 'none';
-  } else {
-    nextBtn.style.display = 'none';
+    // Paginador
+    const maxPages = Math.ceil(list.length / pageSize);
+    $('#prevBtn').disabled = currentPage<=1;
+    $('#nextBtn').disabled = currentPage>=maxPages || maxPages===0;
+
+    // Acciones
+    grid.onclick = (e)=>{
+      const add = e.target.closest('button[data-id]:not([data-act])');
+      const quick = e.target.closest('button[data-act="quick"]');
+      if(add) addToCart(add.dataset.id);
+      if(quick){
+        const p = currentProducts.find(x=> x.id == quick.dataset.id);
+        if(!p) return;
+        alert((p.title||'Producto') + '\\n' + (p.description||'') + '\\nPrecio: ' + money(p.price_xaf||0));
+      }
+    };
+
+    if(scrollTop) window.scrollTo({top: $('.subhead').offsetTop - 64, behavior:'smooth'});
   }
 
-  list.onclick = (e)=>{
-    const btn = e.target.closest('button[data-id]'); if(!btn) return;
-    const id = btn.dataset.id;
-    const p = currentProducts.find(x=>x.id == id);
-    if (!p) return;
-
-    if (cart.length && cart[0].business_id !== p.business_id){
-      if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
+  // ===== Carrito
+  function addToCart(id){
+    const p = currentProducts.find(x=> x.id == id);
+    if(!p) return;
+    if(cart.length && cart[0].business_id !== p.business_id){
+      if(!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
       cart = [];
     }
-    const exists = cart.find(x=>x.id===p.id);
-    if (exists) exists.qty = Number(exists.qty||1)+1;
-    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+    const found = cart.find(x=> x.id===p.id);
+    if(found) found.qty = Number(found.qty||1) + 1;
+    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id:p.business_id });
     saveCart();
-  };
-}
+    openCart();
+  }
 
-async function loadProducts(){
-  if (!selectedBusiness) return;
-  const q = document.getElementById('q').value.trim();
-  const cat = document.getElementById('category').value;
-  const params = new URLSearchParams();
-  params.set('business_id', selectedBusiness.id);
-  if (q) params.set('q', q);
-  if (cat) params.set('category', cat);
-  const data = await API.get('/public/products?' + params.toString());
-  currentProducts = data.items || [];
-  currentPage = 1;
-  renderProductsPage();
-}
+  function renderCart(){
+    const box = $('#cartItems');
+    box.innerHTML = '';
+    if(!cart.length){ box.innerHTML = '<div class="empty">Tu carrito está vacío.</div>'; $('#totals').textContent='Subtotal: 0 XAF'; return; }
 
-function renderCart(){
-  const box = document.getElementById('cartItems');
-  const info = document.getElementById('cartInfo');
-  if (!cart.length){ box.innerHTML = '<p>Tu carrito está vacío.</p>'; info.textContent=''; document.getElementById('totals').textContent=''; return; }
-  info.textContent = 'Negocio: ' + (selectedBusiness && cart[0].business_id===selectedBusiness.id ? selectedBusiness.name : ('#' + cart[0].business_id));
-  box.innerHTML = '';
-  let subtotal = 0;
-  cart.forEach((item, idx)=>{
-    const div = document.createElement('div');
-    div.style.margin='8px 0';
-    div.innerHTML = `
-      <div style="display:flex;gap:10px;align-items:center">
-        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+    let subtotal = 0;
+    cart.forEach((item, i)=>{
+      const row = document.createElement('div');
+      row.className = 'line';
+      row.innerHTML = `
+        <img src="${item.image_url || 'https://placehold.co/80'}" alt="">
         <div style="flex:1">
-          <div><strong>${item.title}</strong></div>
-          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
-          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-            <button class="btn" data-idx="${idx}" data-act="dec">-</button>
-            <span>${item.qty}</span>
-            <button class="btn" data-idx="${idx}" data-act="inc">+</button>
-            <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
+          <div style="display:flex; justify-content:space-between; gap:8px">
+            <strong>${item.title}</strong>
+            <span>${money(item.price_xaf||0)}</span>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; margin-top:8px">
+            <button class="btn" data-i="${i}" data-act="dec">-</button>
+            <span style="min-width:24px; text-align:center">${item.qty}</span>
+            <button class="btn" data-i="${i}" data-act="inc">+</button>
+            <button class="btn" data-i="${i}" data-act="del">Quitar</button>
           </div>
         </div>
-      </div>
-    `;
-    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
-    box.appendChild(div);
-  });
-  const delivery = document.getElementById('deliveryChk').checked;
-  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
-  document.getElementById('totals').textContent = 'Subtotal: ' + subtotal.toLocaleString() + ' XAF' + (delivery? ' + Envío: 2.000 XAF = Total: ' + total.toLocaleString() + ' XAF' : ' = Total: ' + total.toLocaleString() + ' XAF');
-  box.onclick = (e)=>{
-    const btn = e.target.closest('button.btn'); if(!btn) return;
-    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-    if (act==='del') cart.splice(i,1);
-    saveCart(); renderCart();
+      `;
+      subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+      box.appendChild(row);
+    });
+
+    const delivery = $('#deliveryChk').checked;
+    const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+    $('#totals').textContent = `Subtotal: ${money(subtotal)}${delivery ? ' + Envío: ' + money(DELIVERY_FEE) : ''} = Total: ${money(total)}`;
+
+    box.onclick = (e)=>{
+      const btn = e.target.closest('button.btn'); if(!btn) return;
+      const i = Number(btn.dataset.i); const act = btn.dataset.act;
+      if(act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+      if(act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+      if(act==='del') cart.splice(i,1);
+      saveCart(); renderCart();
+    };
   }
-}
 
-document.getElementById('deliveryChk').addEventListener('change', (e)=>{
-  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
-  renderCart();
-});
+  $('#deliveryChk').addEventListener('change', (e)=>{
+    $('#addressBox').style.display = e.target.checked ? 'block' : 'none';
+    renderCart();
+  });
 
-document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
-document.getElementById('category').addEventListener('change', ()=>{ if (selectedBusiness) loadProducts(); });
+  $('#checkoutForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if(!cart.length) return alert('Tu carrito está vacío');
+    const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+    const delivery = $('#deliveryChk').checked;
+    const payload = {
+      items,
+      customer_name: $('#cname').value,
+      customer_phone: $('#cphone').value,
+      address: delivery ? $('#address').value : undefined,
+      note: $('#cnote').value,
+      delivery
+    };
+    const res = await API.post('/public/cart/checkout', payload);
+    if(res.error){ alert(res.error); return; }
+    alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\\nTotal: ' + money(res.total_xaf||0));
+    cart = []; saveCart(); closeCart();
+  });
 
-document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  if (!cart.length) return alert('Tu carrito está vacío');
-  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
-  const delivery = document.getElementById('deliveryChk').checked;
-  const payload = {
-    items,
-    customer_name: document.getElementById('cname').value,
-    customer_phone: document.getElementById('cphone').value,
-    address: delivery ? document.getElementById('address').value : undefined,
-    note: document.getElementById('cnote').value,
-    delivery
-  };
-  const res = await API.post('/public/cart/checkout', payload);
-  if (res.error){ alert(res.error); return; }
-  alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
-  cart = []; saveCart(); closeCart();
-});
-
-document.getElementById('nextBtn').addEventListener('click', ()=>{
-  const maxPages = Math.ceil(currentProducts.length / pageSize);
-  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
-});
-
-updateCartCount();
-loadBusinesses();
-</script>
+  // ===== Init
+  updateCartCount();
+  loadBusinesses();
+  </script>
 </body>
 </html>
