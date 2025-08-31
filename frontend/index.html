@@ -35,11 +35,61 @@
     .search input{flex:1;padding:10px;border:1px solid #ddd;border-radius:0;width:100%}
     .btn{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
     .btn:disabled{opacity:.6;cursor:not-allowed}
+/* ====== BOTÓN CARRITO (pegado al buscar) ====== */
+.search {
+  display: flex;
+  gap: 0;                /* quitamos separación */
+  flex: 1;
+}
 
-    /* ====== BOTÓN CARRITO ====== */
-    #btnOpenCart{position:relative;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#111;border:1px solid #ddd;border-radius:8px;width:46px;height:46px;padding:0}
-    #btnOpenCart img{width:26px;height:26px;object-fit:contain}
-    #btnOpenCart[data-has-items="true"]::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ff3b30}
+.search input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px; /* redondeado solo lado izquierdo */
+  width: 100%;
+}
+
+#btnBuscar {
+  border-radius: 0;       /* se queda cuadrado al centro */
+}
+
+#btnOpenCart {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #111;
+  border: 1px solid #ddd;
+  border-left: none;        /* se une al botón buscar */
+  border-radius: 0 4px 4px 0; /* redondeado solo lado derecho */
+  padding: 0 16px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+#btnOpenCart img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+#btnOpenCart:hover {
+  background: #f5f5f5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+#btnOpenCart[data-has-items="true"]::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b30;
+}
 
     /* ====== LAYOUT ====== */
     .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap);flex:1}
