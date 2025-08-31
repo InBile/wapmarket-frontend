@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>WapMarket — Marketplace GE</title>
+  <link rel="stylesheet" href="/styles.css">
 
   <!-- Fuente Futura PT -->
   <style>
@@ -68,25 +69,17 @@
     .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
 
     /* ====== FOOTER ====== */
-    .footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center}
+    .footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center;margin-top:auto}
     .footer a{margin:0 8px;color:#111;text-decoration:underline;transition:color .2s}
     .footer a:hover{color:#007bff;}
 
     .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
     .verified-badge img{width:22px;height:22px;object-fit:contain}
 
-    /* ====== RESPONSIVE SOLO MÓVIL ====== */
-    @media (max-width:600px){
-      .row{flex-direction:column;align-items:stretch}
-      .search{width:100%}
-      .search input{width:100%}
-      #results.grid{grid-template-columns: repeat(2, 1fr);} /* productos 2x2 */
-      .dialog{padding:12px}
-      .logo{text-align:center;margin-bottom:8px}
-      .layout{grid-template-columns:1fr}
-      aside{order:2}
-      section{order:1}
-    }
+    /* ====== RESPONSIVE ====== */
+    @media (max-width:1100px){#results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}:root{--aside-w:260px}}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}aside{order:2}section{order:1}#results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}}
+    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}.search{width:100%}.search input{width:100%}#results.grid{grid-template-columns: 1fr;}.dialog{padding:12px}.logo{text-align:center;margin-bottom:8px}}
   </style>
 </head>
 <body>
@@ -128,7 +121,9 @@
       <!-- CONTENEDOR PUBLICITARIO -->
       <div class="ads-container">
         <button class="ads-info-btn" onclick="openAdsInfo()">i</button>
+        <!-- Aquí puedes pegar imágenes publicitarias -->
         <img src="/aset/sample-ad.jpg" alt="Publicidad">
+        <img src="/aset/sample-ad2.jpg" alt="Publicidad">
       </div>
     </aside>
 
@@ -197,24 +192,26 @@
   <a href="#">empleos</a>
 </footer>
 
+<script src="/api.js"></script>
 <script>
-/* === API SIMPLIFICADA === */
-const API = {
-  async get(url){ const r = await fetch(url); return r.json(); },
-  async post(url,data){ const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); return r.json(); }
-};
-
+/* ====== JS PRINCIPAL ====== */
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentProducts = [];
+
 let pageSize = 20;
 let currentPage = 1;
 
 function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-function updateCartCount(){ const count = cart.reduce((a,c)=>a+Number(c.qty||1),0); document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false'); }
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
+}
 function closeCart(){ document.getElementById('cartModal').style.display='none'; }
 function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
+
+/* Publicidad modal */
 function openAdsInfo(){ document.getElementById('adsModal').style.display='flex'; }
 function closeAdsInfo(){ document.getElementById('adsModal').style.display='none'; }
 
@@ -336,7 +333,8 @@ function renderCart(){
             <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
           </div>
         </div>
-      </div>`;
+      </div>
+    `;
     subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
     box.appendChild(div);
   });
