@@ -93,3 +93,15 @@ label{display:grid;gap:6px;margin:8px 0}
   padding:16px;
   z-index:1000; /* 👈 aseguramos que quede por encima del header */
 }
+.logout-btn{
+  background:#c00; /* rojo para diferenciar */
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.logout-btn:hover{
+  background:#a00;
+}
+
