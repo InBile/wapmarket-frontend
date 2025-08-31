@@ -5,6 +5,10 @@
   "rewrites": [
     {
       "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/index",
       "destination": "/index.html"
     },
     {
