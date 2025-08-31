@@ -6,8 +6,10 @@
   <title>WapMarket — Marketplace GE</title>
   <link rel="stylesheet" href="/styles.css">
 
+  <!-- Fuente Futura PT -->
   <style>
-    /* ====== RESET Y BASE ====== */
+    @import url('https://fonts.cdnfonts.com/css/futura-pt');
+
     :root{
       --gap:16px;
       --aside-w:300px;
@@ -17,18 +19,32 @@
     html,body{height:100%}
     body{
       margin:0;
-      padding:0 0 var(--footer-h); /* espacio para footer fijo */
-      background:#f7f7f9; /* ajusta al fondo que uses */
+      padding:0 0 var(--footer-h);
+      background:#f7f7f9;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
     }
 
-    /* ====== HEADER ====== */
-    .header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #eee}
+    /* ====== HEADER / NAVBAR ====== */
+    .header{
+      position:sticky;top:0;z-index:10;
+      background:#000;
+      border-bottom:1px solid #222;
+    }
     .wrapper{max-width:1200px;margin:0 auto;padding:10px 16px}
     .row{display:flex;align-items:center;gap:12px}
-    .logo{font-weight:800}
+    .logo{
+      font-family:'Futura PT',sans-serif;
+      font-weight:800;
+      font-size:1.4rem;
+      color:#fff;
+    }
     .search{display:flex;gap:8px;flex:1}
-    .search input{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}
+    .search input{
+      flex:1;
+      padding:10px;
+      border:1px solid #ddd;
+      border-radius:0; /* sin bordes redondeados */
+    }
     .btn{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
     .btn:disabled{opacity:.6;cursor:not-allowed}
 
@@ -40,77 +56,44 @@
       width:46px;height:46px;padding:0;
     }
     #btnOpenCart img{width:26px;height:26px;object-fit:contain}
-    /* Puntito indicador cuando hay ítems */
     #btnOpenCart[data-has-items="true"]::after{
       content:"";
       position:absolute;top:6px;right:6px;
       width:8px;height:8px;border-radius:50%;
-      background:#ff3b30; /* rojo tipo notificación */
+      background:#ff3b30;
+    }
+
+    /* ====== IMAGEN PUBLICIDAD ====== */
+    .hero{
+      width:100%;
+      height:auto;
+      display:block;
     }
 
     /* ====== LAYOUT PRINCIPAL ====== */
     .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap)}
-    aside{margin-left:-8px;} /* empuja un poco más a la izquierda */
-    /* Contenedores (negocios/filtros) sin bordes redondeados */
+    aside{margin-left:-8px;}
     .card{background:#fff;border:1px solid #eee;border-radius:0}
     .card .body{padding:12px 12px}
-
-    /* Lista negocios: scroll cuando >10 */
     #bizList{display:flex;flex-direction:column;gap:8px}
     #bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
 
-    /* Contenedor de resultados: productos SIN card visual */
     section .card{background:transparent;border:none}
     #results.grid{
       display:grid;
       grid-template-columns: repeat(4, minmax(0,1fr));
       gap:var(--gap);
     }
-    /* Tarjeta visual de producto sin redondeos ni sombra */
-    .product-item{
-      background:transparent;border:none;border-radius:0; /* sin bordes redondeados */
-    }
+    .product-item{background:transparent;border:none;border-radius:0;}
     .product-item .thumb{
       width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
-      border:1px solid #e9e9ee; /* delineado sutil para separar del fondo */
+      border:1px solid #e9e9ee;
     }
-    .product-item .meta{
-      padding:8px 2px;
-    }
+    .product-item .meta{padding:8px 2px}
     .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
     .price{font-weight:800;margin:4px 0}
 
-    /* ====== NAVBAR SUPERIOR AUTO-SCROLL ====== */
-    .autonav{
-      width:100%;
-      overflow:hidden;
-      border-bottom:1px solid #eee;
-      background:#fff;
-    }
-    .autonav-track{
-      display:flex;gap:14px;align-items:center;
-      padding:8px 16px;
-      animation: autoscroll 30s linear infinite;
-      will-change: transform;
-    }
-    .autonav:hover .autonav-track{animation-play-state:paused}
-    .autonav-item{
-      flex:0 0 auto; width:90px; height:60px; display:flex; align-items:center; justify-content:center;
-      border:1px solid #eee; background:#fff; cursor:pointer;
-    }
-    .autonav-item img{max-width:100%;max-height:100%;object-fit:cover}
-
-    @keyframes autoscroll{
-      from{transform: translateX(0)}
-      to{transform: translateX(-50%)}
-    }
-
-    /* ====== MODAL, FOOTER ====== */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
-    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:auto}
-    .small{font-size:.9em;color:#555}
-    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
-
+    /* ====== FOOTER ====== */
     .footer{
       position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);
       display:flex;align-items:center;justify-content:center;gap:18px;
@@ -119,9 +102,13 @@
       padding:0 12px;
       flex-wrap:wrap;
     }
-    .footer a{color:#111;text-decoration:underline}
+    .footer a{
+      color:#111;
+      text-decoration:underline;
+      transition:color .2s;
+    }
+    .footer a:hover{color:#007bff;} /* azul al pasar cursor */
 
-    /* Verified badge (se mantiene) */
     .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
     .verified-badge img{width:22px;height:22px;object-fit:contain}
 
@@ -145,11 +132,6 @@
 </head>
 <body>
 
-<!-- NAVBAR AUTO-SCROLL CON IMÁGENES -->
-<div class="autonav" id="autoNav">
-  <div class="autonav-track" id="autoNavTrack"><!-- se llena por JS --></div>
-</div>
-
 <header class="header">
   <div class="row wrapper">
     <div class="logo">WapMarket</div>
@@ -157,13 +139,14 @@
       <input id="q" placeholder="Buscar productos o servicios..." />
       <button class="btn" id="btnBuscar">Buscar</button>
     </form>
-
-    <!-- Botón carrito: blanco, sin contador, con icono y puntito indicador -->
     <a href="#" class="btn" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
       <img src="/aset/icons8-buy-64.png" alt="Carrito">
     </a>
   </div>
 </header>
+
+<!-- Imagen de publicidad -->
+<img src="/aset/promo.jpg" alt="Publicidad WapMarket" class="hero">
 
 <main class="wrapper">
   <div class="layout">
@@ -192,8 +175,6 @@
         <div class="body">
           <h3 id="bizTitle">Selecciona un negocio</h3>
           <div id="results" class="grid"></div>
-
-          <!-- “Next” aparece cuando hay más de 20 productos -->
           <div style="display:flex;justify-content:center;margin-top:12px">
             <button id="nextBtn" class="btn" style="display:none">Next</button>
           </div>
@@ -203,30 +184,7 @@
   </div>
 </main>
 
-<div class="modal" id="cartModal">
-  <div class="dialog">
-    <h3>Tu carrito</h3>
-    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
-    <div id="cartItems"></div>
-    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
-    <div id="addressBox" style="display:none">
-      <label>Dirección exacta
-        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
-      </label>
-    </div>
-    <div id="totals" style="margin:12px 0;font-weight:800"></div>
-    <form id="checkoutForm">
-      <label>Tu nombre (opcional)<input id="cname"></label>
-      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
-      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn" type="submit">Confirmar pedido</button>
-        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
+<!-- Resto del código JS y footer como antes -->
 <footer class="footer">
   <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
   <a href="#">comprar</a>
@@ -275,23 +233,6 @@ function setBusiness(b){
   loadProducts();
 }
 
-/* Navbar superior: llena con imágenes (de productos del negocio actual) */
-function refreshAutoNav(images){
-  const track = document.getElementById('autoNavTrack');
-  track.innerHTML = '';
-  const imgs = (images||[]).slice(0,14);
-  // Duplicamos para scroll infinito
-  const twice = imgs.concat(imgs);
-  twice.forEach(src=>{
-    const item = document.createElement('div');
-    item.className='autonav-item';
-    item.innerHTML = `<img src="${src}" alt="producto">`;
-    // NOTE: Aquí abrimos el carrito al hacer click. Si más adelante tienes el wa.me del negocio,
-    // reemplaza por: window.open('https://wa.me/NUMERO','_blank')
-    item.addEventListener('click', ()=> openCart());
-    track.appendChild(item);
-  });
-}
 
 async function loadBusinesses(){
   const data = await API.get('/public/businesses');
