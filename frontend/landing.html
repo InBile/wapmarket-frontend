@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WapMarket — Conecta. Compra. Crece.</title>
+  <meta name="description" content="WapMarket: la plataforma que digitaliza negocios locales con compras rápidas, pagos seguros y envíos ágiles." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --panel:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --brand:#ff7a00;   /* naranja cálido */
+      --brand-2:#ffb43a; /* apoyo */
+      --brand-ink:#2b1600;
+      --ok:#00b894;
+      --warn:#ffb300;
+      --ring: 0 10px 30px rgba(0,0,0,.08);
+      --ring-2: 0 20px 60px rgba(0,0,0,.12);
+      --radius:18px;
+      --container: 1200px;
+      --pad: clamp(18px,2.5vw,28px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      background:var(--bg);
+      color:var(--ink);
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+      overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:var(--container); margin:0 auto; padding:0 var(--pad)}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px; padding:12px 22px; border-radius:14px; border:1px solid transparent;
+      background:linear-gradient(180deg,#fff,#f4f4f6);
+      color:#111; font-weight:600; box-shadow:var(--ring);
+      transition:transform .15s ease, box-shadow .2s ease, background .2s;
+      cursor:pointer; user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--ring-2)}
+    .btn--brand{
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#fff; border:none;
+    }
+    .btn--ghost{background:#fff;border:1px solid #e5e7eb}
+
+    /* ===== NAVBAR ===== */
+    .nav{
+      position:sticky; top:0; z-index:50; backdrop-filter:saturate(160%) blur(6px);
+      background:rgba(255,255,255,.75); border-bottom:1px solid rgba(0,0,0,.05);
+    }
+    .nav__row{display:flex; align-items:center; gap:12px; height:64px}
+    .logo{font-weight:800; letter-spacing:-.5px}
+    .logo b{color:var(--brand)}
+    .nav__spacer{flex:1}
+    .nav__links{display:flex; gap:14px}
+    .nav__links a{padding:8px 10px; border-radius:10px; color:#1f2937}
+    .nav__links a:hover{background:#f2f3f7}
+    .nav__cta{display:flex; gap:10px}
+
+    /* ===== HERO ===== */
+    .hero{
+      position:relative; min-height:100vh; display:grid; place-items:center;
+      background:
+        radial-gradient(800px 500px at 85% 20%, #ffd9a6 0%, transparent 60%),
+        radial-gradient(700px 400px at 10% 80%, #ffe7c7 0%, transparent 60%),
+        linear-gradient(180deg,#fff 0%, #fff6ec 100%);
+      overflow:hidden;
+    }
+    /* parallax blobs */
+    .blob{
+      position:absolute; border-radius:50%;
+      filter:blur(40px); opacity:.35; mix-blend-mode:multiply;
+      will-change:transform;
+    }
+    .blob--1{width:520px;height:520px; background:#ffcf99; top:-80px; left:-60px;}
+    .blob--2{width:640px;height:640px; background:#ffd4a8; bottom:-140px; right:-120px;}
+    .blob--3{width:380px;height:380px; background:#ffc081; top:30%; left:55%;}
+    .hero__wrap{position:relative; z-index:2}
+    .hero__title{
+      font-size:clamp(36px,6.5vw,72px); font-weight:800; letter-spacing:-1px; margin:0 0 8px;
+      color:var(--brand-ink);
+    }
+    .hero__subtitle{font-size:clamp(16px,2.2vw,22px); color:#3b3b3b; margin:0 0 26px}
+    .hero__cta{display:flex; gap:12px; flex-wrap:wrap}
+    .hero__badge{
+      display:inline-flex; gap:8px; align-items:center; background:#fff; border:1px solid #eee;
+      padding:8px 12px; border-radius:999px; font-size:14px; box-shadow:var(--ring);
+      margin:0 0 12px; color:#374151;
+    }
+    .scroll-hint{
+      position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:6px; color:#6b7280; font-size:.9rem;
+      animation:hint 2.2s ease-in-out infinite;
+    }
+    .scroll-hint .wheel{
+      width:22px;height:36px;border:2px solid #9ca3af;border-radius:16px; position:relative;
+    }
+    .scroll-hint .wheel:after{
+      content:""; width:4px;height:8px; border-radius:2px; background:#9ca3af; position:absolute; left:50%; top:6px; transform:translateX(-50%);
+      animation:wheel 1.4s infinite;
+    }
+    @keyframes wheel{0%{opacity:0; transform:translate(-50%,0)} 50%{opacity:1; transform:translate(-50%,8px)} 100%{opacity:0; transform:translate(-50%,14px)}}
+    @keyframes hint{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+
+    /* ===== REVEAL ANIMS (IntersectionObserver) ===== */
+    .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease}
+    .reveal.is-in{opacity:1; transform:none}
+
+    /* ===== SECTIONS GENERALES ===== */
+    section{padding:88px 0}
+    .section__head{margin:0 0 24px}
+    .section__kicker{color:var(--brand); font-weight:700; letter-spacing:.1em; text-transform:uppercase; font-size:.8rem}
+    .section__title{font-size:clamp(26px,4vw,40px); margin:6px 0 10px; letter-spacing:-.3px}
+    .section__lead{color:var(--muted); font-size:1.1rem; max-width:900px}
+
+    /* ===== FEATURE GRID ===== */
+    .features{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .card{
+      background:var(--panel); border:1px solid #eceff3; border-radius:var(--radius); padding:24px;
+      box-shadow:var(--ring); transition:transform .15s ease, box-shadow .2s ease;
+    }
+    .card:hover{transform:translateY(-4px); box-shadow:var(--ring-2)}
+    .card i{font-style:normal; display:inline-grid; place-items:center; width:42px;height:42px; border-radius:12px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; font-weight:800; margin-bottom:10px}
+    .card h4{margin:6px 0 6px}
+    .card p{color:#586072; margin:0}
+
+    /* ===== STATS STRIP ===== */
+    .strip{
+      background:linear-gradient(90deg,#fff,#fff6ec); border-top:1px solid #f5ede4; border-bottom:1px solid #f5ede4;
+    }
+    .metric{display:flex; flex-direction:column; align-items:center; padding:18px}
+    .metric b{font-size:clamp(24px,4.2vw,40px)}
+    .metric span{color:var(--muted)}
+
+    /* ===== SHOWCASE ===== */
+    .showcase{display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:center}
+    .mock{
+      position:relative; border-radius:22px; overflow:hidden; border:1px solid #ececec; background:#fff; box-shadow:var(--ring-2);
+    }
+    .mock img{width:100%; height:auto; transform:scale(1.03); transition:transform 1.5s ease}
+    .mock:hover img{transform:scale(1.07)}
+    .list{display:grid; gap:12px}
+    .list li{display:flex; gap:12px; align-items:flex-start; background:#fff; border:1px solid #f0f0f3; padding:16px; border-radius:14px; box-shadow:var(--ring)}
+    .dot{width:10px;height:10px;border-radius:50%; background:var(--brand); margin-top:6px}
+
+    /* ===== PRICING ===== */
+    .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .price{
+      background:#fff; border:1px solid #eceff3; border-radius:22px; padding:26px; box-shadow:var(--ring);
+      position:relative; overflow:hidden;
+    }
+    .price--pro{border-color:#ffd9a6; box-shadow:0 20px 60px rgba(255,158,44,.25)}
+    .price__tag{font-size:32px; font-weight:800}
+    .price__cta{margin-top:14px}
+    .chip{display:inline-block; font-size:.75rem; padding:4px 10px; border-radius:999px; background:#fff1dc; border:1px solid #ffd9a6; color:#8a4b00}
+
+    /* ===== TESTIMONIOS (slider) ===== */
+    .testi{
+      display:grid; grid-auto-flow:column; grid-auto-columns:minmax(260px, 360px); gap:16px;
+      overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory;
+    }
+    .testi::-webkit-scrollbar{height:10px}
+    .testi::-webkit-scrollbar-thumb{background:#e7e7ea; border-radius:999px}
+    .tcard{
+      scroll-snap-align:start;
+      background:rgba(255,255,255,.9); backdrop-filter:blur(8px);
+      border:1px solid #eceff3; border-radius:18px; padding:18px; box-shadow:var(--ring); min-height:200px;
+      display:flex; flex-direction:column; gap:12px
+    }
+    .tcard__head{display:flex; gap:12px; align-items:center}
+    .avatar{width:46px;height:46px;border-radius:50%; object-fit:cover; border:2px solid var(--brand)}
+    .stars{color:#ffb300}
+
+    /* ===== FAQ ===== */
+    .faq{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+    .faq .q{
+      background:#fff; border:1px solid #eceff3; border-radius:16px; padding:16px 18px; box-shadow:var(--ring);
+      cursor:pointer; position:relative;
+    }
+    .faq .q h5{margin:0}
+    .faq .q p{color:#586072; margin:10px 0 0; max-height:0; overflow:hidden; transition:max-height .35s ease}
+    .faq .q.open p{max-height:180px}
+
+    /* ===== CTA ===== */
+    .cta{
+      background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; border-radius:24px;
+      padding:38px; display:grid; grid-template-columns:1.2fr .8fr; align-items:center; gap:20px;
+      box-shadow:var(--ring-2)
+    }
+    .cta b{font-size:clamp(22px,3.4vw,34px)}
+    .cta p{opacity:.95}
+    .cta .btn{background:#fff;color:var(--brand); font-weight:800}
+
+    /* ===== FOOTER ===== */
+    footer{padding:26px 0; color:#6b7280; text-align:center}
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width:1024px){
+      .features{grid-template-columns:repeat(2,1fr)}
+      .pricing{grid-template-columns:repeat(2,1fr)}
+      .showcase{grid-template-columns:1fr}
+      .cta{grid-template-columns:1fr}
+    }
+    @media (max-width:680px){
+      .features{grid-template-columns:1fr}
+      .pricing{grid-template-columns:1fr}
+      .faq{grid-template-columns:1fr}
+      .nav__links{display:none}
+      .hero__cta{justify-content:center}
+    }
+
+    /* ===== Reduced Motion ===== */
+    @media (prefers-reduced-motion: reduce){
+      .blob{display:none}
+      .reveal{transition:none}
+      .mock img{transition:none}
+      .scroll-hint{animation:none}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav__row">
+      <div class="logo">Wap<b>Market</b></div>
+      <div class="nav__spacer"></div>
+      <div class="nav__links">
+        <a href="#features">Plataforma</a>
+        <a href="#showcase">Cómo funciona</a>
+        <a href="#pricing">Planes</a>
+        <a href="#testi">Opiniones</a>
+      </div>
+      <div class="nav__cta">
+        <a class="btn btn--ghost" href="#faq" aria-label="Preguntas frecuentes">FAQ</a>
+        <a class="btn btn--brand" href="index.html" aria-label="Entrar a WapMarket">Entrar</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <!-- blobs parallax -->
+    <div class="blob blob--1" aria-hidden="true"></div>
+    <div class="blob blob--2" aria-hidden="true"></div>
+    <div class="blob blob--3" aria-hidden="true"></div>
+
+    <div class="container hero__wrap">
+      <div class="hero__badge reveal"> Nueva generación del comercio local</div>
+      <h1 class="hero__title reveal">Conecta. Compra. <span style="color:var(--brand)">Crece</span>.</h1>
+      <p class="hero__subtitle reveal">
+        WapMarket une negocios y clientes en un entorno seguro, rápido y hermoso.  
+        Publica productos, gestiona pedidos y entrega sin fricción.
+      </p>
+      <div class="hero__cta reveal">
+        <a class="btn btn--brand" href="index.html">Entrar y explorar</a>
+        <a class="btn" href="#features">Ver cómo funciona</a>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <div class="wheel"></div>
+      <small>Desliza para descubrir</small>
+    </div>
+  </header>
+
+  <!-- STRIP STATS -->
+  <section class="strip">
+    <div class="container">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+        <div class="metric reveal"><b>+5</b><span>Negocios activos</span></div>
+        <div class="metric reveal"><b>+100</b><span>Usuarios felices</span></div>
+        <div class="metric reveal"><b>24/7</b><span>Soporte real</span></div>
+        <div class="metric reveal"><b>100%</b><span>confiable</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <div class="section__head">
+        <div class="section__kicker reveal">Plataforma</div>
+        <h2 class="section__title reveal">Todo lo que necesitas para vender online</h2>
+        <p class="section__lead reveal">Diseñado para negocios locales: fácil de usar, bonito y preparado para crecer contigo.</p>
+      </div>
+      <div class="features">
+        <div class="card reveal">
+          <i>1</i>
+          <h4>Catálogo instantáneo</h4>
+          <p>Crea y organiza productos con fotos y categorías en minutos.</p>
+        </div>
+        <div class="card reveal">
+          <i>2</i>
+          <h4>Checkout sencillo</h4>
+          <p>Carrito rápido, datos mínimos y confirmación clara para el cliente.</p>
+        </div>
+        <div class="card reveal">
+          <i>3</i>
+          <h4>Pedidos en tiempo real</h4>
+          <p>Recibe, acepta y gestiona pedidos desde el móvil o tu negocio.</p>
+        </div>
+        <div class="card reveal">
+          <i>4</i>
+          <h4>Marketing local</h4>
+          <p>Espacios de banner, campañas y visibilidad en tu zona.</p>
+        </div>
+        <div class="card reveal">
+          <i>5</i>
+          <h4>Métricas claras</h4>
+          <p>Ventas, visitas y productos más vistos en un panel simple.</p>
+        </div>
+        <div class="card reveal">
+          <i>6</i>
+          <h4>Soporte humano</h4>
+          <p>Acompañamiento real para digitalizar tu negocio sin dolores.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHOWCASE -->
+  <section id="showcase" style="background:#fff6ec">
+    <div class="container">
+      <div class="section__head">
+        <div class="section__kicker reveal">Experiencia</div>
+        <h2 class="section__title reveal">De descubrir a recibir, en pocos pasos</h2>
+        <p class="section__lead reveal">Explora negocios verificados, añade al carrito y confirma. Nosotros te ayudamos a que todo fluya.</p>
+      </div>
+
+      <div class="showcase">
+        <div class="mock reveal">
+          <img src="https://placehold.co/1200x750/ffffff/111?text=Vista+de+Cat%C3%A1logo+%7C+WapMarket" alt="Catálogo WapMarket">
+        </div>
+        <ul class="list">
+          <li class="reveal"><span class="dot"></span><div><b>Explora negocios</b><br><small class="muted">Listado limpio con insignias de verificación.</small></div></li>
+          <li class="reveal"><span class="dot"></span><div><b>Agrega al carrito</b><br><small class="muted">Botones claros y feedback inmediato.</small></div></li>
+          <li class="reveal"><span class="dot"></span><div><b>Confirma y recibe</b><br><small class="muted">Entrega a domicilio o recogida en tienda.</small></div></li>
+          <li class="reveal"><span class="dot"></span><div><b>Soporte</b><br><small class="muted">Estamos para acompañarte en cada paso.</small></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="container">
+      <div class="section__head">
+        <div class="section__kicker reveal">Planes</div>
+        <h2 class="section__title reveal">Empieza gratis. Crece a tu ritmo.</h2>
+        <p class="section__lead reveal">Planes simples para cada etapa. Cambia cuando lo necesites.</p>
+      </div>
+      <div class="pricing">
+        <div class="price reveal">
+          <span class="chip">Emprende</span>
+          <h4>Starter</h4>
+          <div class="price__tag">10.000 XAF</div>
+          <ul style="padding-left:18px">
+            <li>• Hasta 20 productos</li>
+            <li>• Banners básicos</li>
+            <li>• Soporte por email</li>
+          </ul>
+          <div class="price__cta"><a class="btn btn--ghost" href="index.html">Entrar</a></div>
+        </div>
+        <div class="price price--pro reveal">
+          <span class="chip">Popular</span>
+          <h4>Pro</h4>
+          <div class="price__tag">19.000 XAF/mes</div>
+          <ul style="padding-left:18px">
+            <li>• Productos ilimitados</li>
+            <li>• Prioridad en listados</li>
+            <li>• Analíticas avanzadas</li>
+          </ul>
+          <div class="price__cta"><a class="btn btn--brand" href="index.html">Probar ahora</a></div>
+        </div>
+        <div class="price reveal">
+          <span class="chip">Empresas</span>
+          <h4>Plus</h4>
+          <div class="price__tag">A medida</div>
+          <ul style="padding-left:18px">
+            <li>• Integraciones</li>
+            <li>• Soporte dedicado</li>
+            <li>• SLA y formación</li>
+          </ul>
+          <div class="price__cta"><a class="btn btn--ghost" href="#faq">Hablar con ventas</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section id="testi" style="background:#fff">
+    <div class="container">
+      <div class="section__head">
+        <div class="section__kicker reveal">Confiado por negocios reales</div>
+        <h2 class="section__title reveal">Historias que inspiran</h2>
+      </div>
+      <div class="testi" aria-label="Opiniones de clientes">
+        <article class="tcard reveal">
+          <div class="tcard__head">
+            <img class="avatar" src="https://i.pravatar.cc/100?img=11" alt="María">
+            <div><b>María • Moda</b><div class="stars">★★★★★</div></div>
+          </div>
+          <p>“Tripliqué mis ventas en 3 meses. El panel es simple y el soporte es de verdad.”</p>
+        </article>
+        <article class="tcard reveal">
+          <div class="tcard__head">
+            <img class="avatar" src="https://i.pravatar.cc/100?img=32" alt="Juan">
+            <div><b>Juan • Cliente</b><div class="stars">★★★★★</div></div>
+          </div>
+          <p>“Encuentro de todo en un solo lugar y la entrega es puntual. Recomendado.”</p>
+        </article>
+        <article class="tcard reveal">
+          <div class="tcard__head">
+            <img class="avatar" src="https://i.pravatar.cc/100?img=5" alt="Carmen">
+            <div><b>Carmen • Restaurante</b><div class="stars">★★★★★</div></div>
+          </div>
+          <p>“Más visibilidad, más pedidos y la gestión es muy fácil para el equipo.”</p>
+        </article>
+        <article class="tcard reveal">
+          <div class="tcard__head">
+            <img class="avatar" src="https://i.pravatar.cc/100?img=21" alt="Luis">
+            <div><b>Luis • Tech</b><div class="stars">★★★★★</div></div>
+          </div>
+          <p>“La mejor forma de vender local con una experiencia moderna y bonita.”</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section__head">
+        <div class="section__kicker reveal">Ayuda</div>
+        <h2 class="section__title reveal">Preguntas frecuentes</h2>
+        <p class="section__lead reveal">Todo lo esencial para empezar hoy mismo.</p>
+      </div>
+      <div class="faq">
+        <div class="q reveal">
+          <h5>¿Cómo publico mis productos?</h5>
+          <p>Regístrate, entra a tu panel y usa “Añadir producto”. Sube foto, precio y descripción.</p>
+        </div>
+        <div class="q reveal">
+          <h5>¿Cómo funcionan los envíos?</h5>
+          <p>Puedes habilitar entrega a domicilio o recogida en tienda. Mostramos el coste al cliente.</p>
+        </div>
+        <div class="q reveal">
+          <h5>¿Cobráis comisión?</h5>
+          <p>El plan Gratis no tiene coste. En planes Pro/Plus aplicamos una tarifa reducida por transacción.</p>
+        </div>
+        <div class="q reveal">
+          <h5>¿Puedo destacar mi negocio?</h5>
+          <p>Sí, dispones de posiciones destacadas y banners locales para aumentar visibilidad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section>
+    <div class="container">
+      <div class="cta reveal">
+        <div>
+          <b>¿Listo para despegar?</b>
+          <p>Activa tu escaparate digital en minutos y empieza a vender hoy. ¡Tu próxima venta puede ocurrir ahora!</p>
+        </div>
+        <div>
+          <a class="btn" href="#features" style="margin-right:8px">Ver funciones</a>
+          <a class="btn btn--brand" href="index.html">Entrar a WapMarket</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    ©  Wap Tech & Services Development - WapMarket | Bata(GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025
+  </footer>
+
+  <script>
+    // ===== Parallax hero (blobs siguen el cursor y el scroll)
+    const blobs = [...document.querySelectorAll('.blob')];
+    const lerp = (a,b,t)=>a+(b-a)*t;
+    let mx=0,my=0, cx=0, cy=0;
+    window.addEventListener('mousemove',(e)=>{mx = (e.clientX / innerWidth - .5) * 2; my = (e.clientY / innerHeight - .5) * 2;});
+    function tick(){
+      cx = lerp(cx,mx,.06); cy = lerp(cy,my,.06);
+      blobs.forEach((el,i)=>{
+        const d = (i+1)*8;
+        el.style.transform = `translate(${cx*d}px, ${cy*d}px)`;
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // ===== Intersection reveal
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+      });
+    },{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    // ===== FAQ toggle
+    document.querySelectorAll('.faq .q').forEach(q=>{
+      q.addEventListener('click', ()=>{
+        q.classList.toggle('open');
+      });
+    });
+
+    // ===== Auto-slide testimonios (scroll suave)
+    const scroller = document.querySelector('.testi');
+    let auto = true;
+    let dir = 1;
+    let last = 0;
+    function autoScroll(t){
+      if(!auto){ last = t; return requestAnimationFrame(autoScroll); }
+      const dt = t - last; last = t;
+      scroller.scrollLeft += dir * (dt * 0.04);
+      if(scroller.scrollLeft <= 0) dir = 1;
+      const max = scroller.scrollWidth - scroller.clientWidth - 2;
+      if(scroller.scrollLeft >= max) dir = -1;
+      requestAnimationFrame(autoScroll);
+    }
+    scroller.addEventListener('pointerenter',()=>auto=false);
+    scroller.addEventListener('pointerleave',()=>{auto=true;});
+    requestAnimationFrame(autoScroll);
+
+    // ===== Smooth scroll (links internos)
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click',(e)=>{
+        const id = a.getAttribute('href').slice(1);
+        const el = document.getElementById(id);
+        if(!el) return;
+        e.preventDefault();
+        window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 64, behavior:'smooth'});
+      });
+    });
+
+    // ===== Perf: desactiva efectos si reduce motion
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){
+      blobs.forEach(b=>b.style.transform='none');
+    }
+  </script>
+</body>
+</html>
