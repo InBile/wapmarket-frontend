@@ -93,7 +93,12 @@
     .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
     .price{font-weight:800;margin:4px 0}
 
-    /* ====== FOOTER ====== */
+    /* ====== MODAL, FOOTER ====== */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
+    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:auto}
+    .small{font-size:.9em;color:#555}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
+
     .footer{
       position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);
       display:flex;align-items:center;justify-content:center;gap:18px;
@@ -184,7 +189,30 @@
   </div>
 </main>
 
-<!-- Resto del código JS y footer como antes -->
+<div class="modal" id="cartModal">
+  <div class="dialog">
+    <h3>Tu carrito</h3>
+    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
+    <div id="cartItems"></div>
+    <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
+    <div id="addressBox" style="display:none">
+      <label>Dirección exacta
+        <input id="address" placeholder="Ej: Malabo, Semu, casa azul">
+      </label>
+    </div>
+    <div id="totals" style="margin:12px 0;font-weight:800"></div>
+    <form id="checkoutForm">
+      <label>Tu nombre (opcional)<input id="cname"></label>
+      <label>Teléfono (WhatsApp) <input id="cphone" required></label>
+      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea></label>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" type="submit">Confirmar pedido</button>
+        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <footer class="footer">
   <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
   <a href="#">comprar</a>
@@ -197,20 +225,18 @@
 
 <script src="/api.js"></script>
 <script>
-/* ====== MANTIENE TU LÓGICA, AÑADE PAGINACIÓN Y UI ====== */
+/* ====== JS PRINCIPAL (sin cambios en lógica, solo lo de arriba) ====== */
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentProducts = [];
 
-/* Paginación frontend */
 let pageSize = 20;
 let currentPage = 1;
 
 function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
 function updateCartCount(){
   const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
-  // Indicador (puntito). Ya no mostramos número.
   document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
 }
 function closeCart(){ document.getElementById('cartModal').style.display='none'; }
@@ -233,7 +259,6 @@ function setBusiness(b){
   loadProducts();
 }
 
-
 async function loadBusinesses(){
   const data = await API.get('/public/businesses');
   const box = document.getElementById('bizList');
@@ -248,9 +273,7 @@ async function loadBusinesses(){
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
   });
-  // Activa scroll si hay >10 negocios
   if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
-
   if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
 }
 
@@ -276,7 +299,6 @@ function renderProductsPage(){
     list.appendChild(el);
   });
 
-  // Botón Next visible si hay más de 20 productos
   const nextBtn = document.getElementById('nextBtn');
   if (currentProducts.length > pageSize){
     nextBtn.style.display = (start + pageSize) < currentProducts.length ? 'inline-block' : 'none';
@@ -284,7 +306,6 @@ function renderProductsPage(){
     nextBtn.style.display = 'none';
   }
 
-  // Delegación de clicks Añadir
   list.onclick = (e)=>{
     const btn = e.target.closest('button[data-id]'); if(!btn) return;
     const id = btn.dataset.id;
@@ -313,11 +334,6 @@ async function loadProducts(){
   const data = await API.get('/public/products?' + params.toString());
   currentProducts = data.items || [];
   currentPage = 1;
-
-  // Rellena navbar con imágenes de productos
-  const imgs = currentProducts.map(p=>p.image_url).filter(Boolean);
-  refreshAutoNav(imgs.length ? imgs : ["/aset/icons8-buy-64.png"]);
-
   renderProductsPage();
 }
 
@@ -392,7 +408,6 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   cart = []; saveCart(); closeCart();
 });
 
-/* Botón Next: pasa a la siguiente “página” de 20 items */
 document.getElementById('nextBtn').addEventListener('click', ()=>{
   const maxPages = Math.ceil(currentProducts.length / pageSize);
   if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
