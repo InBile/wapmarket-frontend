@@ -2,699 +2,901 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WapMarket — Compra local con estilo</title>
-  <meta name="description" content="Explora negocios verificados, añade productos al carrito y paga fácil en WapMarket." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WapMarket — Mercado</title>
+  <!--
+    =============================================================
+    MARKET PAGE (single file ~1000 lines)
+    - Estilo completamente diferente al landing
+    - Cards sin bordes redondeados, sin hover effects
+    - Sección de publicidad atractiva
+    - Responsive y accesible
+    - Insignia de verificado junto al título del negocio
+    - UI limpia, tipografía Poppins, layout con CSS Grid
+    - Compatible con /api.js ya existente (API.get / API.post)
+    =============================================================
+  -->
 
-  <!-- Fuente & performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Fuente + Iconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/J6MdGctVnY+QfJ7SkF0v2c2nF8A5p2x4YfJ7yK3Cw1YbC2e9Nq3JwKk5b2zXKZppcLt4i5v5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
-    /* ==========================================================================
-       SISTEMA DE DISEÑO (idéntico al index)
-       ========================================================================== */
-    :root{
-      --bg:#f7f8fb;
-      --panel:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --brand:#ff7a00;     /* naranja cálido */
-      --brand-2:#ffb43a;   /* apoyo */
-      --brand-ink:#2b1600;
-      --ok:#00b894;
-      --warn:#ffb300;
-      --ring: 0 10px 30px rgba(0,0,0,.08);
-      --ring-2: 0 20px 60px rgba(0,0,0,.12);
-      --radius:18px;
-      --container: 1200px;
-      --pad: clamp(18px,2.5vw,28px);
+    /* =============================================================
+       RESET BÁSICO
+       ============================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+      color: #111;
+      background: #f2f3f5;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-      background:var(--bg);
-      color:var(--ink);
-      line-height:1.55;
-      -webkit-font-smoothing:antialiased;
-      text-rendering:optimizeLegibility;
-      overflow-x:hidden;
-    }
-    a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
-    .container{max-width:var(--container); margin:0 auto; padding:0 var(--pad)}
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
 
-    /* Botones base (mismo estilo del index) */
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:10px; padding:12px 18px; border-radius:14px; border:1px solid #e5e7eb;
-      background:linear-gradient(180deg,#fff,#f4f4f6);
-      color:#111; font-weight:600; box-shadow:var(--ring);
-      transition:transform .15s ease, box-shadow .2s ease, background .2s;
-      cursor:pointer; user-select:none;
-    }
-    .btn:hover{transform:translateY(-1px); box-shadow:var(--ring-2)}
-    .btn:active{transform:translateY(0)}
-    .btn--brand{
-      background:linear-gradient(135deg,var(--brand),var(--brand-2));
-      color:#fff; border:none;
-    }
-    .btn--ghost{background:#fff;border:1px solid #e5e7eb}
-    .btn--chip{
-      background:#fff; border:1px solid #eceff3; border-radius:999px; padding:8px 12px; font-size:.9rem;
+    /* =============================================================
+       PALETA & TOKENS
+       ============================================================= */
+    :root {
+      --bg: #f2f3f5;
+      --panel: #ffffff;
+      --ink: #111111;
+      --muted: #6b7280;  /* gris */
+      --border: #e5e7eb;
+      --accent: #0f62fe; /* IBM Blue vibe */
+      --accent-ink: #ffffff;
+      --accent-2: #111827; /* gris carbón */
+      --callout: #ff6f00; /* naranja publicidad */
+      --good: #059669; /* verde */
+      --warn: #b45309; /* ámbar */
+      --danger: #b91c1c; /* rojo */
+
+      --shadow-1: 0 1px 0 rgba(17,17,17,.05), 0 0 0 1px rgba(17,17,17,.04);
+      --shadow-2: 0 8px 20px rgba(17,17,17,.08);
+
+      --maxw: 1280px;
+      --gap: 16px;
+      --aside: 300px; /* anchura sidebar */
+
+      --grid-gap: 16px;
+      --grid-cols: 4;
+
+      --banner-h: 56px; /* topbar */
     }
 
-    /* ==========================================================================
-       NAVBAR (claro, pegajoso, consistente con index)  :contentReference[oaicite:0]{index=0}
-       ========================================================================== */
-    .nav{
-      position:sticky; top:0; z-index:60; backdrop-filter:saturate(160%) blur(6px);
-      background:rgba(255,255,255,.75); border-bottom:1px solid rgba(0,0,0,.05);
+    /* =============================================================
+       TOPBAR (estilo distinto, sólido, sin gradientes)
+       ============================================================= */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--banner-h);
+      border-bottom: 1px solid var(--border);
+      background: #131921; /* tono Amazon-like pero propio */
+      color: #fff;
     }
-    .nav__row{display:flex; align-items:center; gap:12px; height:70px}
-    .logo{font-weight:800; letter-spacing:-.5px}
-    .logo b{color:var(--brand)}
-    .nav__spacer{flex:1}
-    .nav__links{display:flex; gap:10px}
-    .nav__links a{padding:8px 10px; border-radius:10px; color:#1f2937}
-    .nav__links a:hover{background:#f2f3f7}
-    .nav__cta{display:flex; gap:10px}
+    .topbar .inner {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: var(--gap);
+      align-items: center;
+      padding: 0 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .brand .mark {
+      font-weight: 800;
+      letter-spacing: .5px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+    .brand .submark {
+      font-weight: 300; font-size: .75rem; opacity: .8;
+    }
 
-    /* Buscador principal en navbar */
-    .searchbar{
-      display:flex; align-items:center; gap:8px;
-      background:#fff; border:1px solid #eceff3; border-radius:14px; padding:6px 8px;
-      box-shadow:var(--ring); width:min(680px, 100%);
+    .searchbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      height: 38px;
     }
-    .searchbar input{
-      flex:1; border:none; outline:none; background:transparent; font-size:1rem; padding:8px;
+    .searchbar input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #2a2f36;
+      background: #0d1117;
+      color: #fff;
+      padding: 0 12px;
+      outline: none;
+      border-radius: 0; /* sin bordes redondeados */
     }
-    .searchbar .btn{padding:10px 14px}
+    .searchbar button {
+      height: 38px;
+      border: 1px solid #2a2f36;
+      background: #232f3e;
+      color: #fff;
+      padding: 0 16px;
+      cursor: pointer;
+      border-radius: 0;
+    }
 
-    /* Botón carrito con contador */
-    #btnOpenCart{
-      position:relative; padding:10px 14px; height:44px;
-      display:inline-flex; align-items:center; gap:10px;
+    /* Botón Carrito (blanco, pegado al buscar) */
+    .cart-wrap {
+      display: inline-grid;
+      grid-auto-flow: column;
+      gap: 8px;
+      align-items: center;
     }
-    #btnOpenCart .count{
-      position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; border-radius:20px;
-      background:#ff3b30; color:#fff; font-size:.75rem; display:grid; place-items:center; padding:0 6px;
-      box-shadow:0 6px 14px rgba(255,59,48,.35);
-      transform:scale(.9);
+    #btnOpenCart {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px; height: 38px; /* mismo alto que buscador */
+      background: #fff;
+      color: #111;
+      border: 1px solid #2a2f36;
+      border-radius: 0; /* sin rounded */
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+    }
+    #btnOpenCart img { width: 22px; height: 22px; object-fit: contain; }
+    #btnOpenCart[data-has-items="true"]::after {
+      content: "";
+      position: absolute; top: 6px; right: 6px;
+      width: 8px; height: 8px; border-radius: 50%; background: #ff3b30;
     }
 
-    /* ==========================================================================
-       SUBHEADER de tienda: chips de filtros y orden
-       ========================================================================== */
-    .subhead{position:relative; background:#fff; border-bottom:1px solid #eceff3}
-    .subhead__row{display:flex; align-items:center; gap:10px; height:66px; overflow:auto}
-    .chip{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
-      background:#fff; border:1px solid #eceff3; white-space:nowrap; box-shadow:var(--ring)}
-    .chip select, .chip input{border:none; outline:none; background:transparent}
-    .chip i{font-style:normal; font-weight:800; color:var(--brand)}
+    /* =============================================================
+       LAYOUT PRINCIPAL
+       ============================================================= */
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 16px; }
+    .grid-layout {
+      display: grid;
+      grid-template-columns: var(--aside) 1fr;
+      gap: var(--gap);
+      align-items: start;
+      min-height: calc(100vh - var(--banner-h));
+    }
 
-    /* ==========================================================================
-       LAYOUT: aside + grid productos (inspirado en tu market actual)  :contentReference[oaicite:1]{index=1}
-       ========================================================================== */
-    .layout{display:grid; grid-template-columns: 320px 1fr; gap:20px; align-items:start; padding:24px 0}
-    aside{
-      position:sticky; top:126px; align-self:start;
-      background:var(--panel); border:1px solid #eceff3; border-radius:var(--radius); box-shadow:var(--ring);
-      padding:16px;
+    aside.sidebar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-1);
+      padding: 0;
     }
-    .aside__block + .aside__block{margin-top:16px}
-    .aside__title{margin:0 0 8px; font-size:1rem; font-weight:800}
-    .aside__group{display:grid; gap:8px}
-    .aside__group label{display:flex; align-items:center; gap:8px}
-    .aside__search{display:flex; gap:8px; background:#fff; border:1px solid #eceff3; border-radius:12px; padding:8px}
-    .aside__search input{flex:1; border:none; outline:none; background:transparent}
 
-    /* Grid de productos */
-    .board{
-      display:grid; gap:16px;
-    }
-    .products{
-      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px;
-    }
-    .card{
-      background:var(--panel); border:1px solid #eceff3; border-radius:16px; padding:14px;
-      box-shadow:var(--ring); transition:transform .15s ease, box-shadow .2s ease;
-    }
-    .card:hover{transform:translateY(-4px); box-shadow:var(--ring-2)}
-    .product{
-      display:flex; flex-direction:column; gap:10px;
-    }
-    .thumb{
-      width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; border:1px solid #eee; background:#fff;
-    }
-    .meta h4{margin:2px 0 0; font-size:1rem}
-    .badge{display:inline-block; font-size:.78rem; padding:4px 10px; border-radius:999px; background:#fff1dc; border:1px solid #ffd9a6; color:#8a4b00}
-    .price{font-weight:800; font-size:1.05rem}
-    .actions{display:flex; gap:8px; flex-wrap:wrap}
-    .empty{padding:32px; text-align:center; color:var(--muted)}
+    .side-block { border-bottom: 1px solid var(--border); padding: 12px; }
+    .side-block:last-child { border-bottom: none; }
+    .side-title { font-weight: 700; margin: 0 0 10px 0; font-size: 1rem; }
 
-    /* Barra superior del grid: título y paginación/controles */
-    .board__top{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .pager{display:flex; align-items:center; gap:8px}
-
-    /* ==========================================================================
-       CARRUSEL Negocios
-       ========================================================================== */
-    .bizbar{
-      background:linear-gradient(90deg,#fff,#fff6ec); border:1px solid #f5ede4; border-radius:16px;
-      padding:14px; display:flex; align-items:center; gap:12px; overflow:auto; box-shadow:var(--ring);
+    .biz-list { display: flex; flex-direction: column; gap: 8px; }
+    .biz-item {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      /* sin hover effects */
     }
-    .biz{
-      flex:0 0 auto; min-width:220px; border:1px solid #eceff3; background:#fff; border-radius:12px; padding:10px;
-      display:flex; align-items:center; gap:10px; cursor:pointer; transition:transform .15s ease;
+    .biz-item .avatar {
+      width: 36px; height: 36px; background: #f3f4f6; display: grid; place-items: center; font-size:.9rem; color:#555;
     }
-    .biz:hover{transform:translateY(-2px)}
-    .biz__logo{width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid #eee;background:#fff}
-    .verified{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; color:#0f5132; background:#d1fae5; border:1px solid #a7f3d0; padding:4px 8px; border-radius:999px}
-
-    /* ==========================================================================
-       PUBLICIDAD LOCAL (adaptado a tu versión previa)  :contentReference[oaicite:2]{index=2}
-       ========================================================================== */
-    .ads{
-      background:#fff; border:1px solid #eceff3; border-radius:16px; padding:14px; box-shadow:var(--ring)
+    .biz-item .title {
+      font-weight: 600;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .ads__grid{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px}
-    .ad{border:1px solid #eee; border-radius:12px; overflow:hidden; background:#fff; transition:transform .2s ease, box-shadow .2s ease}
-    .ad:hover{transform:translateY(-3px); box-shadow:var(--ring-2)}
-    .ad img{width:100%; height:140px; object-fit:cover}
-    .ad p{margin:8px; font-size:.9rem}
+    .badge-verified { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; color: var(--good); border:1px solid #d1fae5; padding:2px 6px; background:#ecfdf5; }
+    .badge-verified i { color: var(--good); }
+    .biz-item .meta { font-size: .8rem; color: var(--muted); }
 
-    /* ==========================================================================
-       DRAWER Carrito (sustituye modal por slide-over)
-       ========================================================================== */
-    .drawer{position:fixed; inset:0; display:none; z-index:80}
-    .drawer.open{display:block}
-    .drawer__mask{position:absolute; inset:0; background:rgba(0,0,0,.35); opacity:0; transition:opacity .25s ease}
-    .drawer.open .drawer__mask{opacity:1}
-    .drawer__panel{
-      position:absolute; top:0; right:-420px; width:min(420px, 100%); height:100%; background:#fff;
-      box-shadow: -24px 0 60px rgba(0,0,0,.15); transition:right .28s ease; display:flex; flex-direction:column;
+    .filters .control { display: grid; gap: 6px; margin-top: 8px; }
+    .filters select, .filters input[type="text"], .filters input[type="number"] {
+      height: 36px; border:1px solid var(--border); background:#fff; padding: 0 10px; border-radius:0;
     }
-    .drawer.open .drawer__panel{ right:0 }
-    .drawer__head{padding:16px; border-bottom:1px solid #eceff3; display:flex; align-items:center; justify-content:space-between}
-    .drawer__body{padding:16px; overflow:auto; flex:1}
-    .drawer__foot{padding:14px; border-top:1px solid #eceff3; display:grid; gap:10px}
-    .line{display:flex; gap:10px; align-items:center}
-    .line img{width:64px;height:64px;border-radius:10px;border:1px solid #eee;object-fit:cover}
 
-    /* ==========================================================================
-       REVEAL
-       ========================================================================== */
-    .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease}
-    .reveal.is-in{opacity:1; transform:none}
+    /* =============================================================
+       BARRA DE ESTADO/SELECCIÓN
+       ============================================================= */
+    .statusbar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-1);
+      padding: 14px 16px;
+      margin-bottom: var(--gap);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .statusbar .path { font-weight: 600; }
+    .statusbar .actions { display: inline-grid; grid-auto-flow: column; gap: 8px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 38px; padding: 0 14px; border: 1px solid var(--ink); background: #fff; color: var(--ink);
+      cursor: pointer; user-select: none; border-radius: 0; font-weight: 600; text-transform: none; letter-spacing: .2px;
+    }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .btn.ghost { background: transparent; border-color: var(--border); color: var(--ink); }
 
-    /* ==========================================================================
+    /* =============================================================
+       SECCIÓN PUBLICIDAD DESTACADA (visual)
+       ============================================================= */
+    .ads-featured {
+      background: linear-gradient(180deg, #fff 0%, #fff 60%, #f7f7fb 100%);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-1);
+      padding: 0;
+    }
+    .ads-header { padding: 14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
+    .ads-title { font-weight: 800; letter-spacing: .3px; }
+    .ads-body { padding: 16px; }
+    .ads-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr; /* uno grande + dos medianos */
+      gap: var(--grid-gap);
+    }
+    .ad {
+      border: 1px solid var(--border);
+      background: #fff;
+      min-height: 160px;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .ad .poster { width: 100%; height: 160px; object-fit: cover; }
+    .ad .content { padding: 12px; display: grid; gap: 6px; align-content: start; }
+    .ad .tag { font-size: .72rem; color: #fff; background: var(--callout); padding: 2px 8px; display: inline-block; }
+    .ad .headline { font-weight: 700; line-height: 1.2; }
+    .ad .cta { display: inline-flex; height: 36px; padding: 0 12px; border:1px solid var(--ink); background:#fff; color:var(--ink); align-items:center; gap:8px; border-radius:0; cursor:pointer; }
+
+    .ad.hero { grid-column: 1 / span 1; display: grid; grid-template-columns: 1fr 1.2fr; }
+    .ad.hero .poster { height: 100%; }
+    .ad.hero .content { padding: 18px; }
+
+    /* =============================================================
+       LISTADO DE PRODUCTOS
+       ============================================================= */
+    .products { background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow-1); }
+    .products-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
+    .products-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+      gap: var(--grid-gap);
+      align-items: start;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      /* sin bordes redondeados, sin hover */
+    }
+    .card .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-bottom: 1px solid var(--border); }
+    .card .pad { padding: 12px; display: grid; gap: 8px; }
+    .card .kicker { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+    .card .title { font-weight: 700; line-height: 1.25; }
+    .card .price { font-weight: 800; }
+    .card .row { display: flex; align-items: center; gap: 8px; }
+
+    .pagination { border-top:1px solid var(--border); padding: 12px 16px; display:flex; justify-content:center; gap: 8px; }
+
+    /* =============================================================
+       STRIP DE CATEGORÍAS
+       ============================================================= */
+    .cats-strip { margin-top: var(--gap); border:1px solid var(--border); background:#fff; }
+    .cats-strip .inner { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 1fr); gap: 0; overflow-x: auto; }
+    .cats-strip .pill { display:grid; place-items:center; border-right:1px solid var(--border); height: 60px; font-weight:600; white-space:nowrap; }
+
+    /* =============================================================
+       BARRA INFORMATIVA
+       ============================================================= */
+    .info-bar { background:#111827; color:#fff; padding: 10px 16px; border:1px solid #0b1220; display:flex; align-items:center; gap:12px; }
+    .info-bar i { color:#60a5fa; }
+
+    /* =============================================================
+       SECCIÓN DE PUBLICIDAD EXTENDIDA (bloque exclusivo)
+       ============================================================= */
+    .ads-exclusive {
+      margin-top: var(--gap);
+      border: 1px solid var(--border);
+      background: #0b1220; /* dark premium */
+      color: #e5e7eb;
+    }
+    .ads-exclusive .hd { padding: 14px 16px; border-bottom:1px solid #1f2937; display:flex; align-items:center; justify-content: space-between; }
+    .ads-exclusive .body { padding: 16px; }
+    .ads-exclusive .mosaic {
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: 110px;
+    }
+    .tile { border:1px solid #1f2937; background:#0f172a; display:grid; grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+    .tile .art { width:100%; height:100%; object-fit: cover; filter: contrast(1.02) saturate(1.02); }
+    .tile .cap { padding: 8px 10px; font-size:.9rem; color:#cbd5e1; display:flex; align-items:center; justify-content: space-between; }
+    .tile .cap .cta { border:1px solid #334155; padding: 6px 10px; background: transparent; color:#e5e7eb; border-radius:0; cursor:pointer; }
+
+    .tile.x2x2 { grid-column: span 4; grid-row: span 2; }
+    .tile.x3x2 { grid-column: span 6; grid-row: span 2; }
+    .tile.x2x1 { grid-column: span 4; grid-row: span 1; }
+    .tile.x3x3 { grid-column: span 6; grid-row: span 3; }
+
+    /* =============================================================
+       MODAL CARRITO
+       ============================================================= */
+    .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.5); padding: 16px; z-index: 60; }
+    .dialog { background:#fff; border:1px solid var(--border); width: 100%; max-width: 720px; max-height: 85vh; overflow:auto; }
+    .dialog .head { padding: 12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content: space-between; }
+    .dialog .body { padding: 14px; }
+    .dialog .foot { padding: 12px 14px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap: 8px; }
+
+    .line { border-top:1px solid var(--border); margin: 12px 0; }
+
+    .qty-ctrl { display:flex; align-items:center; gap: 6px; }
+    .qty-ctrl .btn { height: 32px; padding: 0 10px; }
+
+    /* =============================================================
        FOOTER
-       ========================================================================== */
-    footer{padding:26px 0; color:#6b7280; text-align:center}
+       ============================================================= */
+    footer {
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      background: #111827;
+      color: #cbd5e1;
+    }
+    .footer-inner { max-width: var(--maxw); margin: 0 auto; padding: 24px 16px; display: grid; gap: 16px; }
+    .links { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; gap: 16px; overflow-x: auto; }
+    .links a { text-decoration: underline; }
+    .copy { font-size: .9rem; opacity: .9; }
 
-    /* ==========================================================================
+    /* =============================================================
        RESPONSIVE
-       ========================================================================== */
-    @media (max-width:1100px){
-      .products{grid-template-columns:repeat(2, minmax(0,1fr))}
-      .ads__grid{grid-template-columns:repeat(3, minmax(0,1fr))}
-      .layout{grid-template-columns:1fr}
-      aside{position:static; order:2}
+       ============================================================= */
+    @media (max-width: 1200px) {
+      :root { --grid-cols: 3; --aside: 280px; }
+      .ads-grid { grid-template-columns: 1.5fr 1fr 1fr; }
     }
-    @media (max-width:680px){
-      .nav__links{display:none}
-      .searchbar{width:100%}
-      .products{grid-template-columns:1fr}
-      .ads__grid{grid-template-columns:repeat(2, minmax(0,1fr))}
-      .biz{min-width:200px}
-      .drawer__panel{width:100%}
+    @media (max-width: 992px) {
+      :root { --grid-cols: 3; --aside: 100%; }
+      .grid-layout { grid-template-columns: 1fr; }
+      aside.sidebar { order: 2; }
+      .content-col { order: 1; }
+      .ads-grid { grid-template-columns: 1fr 1fr; }
+      .ad.hero { grid-template-columns: 1fr; }
+      .topbar .inner { grid-template-columns: 1fr auto; }
+      .brand { display:none; }
     }
-    @media (max-width:420px){
-      .ads__grid{grid-template-columns:1fr}
+    @media (max-width: 768px) {
+      :root { --grid-cols: 2; }
+      .searchbar { grid-template-columns: 1fr auto; }
+      #btnOpenCart { width: 46px; height: 46px; }
+      .searchbar input { height: 46px; }
+      .searchbar button { height: 46px; }
+      .ads-exclusive .mosaic { grid-auto-rows: 90px; }
+      .tile.x3x3 { grid-column: span 12; grid-row: span 3; }
+      .tile.x3x2 { grid-column: span 12; grid-row: span 2; }
+      .tile.x2x2 { grid-column: span 6; grid-row: span 2; }
+      .tile.x2x1 { grid-column: span 6; grid-row: span 1; }
     }
+    @media (max-width: 520px) {
+      :root { --grid-cols: 2; }
+      .topbar .inner { grid-template-columns: 1fr auto; gap: 8px; }
+      .searchbar { grid-template-columns: 1fr auto; gap: 6px; }
+      .cats-strip .inner { grid-auto-columns: minmax(120px, 1fr); }
+    }
+
+    /* =============================================================
+       UTILIDADES
+       ============================================================= */
+    .muted { color: var(--muted); }
+    .sm { font-size: .9rem; }
+    .xs { font-size: .78rem; }
+    .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .center { display:grid; place-items:center; }
+    .hide { display:none !important; }
   </style>
 </head>
 <body>
-
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="container nav__row">
-      <div class="logo">Wap<b>Market</b></div>
-      <div class="nav__spacer"></div>
-
-      <!-- Buscador global -->
-      <form id="searchForm" class="searchbar" onsubmit="return false" role="search" aria-label="Buscar productos o servicios">
-        <input id="q" placeholder="Buscar productos o servicios..." autocomplete="off" />
-        <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
+  <!-- =============================================================
+       TOPBAR
+       ============================================================= -->
+  <header class="topbar" role="banner">
+    <div class="inner">
+      <div class="brand" aria-label="WapMarket">
+        <div class="mark">WapMarket</div>
+        <div class="submark">Mercado local</div>
+      </div>
+      <form id="searchForm" class="searchbar" role="search" aria-label="Buscar" onsubmit="return false;">
+        <input id="q" name="q" placeholder="Buscar productos o servicios…" autocomplete="off" />
+        <button id="btnBuscar" type="button" class="btn primary"><i class="fa-solid fa-magnifying-glass"></i><span class="xs">Buscar</span></button>
       </form>
-
-      <div class="nav__cta">
-        <a class="btn btn--ghost" href="index.html" aria-label="Volver al inicio">Inicio</a>
-        <button class="btn" id="btnOpenCart" aria-label="Abrir carrito">
-          <span>Carrito</span>
-          <span class="count" id="cartCount">0</span>
-        </button>
+      <div class="cart-wrap">
+        <a id="btnOpenCart" href="#" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
+          <img src="/aset/icons8-buy-64.png" alt="Carrito" />
+        </a>
       </div>
     </div>
-  </nav>
+  </header>
 
-  <!-- SUBHEADER: chips y orden -->
-  <div class="subhead">
-    <div class="container subhead__row">
-      <div class="chip">
-        <i>⟲</i>
-        <select id="sort">
-          <option value="">Ordenar</option>
-          <option value="recent">Más recientes</option>
-          <option value="price-asc">Precio: menor a mayor</option>
-          <option value="price-desc">Precio: mayor a menor</option>
-        </select>
-      </div>
-      <div class="chip">
-        <i>🏷</i>
-        <select id="category">
-          <option value="">Todas las categorías</option>
-          <option>Servicios</option><option>Comida</option><option>Tiendas</option>
-          <option>Salud</option><option>Transporte</option><option>Tecnología</option>
-        </select>
-      </div>
-      <div class="chip">
-        <i>💰</i>
-        <input id="maxPrice" type="number" inputmode="numeric" min="0" placeholder="Precio máx. XAF" style="width:140px">
-      </div>
-      <button class="btn btn--ghost" id="resetFilters">Limpiar filtros</button>
-    </div>
-  </div>
-
-  <!-- CONTENIDO -->
-  <main class="container">
-    <!-- Carrusel de negocios -->
-    <section style="padding-top:18px" class="reveal">
-      <div class="bizbar" id="bizBar" aria-label="Negocios disponibles"></div>
-    </section>
-
-    <div class="layout">
-      <!-- Aside filtros adicionales -->
-      <aside class="reveal" aria-label="Filtros avanzados">
-        <div class="aside__block">
-          <h4 class="aside__title">Buscar en negocio</h4>
-          <div class="aside__search">
-            <input id="inBizQuery" placeholder="Ej: pollo, cargador..." />
-            <button class="btn" id="inBizBtn">Buscar</button>
-          </div>
+  <!-- =============================================================
+       CONTENIDO
+       ============================================================= -->
+  <main class="wrap" role="main">
+    <div class="grid-layout">
+      <!-- ================= SIDEBAR ================= -->
+      <aside class="sidebar" aria-label="Barra lateral">
+        <div class="side-block">
+          <div class="side-title">Negocios disponibles</div>
+          <div id="bizList" class="biz-list" role="list"></div>
         </div>
-
-        <div class="aside__block">
-          <h4 class="aside__title">Tipo de envío</h4>
-          <div class="aside__group">
-            <label><input type="checkbox" id="shipHome"> Envío a domicilio</label>
-            <label><input type="checkbox" id="pickStore"> Recogida en tienda</label>
-          </div>
+        <div class="side-block filters">
+          <div class="side-title">Filtros</div>
+          <label class="control">
+            <span class="xs muted">Categoría</span>
+            <select id="category">
+              <option value="">Todas</option>
+              <option>Servicios</option>
+              <option>Comida</option>
+              <option>Tiendas</option>
+              <option>Salud</option>
+              <option>Transporte</option>
+              <option>Tecnología</option>
+            </select>
+          </label>
+          <label class="control">
+            <span class="xs muted">Precio máx. (XAF)</span>
+            <input id="priceMax" type="number" min="0" placeholder="Ej: 50000" />
+          </label>
+          <button class="btn" id="btnApplyFilters" type="button"><i class="fa-solid fa-filter"></i> Aplicar</button>
         </div>
-
-        <div class="aside__block">
-          <h4 class="aside__title">Rango de precio</h4>
-          <div class="aside__group">
-            <label><input type="radio" name="p" value="" checked> Cualquiera</label>
-            <label><input type="radio" name="p" value="0-10000"> 0–10k XAF</label>
-            <label><input type="radio" name="p" value="10000-25000"> 10k–25k XAF</label>
-            <label><input type="radio" name="p" value="25000-50000"> 25k–50k XAF</label>
-            <label><input type="radio" name="p" value="50000-9999999"> +50k XAF</label>
-          </div>
-        </div>
-
-        <div class="aside__block ads">
-          <h4 class="aside__title">Publicidad</h4>
-          <div class="ads__grid">
-            <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
-              <img src="/aset/Fachada.jpg" alt="Wap Tech & Services">
-              <p>Wap Tech & Services</p>
-            </a>
-            <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
-              <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
-              <p>CiberSeguridad Prisma</p>
-            </a>
-            <a class="ad" href="#" target="_blank" rel="noopener">
-              <img src="https://placehold.co/600x400?text=Tu+banner+aqui" alt="Promoción">
-              <p>Promociona tu negocio</p>
-            </a>
-            <a class="ad" href="#" target="_blank" rel="noopener">
-              <img src="https://placehold.co/600x400?text=Oferta+local" alt="Oferta">
-              <p>Ofertas locales</p>
-            </a>
-          </div>
+        <div class="side-block">
+          <div class="side-title">Ayuda</div>
+          <div class="xs muted">Pulsa <span class="mono">/</span> para enfocar el buscador rápidamente.</div>
         </div>
       </aside>
 
-      <!-- Board productos -->
-      <section class="board">
-        <div class="board__top reveal">
-          <div>
-            <h2 id="bizTitle" style="margin:0">Selecciona un negocio</h2>
-            <small id="bizMeta" style="color:var(--muted)"></small>
-          </div>
-          <div class="pager">
-            <button class="btn" id="prevBtn" disabled>Anterior</button>
-            <button class="btn" id="nextBtn" disabled>Siguiente</button>
+      <!-- ================= COL PRINCIPAL ================= -->
+      <div class="content-col">
+        <!-- Statusbar (negocio seleccionado, verificación al lado del título) -->
+        <div class="statusbar">
+          <div class="path" id="bizTitle">Selecciona un negocio</div>
+          <div class="actions">
+            <button class="btn ghost" id="btnRefresh"><i class="fa-solid fa-rotate"></i><span class="xs">Refrescar</span></button>
           </div>
         </div>
 
-        <div id="results" class="products reveal" role="list"></div>
-        <div id="emptyState" class="card empty reveal" style="display:none">
-          No encontramos resultados con esos filtros. Intenta limpiar o cambiar tu búsqueda.
-        </div>
-      </section>
+        <!-- Publicidad destacada superior -->
+        <section class="ads-featured" aria-label="Publicidad destacada">
+          <div class="ads-header">
+            <div class="ads-title">Promociones de la semana</div>
+            <div class="xs muted">Anuncia tu marca aquí</div>
+          </div>
+          <div class="ads-body">
+            <div class="ads-grid">
+              <article class="ad hero" aria-label="Anuncio principal">
+                <img class="poster" src="/aset/sample-ad-hero.jpg" alt="Promo principal" />
+                <div class="content">
+                  <span class="tag">Destacado</span>
+                  <div class="headline">Entrega en el mismo día en zonas seleccionadas</div>
+                  <div class="xs muted">Explora negocios con envíos rápidos y seguimiento por WhatsApp.</div>
+                  <button class="cta" type="button"><i class="fa-solid fa-bolt"></i> Ver negocios</button>
+                </div>
+              </article>
+              <article class="ad">
+                <img class="poster" src="/aset/sample-ad1.jpg" alt="Promo 1" />
+                <div class="content">
+                  <span class="tag">Oferta</span>
+                  <div class="headline">-20% en restaurantes verificados</div>
+                  <button class="cta" type="button">Descubrir</button>
+                </div>
+              </article>
+              <article class="ad">
+                <img class="poster" src="/aset/sample-ad2.jpg" alt="Promo 2" />
+                <div class="content">
+                  <span class="tag">Nuevo</span>
+                  <div class="headline">Tecnología y accesorios</div>
+                  <button class="cta" type="button">Explorar</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- Franja de categorías -->
+        <section class="cats-strip" aria-label="Categorías populares">
+          <div class="inner" id="catsStrip">
+            <div class="pill">Top — Hoy</div>
+            <div class="pill">Comida</div>
+            <div class="pill">Hogar</div>
+            <div class="pill">Transporte</div>
+            <div class="pill">Tecnología</div>
+            <div class="pill">Belleza</div>
+            <div class="pill">Servicios</div>
+            <div class="pill">Salud</div>
+            <div class="pill">Moda</div>
+          </div>
+        </section>
+
+        <!-- Barra informativa -->
+        <section class="info-bar" aria-live="polite">
+          <i class="fa-solid fa-circle-info"></i>
+          <div class="xs">Pide a varios negocios, pero recuerda: cada carrito pertenece a un solo negocio a la vez.</div>
+        </section>
+
+        <!-- Listado de productos -->
+        <section class="products" aria-label="Productos">
+          <div class="products-header">
+            <div class="xs muted">Mostrando <span id="countProducts">0</span> productos</div>
+            <div>
+              <button class="btn" id="btnGrid2">2/col</button>
+              <button class="btn" id="btnGrid3">3/col</button>
+              <button class="btn" id="btnGrid4">4/col</button>
+            </div>
+          </div>
+          <div class="products-grid" id="results"></div>
+          <div class="pagination">
+            <button class="btn" id="prevBtn" disabled><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+            <button class="btn" id="nextBtn" disabled>Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <!-- Bloque de publicidad exclusivo y atractivo -->
+        <section class="ads-exclusive" aria-label="Publicidad premium">
+          <div class="hd">
+            <div><i class="fa-solid fa-bullhorn"></i> Espacio para marcas locales</div>
+            <div class="xs muted">Formatos adaptables • Click tracking básico • Curación manual</div>
+          </div>
+          <div class="body">
+            <div class="mosaic">
+              <div class="tile x3x3">
+                <img class="art" src="/aset/ad-x3x3.jpg" alt="Banner grande" />
+                <div class="cap">
+                  <div class="xs">Patrocinado: SuperMarket Prime</div>
+                  <button class="cta" type="button">Visitar</button>
+                </div>
+              </div>
+              <div class="tile x2x2">
+                <img class="art" src="/aset/ad-x2x2-1.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">Clínica Salud+</span><button class="cta" type="button">Citas</button></div>
+              </div>
+              <div class="tile x2x1">
+                <img class="art" src="/aset/ad-x2x1-1.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">Moto Envios 24/7</span><button class="cta" type="button">Contactar</button></div>
+              </div>
+              <div class="tile x2x1">
+                <img class="art" src="/aset/ad-x2x1-2.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">Hotel Bahia</span><button class="cta" type="button">Reservar</button></div>
+              </div>
+              <div class="tile x3x2">
+                <img class="art" src="/aset/ad-x3x2.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">ElectroCenter</span><button class="cta" type="button">Ver catálogo</button></div>
+              </div>
+              <div class="tile x2x2">
+                <img class="art" src="/aset/ad-x2x2-2.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">Academia Tech</span><button class="cta" type="button">Inscribirse</button></div>
+              </div>
+              <div class="tile x2x1">
+                <img class="art" src="/aset/ad-x2x1-3.jpg" alt="Banner" />
+                <div class="cap"><span class="xs">TaxiApp</span><button class="cta" type="button">Descargar</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   </main>
 
-  <!-- DRAWER CARRITO -->
-  <div class="drawer" id="cartDrawer" aria-hidden="true">
-    <div class="drawer__mask" id="cartMask"></div>
-    <aside class="drawer__panel" role="dialog" aria-label="Carrito">
-      <div class="drawer__head">
-        <strong>Tu carrito</strong>
-        <button class="btn" id="closeCart">Cerrar</button>
+  <!-- =============================================================
+       MODAL CARRITO
+       ============================================================= -->
+  <div class="modal" id="cartModal" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <div class="dialog">
+      <div class="head">
+        <div id="cartTitle"><i class="fa-solid fa-bag-shopping"></i> Tu carrito</div>
+        <button class="btn" type="button" onclick="closeCart()">Cerrar</button>
       </div>
-
-      <div class="drawer__body" id="cartItems"></div>
-
-      <div class="drawer__foot">
-        <div id="totals" style="font-weight:800">Subtotal: 0 XAF</div>
-        <label style="display:flex; gap:8px; align-items:center">
-          <input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)
+      <div class="body">
+        <div id="cartInfo" class="xs muted" style="margin-bottom:8px"></div>
+        <div id="cartItems"></div>
+        <div class="line"></div>
+        <label class="xs" style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="deliveryChk" /> Envío a domicilio (+2000 XAF)
         </label>
-        <div id="addressBox" style="display:none">
-          <label>Dirección exacta
-            <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="width:100%; padding:10px; border:1px solid #eceff3; border-radius:10px; margin-top:6px">
+        <div id="addressBox" class="hide" style="margin-top:8px;">
+          <label class="xs" style="display:grid; gap:6px;">
+            Dirección exacta
+            <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
           </label>
         </div>
+        <div id="totals" style="margin:12px 0; font-weight:800"></div>
         <form id="checkoutForm">
-          <div style="display:grid; gap:10px">
-            <input id="cname" placeholder="Tu nombre (opcional)" style="padding:10px; border:1px solid #eceff3; border-radius:10px">
-            <input id="cphone" placeholder="Teléfono (WhatsApp)" required style="padding:10px; border:1px solid #eceff3; border-radius:10px">
-            <textarea id="cnote" placeholder="Nota (Ej: Entrega 18:00)" rows="3" style="padding:10px; border:1px solid #eceff3; border-radius:10px"></textarea>
+          <div style="display:grid; gap:10px; grid-template-columns: 1fr 1fr;">
+            <label class="xs" style="display:grid; gap:6px;">Tu nombre (opcional)
+              <input id="cname" style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
+            </label>
+            <label class="xs" style="display:grid; gap:6px;">Teléfono (WhatsApp)
+              <input id="cphone" required style="height:38px; border:1px solid var(--border); padding:0 10px; border-radius:0;" />
+            </label>
           </div>
-          <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
-            <button class="btn btn--brand" type="submit">Confirmar pedido</button>
+          <label class="xs" style="display:grid; gap:6px; margin-top:10px;">Nota
+            <textarea id="cnote" placeholder="Ej: Entrega 18:00" style="min-height:80px; border:1px solid var(--border); padding:8px 10px; border-radius:0;"></textarea>
+          </label>
+          <div class="foot">
+            <button class="btn primary" type="submit">Confirmar pedido</button>
           </div>
         </form>
       </div>
-    </aside>
+    </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    ©  Wap Tech & Services Development - WapMarket | Bata(GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025
+  <!-- =============================================================
+       FOOTER
+       ============================================================= -->
+  <footer role="contentinfo">
+    <div class="footer-inner">
+      <nav class="links" aria-label="Links de utilidad">
+        <a href="#">comprar</a>
+        <a href="#">reserva hotel</a>
+        <a href="#">restaurantes</a>
+        <a href="#">negocios</a>
+        <a href="#">comprar billetes</a>
+        <a href="#">empleos</a>
+      </nav>
+      <div class="copy">© Wap Tech &amp; Services Development - WapMarket | Bata (GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025</div>
+    </div>
   </footer>
 
-  <!-- API loader (tu archivo) -->
+  <!-- =============================================================
+       SCRIPTS
+       ============================================================= -->
   <script src="/api.js"></script>
-
   <script>
-  /* ==========================================================================
-     JS — Mercado con UX avanzada (basado en tu market y estilo del index)
-     ========================================================================== */
+    // =============================================================
+    // JS: Estado y utilidades
+    // =============================================================
+    const DELIVERY_FEE = 2000;
+    let selectedBusiness = null;
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let currentProducts = [];
 
-  // ===== Estado
-  const DELIVERY_FEE = 2000;
-  const pageSize = 18;
-  let currentPage = 1;
-  let selectedBusiness = null;
-  let currentProducts = [];
-  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let pageSize = 24; // productos por página UI
+    let pageIndex = 0; // índice página actual
 
-  // ===== Utiles
-  const $ = (sel, root=document)=>root.querySelector(sel);
-  const $$ = (sel, root=document)=>[...root.querySelectorAll(sel)];
-  const money = n => (Number(n)||0).toLocaleString() + ' XAF';
-  const clamp = (n,min,max)=>Math.min(max,Math.max(min,n));
-  function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-  function updateCartCount(){
-    const count = cart.reduce((a,c)=>a + Number(c.qty||1),0);
-    $('#cartCount').textContent = clamp(count,0,999);
-  }
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
 
-  // ===== Drawer Carrito
-  const drawer = $('#cartDrawer'), mask = $('#cartMask');
-  function openCart(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); renderCart(); }
-  function closeCart(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
-  $('#btnOpenCart').addEventListener('click', openCart);
-  $('#closeCart').addEventListener('click', closeCart);
-  mask.addEventListener('click', closeCart);
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCart(); });
-
-  // ===== Reveal on scroll
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target);} });
-  }, {threshold:.12});
-  $$('.reveal').forEach(el=>io.observe(el));
-
-  // ===== Controles básicos
-  $('#btnBuscar').addEventListener('click', ()=>{ if(selectedBusiness) loadProducts(true); });
-  $('#inBizBtn').addEventListener('click', ()=>{ if(selectedBusiness) loadProducts(true); });
-  $('#category').addEventListener('change', ()=>{ if(selectedBusiness) loadProducts(true); });
-  $('#sort').addEventListener('change', ()=>{ if(selectedBusiness) renderProductsPage(); });
-  $('#maxPrice').addEventListener('input', ()=>{ if(selectedBusiness) renderProductsPage(); });
-  $('#resetFilters').addEventListener('click', ()=>{
-    $('#q').value=''; $('#inBizQuery').value=''; $('#category').value='';
-    $('#sort').value=''; $('#maxPrice').value='';
-    $$('input[name="p"]').forEach(r=> r.checked = r.value==='');
-    loadProducts(true);
-  });
-  document.addEventListener('keydown', e=>{ if(e.key==='/'){ e.preventDefault(); $('#q').focus(); } });
-
-  // ===== Navegación por páginas
-  $('#prevBtn').addEventListener('click', ()=>{ if(currentPage>1){ currentPage--; renderProductsPage(true); } });
-  $('#nextBtn').addEventListener('click', ()=>{
-    const maxPages = Math.ceil(filteredProducts().length / pageSize);
-    if(currentPage < maxPages){ currentPage++; renderProductsPage(true); }
-  });
-
-  // ===== Carga Negocios
-  async function loadBusinesses(){
-    const data = await API.get('/public/businesses');
-    const items = data.items || [];
-    const bar = $('#bizBar'); bar.innerHTML = '';
-    items.forEach(b=>{
-      const el = document.createElement('button');
-      el.className = 'biz';
-      el.innerHTML = `
-        <img class="biz__logo" src="${b.logo_url || 'https://placehold.co/80?text=WM'}" alt="">
-        <div style="text-align:left">
-          <div style="font-weight:800">${b.name}</div>
-          <div style="color:var(--muted); font-size:.85rem">${b.location||'Local'}</div>
-          ${b.business_type==='verified' ? '<div class="verified">✔ Verificado</div>' : ''}
-        </div>
-      `;
-      el.addEventListener('click', ()=> setBusiness(b));
-      bar.appendChild(el);
-    });
-    if(!selectedBusiness && items.length) setBusiness(items[0]);
-  }
-
-  // ===== Seleccionar negocio
-  function setBusiness(b){
-    selectedBusiness = b;
-    $('#bizTitle').textContent = 'Productos de ' + b.name;
-    $('#bizMeta').textContent = (b.business_type==='verified' ? 'Negocio verificado • ' : '') + (b.location||'');
-    // Si el carrito es de otro negocio
-    if (cart.length && cart[0].business_id !== b.id){
-      if(confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
-        cart = []; saveCart();
-      }
+    function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+    function updateCartCount(){
+      const count = cart.reduce((a,c)=> a + Number(c.qty||1), 0);
+      $('#btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
     }
-    currentPage = 1;
-    loadProducts(true);
-  }
+    function openCart(){ $('#cartModal').style.display = 'flex'; renderCart(); }
+    function closeCart(){ $('#cartModal').style.display = 'none'; }
 
-  // ===== Carga Productos
-  async function loadProducts(applyNewQuery){
-    if(!selectedBusiness) return;
-    const params = new URLSearchParams();
-    params.set('business_id', selectedBusiness.id);
-    const qMain = $('#q').value.trim();
-    const qSide = $('#inBizQuery').value.trim();
-    const finalQ = (applyNewQuery ? (qSide || qMain) : qMain) || '';
-    if(finalQ) params.set('q', finalQ);
-    const cat = $('#category').value;
-    if(cat) params.set('category', cat);
-    const data = await API.get('/public/products?' + params.toString());
-    currentProducts = data.items || [];
-    currentPage = 1;
-    renderProductsPage(true);
-  }
+    function fmt(x){ return Number(x||0).toLocaleString(); }
 
-  // ===== Filtro y orden en cliente
-  function filteredProducts(){
-    let list = currentProducts.slice();
-    // filtro precio max
-    const mx = Number($('#maxPrice').value || 0);
-    if(mx>0) list = list.filter(p => Number(p.price_xaf||0) <= mx);
-
-    // rango radio
-    const rv = ($$('input[name="p"]').find(r=>r.checked) || {}).value || '';
-    if(rv){
-      const [a,b] = rv.split('-').map(Number);
-      list = list.filter(p=>{
-        const v = Number(p.price_xaf||0);
-        return v >= a && v <= b;
+    // =============================================================
+    // Cargar negocios
+    // =============================================================
+    async function loadBusinesses(){
+      const data = await API.get('/public/businesses');
+      const list = $('#bizList');
+      list.innerHTML = '';
+      (data.items||[]).forEach(b => {
+        const row = document.createElement('div');
+        row.className = 'biz-item';
+        row.innerHTML = `
+          <div class="avatar">${(b.name||'?').slice(0,2).toUpperCase()}</div>
+          <div>
+            <div class="title">
+              <span>${b.name}</span>
+              ${b.business_type==='verified' ? '<span class="badge-verified"><i class="fa-solid fa-badge-check"></i> Verificado</span>' : ''}
+            </div>
+            <div class="meta xs">${b.location||''}</div>
+          </div>
+          <div class="xs muted">${b.phone||''}</div>
+        `;
+        row.addEventListener('click', () => setBusiness(b));
+        list.appendChild(row);
       });
+      if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
     }
 
-    // envío/recogida (demo, se filtra por tag en category/nota)
-    const ship = $('#shipHome').checked;
-    const pick = $('#pickStore').checked;
-    if(ship) list = list.filter(p => (p.tags||'').toString().toLowerCase().includes('envío') || (p.category||'').toLowerCase().includes('delivery'));
-    if(pick) list = list.filter(p => (p.tags||'').toString().toLowerCase().includes('recogida') || (p.category||'').toLowerCase().includes('pickup'));
-
-    // orden
-    const s = $('#sort').value;
-    if(s==='recent') list.sort((a,b)=> (b.created_at||0) - (a.created_at||0));
-    if(s==='price-asc') list.sort((a,b)=> (a.price_xaf||0) - (b.price_xaf||0));
-    if(s==='price-desc') list.sort((a,b)=> (b.price_xaf||0) - (a.price_xaf||0));
-
-    return list;
-  }
-
-  // ===== Render Página de productos
-  function renderProductsPage(scrollTop){
-    const list = filteredProducts();
-    const grid = $('#results');
-    const empty = $('#emptyState');
-    grid.innerHTML = '';
-    empty.style.display = list.length ? 'none' : 'block';
-
-    const start = (currentPage-1)*pageSize;
-    const page = list.slice(start, start+pageSize);
-
-    page.forEach(p=>{
-      const el = document.createElement('article');
-      el.className = 'card product';
-      el.setAttribute('role','listitem');
-      el.innerHTML = `
-        <img class="thumb" src="${p.image_url || 'https://placehold.co/800x600?text=WapMarket'}" alt="${(p.title||'Producto')}" loading="lazy">
-        <div class="meta">
-          ${p.category ? `<span class="badge">${p.category}</span>` : ''}
-          <h4>${p.title || ''}</h4>
-          <div class="price">${p.price_xaf ? money(p.price_xaf) : ''}</div>
-        </div>
-        <div class="actions">
-          <button class="btn btn--brand" data-id="${p.id}">Añadir</button>
-          <button class="btn btn--ghost" data-id="${p.id}" data-act="quick">Vista rápida</button>
-        </div>
-      `;
-      grid.appendChild(el);
-    });
-
-    // Paginador
-    const maxPages = Math.ceil(list.length / pageSize);
-    $('#prevBtn').disabled = currentPage<=1;
-    $('#nextBtn').disabled = currentPage>=maxPages || maxPages===0;
-
-    // Acciones
-    grid.onclick = (e)=>{
-      const add = e.target.closest('button[data-id]:not([data-act])');
-      const quick = e.target.closest('button[data-act="quick"]');
-      if(add) addToCart(add.dataset.id);
-      if(quick){
-        const p = currentProducts.find(x=> x.id == quick.dataset.id);
-        if(!p) return;
-        alert((p.title||'Producto') + '\\n' + (p.description||'') + '\\nPrecio: ' + money(p.price_xaf||0));
+    // =============================================================
+    // Seleccionar negocio
+    // =============================================================
+    function setBusiness(b){
+      selectedBusiness = b;
+      const verified = b.business_type==='verified' ? ' <span class="badge-verified"><i class="fa-solid fa-badge-check"></i> Verificado</span>' : '';
+      $('#bizTitle').innerHTML = `${b.name}${verified}`;
+      if (cart.length && cart[0].business_id !== b.id){
+        if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con '+b.name+'?')){
+          cart = []; saveCart();
+        }
       }
-    };
-
-    if(scrollTop) window.scrollTo({top: $('.subhead').offsetTop - 64, behavior:'smooth'});
-  }
-
-  // ===== Carrito
-  function addToCart(id){
-    const p = currentProducts.find(x=> x.id == id);
-    if(!p) return;
-    if(cart.length && cart[0].business_id !== p.business_id){
-      if(!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
-      cart = [];
+      pageIndex = 0;
+      loadProducts();
     }
-    const found = cart.find(x=> x.id===p.id);
-    if(found) found.qty = Number(found.qty||1) + 1;
-    else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id:p.business_id });
-    saveCart();
-    openCart();
-  }
 
-  function renderCart(){
-    const box = $('#cartItems');
-    box.innerHTML = '';
-    if(!cart.length){ box.innerHTML = '<div class="empty">Tu carrito está vacío.</div>'; $('#totals').textContent='Subtotal: 0 XAF'; return; }
+    // =============================================================
+    // Consultar productos del negocio + filtros
+    // =============================================================
+    async function loadProducts(){
+      if (!selectedBusiness) return;
+      const params = new URLSearchParams();
+      params.set('business_id', selectedBusiness.id);
+      const q = $('#q').value.trim();
+      const cat = $('#category').value;
+      const maxp = Number($('#priceMax').value||0);
+      if (q) params.set('q', q);
+      if (cat) params.set('category', cat);
+      const data = await API.get('/public/products?'+params.toString());
+      let items = data.items || [];
+      if (maxp>0) items = items.filter(x => Number(x.price_xaf||0) <= maxp);
+      currentProducts = items;
+      $('#countProducts').textContent = currentProducts.length;
+      renderProducts();
+    }
 
-    let subtotal = 0;
-    cart.forEach((item, i)=>{
-      const row = document.createElement('div');
-      row.className = 'line';
-      row.innerHTML = `
-        <img src="${item.image_url || 'https://placehold.co/80'}" alt="">
-        <div style="flex:1">
-          <div style="display:flex; justify-content:space-between; gap:8px">
-            <strong>${item.title}</strong>
-            <span>${money(item.price_xaf||0)}</span>
+    function renderProducts(){
+      const list = $('#results');
+      list.innerHTML = '';
+      const start = pageIndex * pageSize;
+      const page = currentProducts.slice(start, start + pageSize);
+
+      page.forEach(p => {
+        const el = document.createElement('article');
+        el.className = 'card';
+        el.innerHTML = `
+          <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="${p.title || ''}">
+          <div class="pad">
+            <div class="kicker xs">${p.category || ''}</div>
+            <div class="title">${p.title}</div>
+            <div class="row">
+              <div class="price">${p.price_xaf ? fmt(p.price_xaf) + ' XAF' : ''}</div>
+            </div>
+            <div class="row">
+              <button class="btn" data-id="${p.id}"><i class="fa-solid fa-plus"></i> Añadir</button>
+            </div>
           </div>
-          <div style="display:flex; gap:6px; align-items:center; margin-top:8px">
-            <button class="btn" data-i="${i}" data-act="dec">-</button>
-            <span style="min-width:24px; text-align:center">${item.qty}</span>
-            <button class="btn" data-i="${i}" data-act="inc">+</button>
-            <button class="btn" data-i="${i}" data-act="del">Quitar</button>
+        `;
+        list.appendChild(el);
+      });
+
+      // Paginación
+      const hasPrev = pageIndex > 0;
+      const hasNext = (start + pageSize) < currentProducts.length;
+      $('#prevBtn').disabled = !hasPrev;
+      $('#nextBtn').disabled = !hasNext;
+    }
+
+    // =============================================================
+    // Carrito
+    // =============================================================
+    function renderCart(){
+      const box = $('#cartItems');
+      const info = $('#cartInfo');
+      if (!cart.length){
+        box.innerHTML = '<p class="xs muted">Tu carrito está vacío.</p>';
+        info.textContent = '';
+        $('#totals').textContent = '';
+        return;
+      }
+      const sameBiz = selectedBusiness && cart[0].business_id === selectedBusiness.id;
+      info.textContent = 'Negocio: ' + (sameBiz ? selectedBusiness.name : ('#'+cart[0].business_id));
+      box.innerHTML = '';
+      let subtotal = 0;
+      cart.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:grid; grid-template-columns: 80px 1fr auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);';
+        row.innerHTML = `
+          <img src="${item.image_url || 'https://placehold.co/80'}" style="width:80px; height:60px; object-fit:cover;" alt="${item.title}">
+          <div>
+            <div style="font-weight:700">${item.title}</div>
+            <div class="xs muted">${fmt(item.price_xaf)} XAF • ${item.category||''}</div>
+            <div class="qty-ctrl" style="margin-top:6px;">
+              <button class="btn" data-idx="${idx}" data-act="dec">-</button>
+              <span>${item.qty}</span>
+              <button class="btn" data-idx="${idx}" data-act="inc">+</button>
+              <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
+            </div>
           </div>
-        </div>
-      `;
-      subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
-      box.appendChild(row);
+          <div style="font-weight:700">${fmt(Number(item.price_xaf||0) * Number(item.qty||1))} XAF</div>
+        `;
+        subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+        box.appendChild(row);
+      });
+      const delivery = $('#deliveryChk').checked;
+      const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+      $('#totals').textContent = 'Subtotal: ' + fmt(subtotal) + ' XAF' + (delivery ? ' + Envío: 2.000 XAF = Total: ' + fmt(total) + ' XAF' : ' = Total: ' + fmt(total) + ' XAF');
+
+      box.onclick = (e) => {
+        const btn = e.target.closest('button.btn'); if (!btn) return;
+        const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+        if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+        if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+        if (act==='del') cart.splice(i,1);
+        saveCart(); renderCart();
+      };
+    }
+
+    // =============================================================
+    // Eventos UI
+    // =============================================================
+    $('#btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+    $('#deliveryChk').addEventListener('change', (e)=>{ $('#addressBox').classList.toggle('hide', !e.target.checked); renderCart(); });
+    $('#btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+    $('#btnApplyFilters').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+    $('#btnRefresh').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+
+    document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); $('#q').focus(); } });
+
+    $('#results').addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-id]'); if(!btn) return;
+      const id = Number(btn.getAttribute('data-id'));
+      const p = currentProducts.find(x=> x.id === id);
+      if (!p) return;
+      if (cart.length && cart[0].business_id !== p.business_id){
+        if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a '+(selectedBusiness?.name||'este negocio')+'?')) return;
+        cart = [];
+      }
+      const exists = cart.find(x=> x.id===p.id);
+      if (exists) exists.qty = Number(exists.qty||1)+1; else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+      saveCart();
     });
 
-    const delivery = $('#deliveryChk').checked;
-    const total = subtotal + (delivery ? DELIVERY_FEE : 0);
-    $('#totals').textContent = `Subtotal: ${money(subtotal)}${delivery ? ' + Envío: ' + money(DELIVERY_FEE) : ''} = Total: ${money(total)}`;
+    $('#prevBtn').addEventListener('click', ()=>{ if (pageIndex>0){ pageIndex--; renderProducts(); window.scrollTo({top:0, behavior:'smooth'}); } });
+    $('#nextBtn').addEventListener('click', ()=>{
+      const max = Math.ceil(currentProducts.length / pageSize) - 1;
+      if (pageIndex < max){ pageIndex++; renderProducts(); window.scrollTo({top:0, behavior:'smooth'}); }
+    });
 
-    box.onclick = (e)=>{
-      const btn = e.target.closest('button.btn'); if(!btn) return;
-      const i = Number(btn.dataset.i); const act = btn.dataset.act;
-      if(act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-      if(act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-      if(act==='del') cart.splice(i,1);
-      saveCart(); renderCart();
-    };
-  }
+    $('#checkoutForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if (!cart.length) return alert('Tu carrito está vacío');
+      const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+      const delivery = $('#deliveryChk').checked;
+      const payload = {
+        items,
+        customer_name: $('#cname').value,
+        customer_phone: $('#cphone').value,
+        address: delivery ? $('#address').value : undefined,
+        note: $('#cnote').value,
+        delivery
+      };
+      const res = await API.post('/public/cart/checkout', payload);
+      if (res.error){ alert(res.error); return; }
+      alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
+      cart = []; saveCart(); closeCart();
+    });
 
-  $('#deliveryChk').addEventListener('change', (e)=>{
-    $('#addressBox').style.display = e.target.checked ? 'block' : 'none';
-    renderCart();
-  });
+    // Cambio de columnas del grid
+    $('#btnGrid2').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 2); });
+    $('#btnGrid3').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 3); });
+    $('#btnGrid4').addEventListener('click', ()=>{ document.documentElement.style.setProperty('--grid-cols', 4); });
 
-  $('#checkoutForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    if(!cart.length) return alert('Tu carrito está vacío');
-    const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
-    const delivery = $('#deliveryChk').checked;
-    const payload = {
-      items,
-      customer_name: $('#cname').value,
-      customer_phone: $('#cphone').value,
-      address: delivery ? $('#address').value : undefined,
-      note: $('#cnote').value,
-      delivery
-    };
-    const res = await API.post('/public/cart/checkout', payload);
-    if(res.error){ alert(res.error); return; }
-    alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\\nTotal: ' + money(res.total_xaf||0));
-    cart = []; saveCart(); closeCart();
-  });
-
-  // ===== Init
-  updateCartCount();
-  loadBusinesses();
+    // =============================================================
+    // Inicio
+    // =============================================================
+    updateCartCount();
+    loadBusinesses();
   </script>
 </body>
 </html>
