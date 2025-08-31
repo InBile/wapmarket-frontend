@@ -173,6 +173,17 @@ async function loadProducts(){
     tb.appendChild(tr);
   });
 }
+  // ================== CERRAR SESIÓN ==================
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('bizToken');
+  localStorage.removeItem('bizId');
+  token = null;
+  business_id = null;
+  // Mostrar login otra vez y ocultar el panel
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('panel').style.display = 'none';
+  });
+}
 </script>
 </body>
 </html>
