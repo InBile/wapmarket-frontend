@@ -13,65 +13,36 @@
     :root{
       --gap:16px;
       --aside-w:300px;
-      --footer-h:60px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      padding:0 0 var(--footer-h);
+      padding:0;
       background:#f7f7f9;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
 
-    /* ====== HEADER / NAVBAR ====== */
-    .header{
-      position:sticky;top:0;z-index:10;
-      background:#000;
-      border-bottom:1px solid #222;
-    }
+    /* ====== HEADER ====== */
+    .header{position:sticky;top:0;z-index:10;background:#000;border-bottom:1px solid #222}
     .wrapper{max-width:1200px;margin:0 auto;padding:10px 16px}
-    .row{display:flex;align-items:center;gap:12px}
-    .logo{
-      font-family:'Futura PT',sans-serif;
-      font-weight:800;
-      font-size:1.4rem;
-      color:#fff;
-    }
+    .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .logo{font-family:'Futura PT',sans-serif;font-weight:800;font-size:1.4rem;color:#fff;flex:1 1 100%;text-align:center}
     .search{display:flex;gap:8px;flex:1}
-    .search input{
-      flex:1;
-      padding:10px;
-      border:1px solid #ddd;
-      border-radius:0; /* sin bordes redondeados */
-    }
+    .search input{flex:1;padding:10px;border:1px solid #ddd;border-radius:0;width:100%}
     .btn{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}
     .btn:disabled{opacity:.6;cursor:not-allowed}
 
-    /* ====== BOTÓN CARRITO BLANCO + INDICADOR ====== */
-    #btnOpenCart{
-      position:relative;
-      display:inline-flex;align-items:center;justify-content:center;
-      background:#fff;color:#111;border:1px solid #ddd;border-radius:8px;
-      width:46px;height:46px;padding:0;
-    }
+    /* ====== BOTÓN CARRITO ====== */
+    #btnOpenCart{position:relative;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#111;border:1px solid #ddd;border-radius:8px;width:46px;height:46px;padding:0}
     #btnOpenCart img{width:26px;height:26px;object-fit:contain}
-    #btnOpenCart[data-has-items="true"]::after{
-      content:"";
-      position:absolute;top:6px;right:6px;
-      width:8px;height:8px;border-radius:50%;
-      background:#ff3b30;
-    }
+    #btnOpenCart[data-has-items="true"]::after{content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ff3b30}
 
-    /* ====== IMAGEN PUBLICIDAD ====== */
-    .hero{
-      width:100%;
-      height:auto;
-      display:block;
-    }
-
-    /* ====== LAYOUT PRINCIPAL ====== */
-    .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap)}
+    /* ====== LAYOUT ====== */
+    .layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap);flex:1}
     aside{margin-left:-8px;}
     .card{background:#fff;border:1px solid #eee;border-radius:0}
     .card .body{padding:12px 12px}
@@ -79,60 +50,36 @@
     #bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
 
     section .card{background:transparent;border:none}
-    #results.grid{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap:var(--gap);
-    }
+    #results.grid{display:grid;grid-template-columns: repeat(4, minmax(0,1fr));gap:var(--gap)}
     .product-item{background:transparent;border:none;border-radius:0;}
-    .product-item .thumb{
-      width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
-      border:1px solid #e9e9ee;
-    }
+    .product-item .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border:1px solid #e9e9ee}
     .product-item .meta{padding:8px 2px}
     .badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:0;background:#fafafa}
     .price{font-weight:800;margin:4px 0}
 
-    /* ====== MODAL, FOOTER ====== */
+    /* ====== CONTENEDOR PUBLICITARIO ====== */
+    .ads-container{background:#fff;border:1px solid #eee;margin-top:16px;padding:12px;position:relative}
+    .ads-container img{max-width:100%;display:block;margin-bottom:8px}
+    .ads-info-btn{position:absolute;top:8px;right:8px;background:#007bff;color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:800;font-size:14px}
+
+    /* ====== MODAL ====== */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
-    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:640px;width:100%;max-height:80vh;overflow:auto}
+    .dialog{background:#fff;padding:16px;border-radius:10px;max-width:500px;width:100%;max-height:80vh;overflow:auto}
     .small{font-size:.9em;color:#555}
     .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
 
-    .footer{
-      position:fixed;left:0;right:0;bottom:0;height:var(--footer-h);
-      display:flex;align-items:center;justify-content:center;gap:18px;
-      background:#fff;border-top:1px solid #eee;
-      z-index:9;
-      padding:0 12px;
-      flex-wrap:wrap;
-    }
-    .footer a{
-      color:#111;
-      text-decoration:underline;
-      transition:color .2s;
-    }
-    .footer a:hover{color:#007bff;} /* azul al pasar cursor */
+    /* ====== FOOTER ====== */
+    .footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center;margin-top:auto}
+    .footer a{margin:0 8px;color:#111;text-decoration:underline;transition:color .2s}
+    .footer a:hover{color:#007bff;}
 
     .verified-badge{display:inline-flex;align-items:center;margin-left:10px;vertical-align:middle}
     .verified-badge img{width:22px;height:22px;object-fit:contain}
 
     /* ====== RESPONSIVE ====== */
-    @media (max-width:1100px){
-      #results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}
-      :root{--aside-w:260px}
-    }
-    @media (max-width:900px){
-      .layout{grid-template-columns:1fr}
-      aside{order:2}
-      section{order:1}
-      #results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}
-    }
-    @media (max-width:520px){
-      .search input{padding:10px}
-      #results.grid{grid-template-columns: 1fr;}
-      .dialog{padding:12px}
-    }
+    @media (max-width:1100px){#results.grid{grid-template-columns: repeat(3,minmax(0,1fr));}:root{--aside-w:260px}}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}aside{order:2}section{order:1}#results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}}
+    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}.search{width:100%}.search input{width:100%}#results.grid{grid-template-columns: 1fr;}.dialog{padding:12px}.logo{text-align:center;margin-bottom:8px}}
   </style>
 </head>
 <body>
@@ -149,9 +96,6 @@
     </a>
   </div>
 </header>
-
-<!-- Imagen de publicidad -->
-<img src="/aset/promo.jpg" alt="Publicidad WapMarket" class="hero">
 
 <main class="wrapper">
   <div class="layout">
@@ -173,6 +117,14 @@
           </label>
         </div>
       </div>
+
+      <!-- CONTENEDOR PUBLICITARIO -->
+      <div class="ads-container">
+        <button class="ads-info-btn" onclick="openAdsInfo()">i</button>
+        <!-- Aquí puedes pegar imágenes publicitarias -->
+        <img src="/aset/sample-ad.jpg" alt="Publicidad">
+        <img src="/aset/sample-ad2.jpg" alt="Publicidad">
+      </div>
     </aside>
 
     <section>
@@ -189,6 +141,7 @@
   </div>
 </main>
 
+<!-- Modal carrito -->
 <div class="modal" id="cartModal">
   <div class="dialog">
     <h3>Tu carrito</h3>
@@ -213,6 +166,22 @@
   </div>
 </div>
 
+<!-- Modal publicidad info -->
+<div class="modal" id="adsModal">
+  <div class="dialog">
+    <h3>Promociona tu negocio</h3>
+    <p>Puedes promocionar tus productos o servicios en WapMarket con banners publicitarios.</p>
+    <ul>
+      <li><a href="#">Más información</a></li>
+      <li><a href="#">Contactar soporte</a></li>
+      <li><a href="#">Enviar tu publicidad</a></li>
+    </ul>
+    <div style="text-align:right;margin-top:10px">
+      <button class="btn" onclick="closeAdsInfo()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
   <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
   <a href="#">comprar</a>
@@ -225,7 +194,7 @@
 
 <script src="/api.js"></script>
 <script>
-/* ====== JS PRINCIPAL (sin cambios en lógica, solo lo de arriba) ====== */
+/* ====== JS PRINCIPAL ====== */
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -241,6 +210,10 @@ function updateCartCount(){
 }
 function closeCart(){ document.getElementById('cartModal').style.display='none'; }
 function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
+
+/* Publicidad modal */
+function openAdsInfo(){ document.getElementById('adsModal').style.display='flex'; }
+function closeAdsInfo(){ document.getElementById('adsModal').style.display='none'; }
 
 document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
 
@@ -383,9 +356,7 @@ document.getElementById('deliveryChk').addEventListener('change', (e)=>{
   renderCart();
 });
 
-document.getElementById('btnBuscar').addEventListener('click', ()=>{
-  if (selectedBusiness) loadProducts();
-});
+document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
 document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); document.getElementById('q').focus(); } });
 document.getElementById('category').addEventListener('change', ()=>{ if (selectedBusiness) loadProducts(); });
 
