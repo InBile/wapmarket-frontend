@@ -1,692 +1,320 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WapMarket — Marketplace Pro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- =============================================================
-       WapMarket — Marketplace Pro
-       Requisitos del cliente:
-       - Topbar moderno, fijo. Logo solo texto. Buscador ancho. Botones negro/naranja.
-       - Paleta: claro / negro / plata; acciones naranja o negro.
-       - Aside izquierdo dedicado: lista de negocios + opciones del carrito (resumen, items, checkout).
-         • Desktop: aside fijo.
-         • Móvil: aside colapsable (drawer) toggled por hamburguesa.
-       - Centro: solo productos (cards planas sin bordes redondeados). 3 cols móvil; 4–6 desktop.
-       - Verificado: usar la insignia EXACTA del cliente: "aseo/icons8-verified-50.png".
-         • Mostrar en la lista de negocios.
-         • Mostrar junto al título del negocio seleccionado.
-       - Publicidad: sección inferior en formato slider/carrusel (datos desde API: GET /api/ads).
-       - Mantener funcionalidades de carrito y checkout (se respetan endpoints públicos):
-         • GET  /public/businesses
-         • GET  /public/products?business_id=...&q=...
-         • POST /public/cart/checkout (payload con items, datos cliente, delivery, etc.)
-       - Código monolítico (HTML+CSS+JS) ~800 líneas, enfocado en UX y rendimiento.
-       ============================================================= -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WapMarket — Marketplace GE</title>
+  <link rel="stylesheet" href="/styles.css">
+
   <style>
-    /* =========================================================
-       THEME TOKENS — claro / negro / plata + acciones naranja
-       ========================================================= */
     :root{
-      --bg:#ffffff;          /* fondo principal */
-      --bg-2:#f6f7f9;        /* plata claro para paneles */
-      --panel:#f3f4f7;       /* plata un poco más oscuro */
-      --line:#e3e6ee;        /* bordes ligeros */
-      --ink:#0b0f18;         /* texto principal (negro profundo) */
-      --muted:#6b7280;       /* texto secundario */
-
-      --accent:#111827;      /* negro para botones/controles */
-      --orange:#ff6a00;      /* naranja de acción */
-      --orange-700:#e55e00;
-      --orange-soft:rgba(255,106,0,.10); /* fondos sutiles */
-
-      --wrap:1620px;         /* ancho máximo de contenido */
-      --gap:16px;            /* separación grid */
-      --radius:0px;          /* cards planas (sin borde redondeado) */
-
-      --shadow-1:0 6px 22px rgba(9,10,20,.06);
-      --shadow-2:0 16px 46px rgba(9,10,20,.10);
+      --gap:16px;
+      --aside-w:300px;
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Ubuntu,Arial;color:var(--ink);background:linear-gradient(180deg,#fff 0%,#fbfcff 60%,#f6f7fb 120%);display:flex;flex-direction:column;min-height:100vh}
-
-    /* =========================================================
-       TOPBAR — moderno, fijo, con buscador ancho
-       ========================================================= */
-    .topbar{position:sticky;top:0;z-index:80;background:rgba(255,255,255,.87);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
-    .top{max-width:var(--wrap);margin:0 auto;height:92px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:0 22px}
-    .brand{font-weight:900;font-size:1.9rem;letter-spacing:-.4px;color:var(--accent)}
-
-    .search{display:flex;align-items:center;gap:10px}
-    .search fieldset{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;padding:12px 14px;min-width:0;width:100%}
-    .search input{flex:1;border:none;outline:none;background:transparent;font-size:1rem;min-width:120px}
-    .search .kbd{font-size:.85rem;color:var(--muted);border:1px solid var(--line);padding:4px 6px;background:#fff}
-    .search .btn{white-space:nowrap}
-
-    .actions{display:flex;align-items:center;gap:10px}
-    .icon-btn{display:inline-grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);background:#fff;cursor:pointer}
-    .icon-btn svg{width:20px;height:20px}
-    #cartBtn[data-has-items="true"]::after{content:"";position:absolute;margin-left:28px;margin-top:-12px;width:10px;height:10px;background:#ef4444;border-radius:50%}
-
-    .btn{border:none;background:var(--orange);color:#fff;font-weight:900;padding:11px 14px;cursor:pointer}
-    .btn:hover{background:var(--orange-700)}
-    .btn.black{background:var(--accent)}
-    .btn.black:hover{filter:brightness(1.1)}
-
-    @media(max-width:860px){
-      .top{grid-template-columns:1fr auto auto;gap:12px}
-      .brand{display:none} /* en móvil priorizamos buscador */
-      .search fieldset{padding:10px}
+    body{
+      margin:0;
+      padding:0;
+      background:#f7f7f9;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
 
-    /* =========================================================
-       LAYOUT — aside izquierdo + main + carrusel publicidad
-       ========================================================= */
-    .layout{max-width:var(--wrap);margin:0 auto;width:100%;display:grid;grid-template-columns:320px 1fr;gap:24px;padding:22px}
-    @media(max-width:1200px){.layout{grid-template-columns:280px 1fr;gap:18px}}
-    @media(max-width:980px){.layout{grid-template-columns:1fr;padding:14px}}
+/* ====== HEADER ====== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #131921; /* estilo Amazon */
+  border-bottom: 1px solid #222;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  padding: 6px 12px;
+}
+.logo {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  flex-shrink:0;
+}
 
-    /* ===== Aside ===== */
-    .aside{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,#fff 0,#fff 60%,#f5f7fb 140%)}
-    .aside header{padding:14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-    .aside h3{margin:0;font-size:1.05rem;font-weight:900;color:#111}
-    .aside .section{padding:14px;border-bottom:1px dashed var(--line)}
-    .aside .section:last-child{border-bottom:none}
+/* buscador */
+.search {
+  display: flex;
+  flex: 1;
+  max-width: 800px;
+  min-width: 180px;
+}
+.search input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  font-size: 0.95rem;
+}
+#btnBuscar {
+  background: #f90;
+  color: #111;
+  border: none;
+  padding: 0 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
 
-    .biz-search{display:flex;gap:8px}
-    .biz-search input{flex:1;border:1px solid var(--line);padding:10px;background:#fff}
+.menu-toggle{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:1.5rem;
+  cursor:pointer;
+  margin-right:8px;
+  display:none;
+}
 
-    .biz-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto;margin-top:10px}
-    .biz-card{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);background:#fff;cursor:pointer}
-    .biz-card:hover{border-color:var(--orange)}
-    .biz-name{font-weight:900}
-    .biz-loc{font-size:12px;color:var(--muted)}
-    .v-badge{display:inline-grid;grid-auto-flow:column;align-items:center;gap:6px;border:1px solid #0fb67d;padding:4px 8px;background:rgba(16,185,129,.08);font-size:12px;font-weight:900;color:#047857}
-    .v-badge img{width:16px;height:16px}
+/* ====== LAYOUT ====== */
+.layout{display:grid;grid-template-columns: var(--aside-w) 1fr; gap:var(--gap);flex:1;position:relative}
 
-    /* Carrito en aside */
-    .cart-box{display:grid;gap:10px}
-    .cart-line{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;border:1px solid var(--line);padding:8px;background:#fff}
-    .cart-line img{width:48px;height:48px;object-fit:cover;border:1px solid var(--line)}
-    .qtyctl{display:grid;grid-auto-flow:column;gap:6px;align-items:center}
-    .qtyctl button{border:1px solid var(--line);background:#fff;padding:4px 8px;cursor:pointer}
-    .cart-total{display:flex;justify-content:space-between;font-weight:900;color:#111}
+aside{
+  background:#fff;
+  border-right:1px solid #eee;
+  height:100%;
+  overflow-y:auto;
+  transition:transform .3s ease;
+}
 
-    .delivery{padding:10px;border:1px solid var(--line);background:#fff}
-    .delivery label{display:flex;gap:8px;align-items:center}
+aside.hidden-mobile{
+  transform:translateX(-100%);
+  position:fixed;
+  top:0;
+  left:0;
+  width:var(--aside-w);
+  max-width:90%;
+  height:100%;
+  z-index:30;
+}
 
-    .checkout{display:grid;gap:10px}
-    .checkout input,.checkout textarea{border:1px solid var(--line);padding:10px;background:#fff;width:100%}
+aside.visible-mobile{
+  transform:translateX(0);
+}
 
-    /* ===== Drawer móvil ===== */
-    .drawer-scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:98}
-    .drawer{position:fixed;inset:0;display:none;z-index:99}
-    .drawer .panel{position:absolute;left:0;top:0;height:100%;width:min(92vw,420px);background:#fff;border-right:1px solid var(--line);box-shadow:var(--shadow-2);overflow:auto}
-    .drawer.open,.drawer-scrim.open{display:block}
+.overlay{
+  display:none;
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:25;
+}
+.overlay.active{display:block}
 
-    @media(min-width:981px){ .drawer,.drawer-scrim{display:none!important} }
+.card{background:#fff;border:1px solid #eee;border-radius:0}
+.card .body{padding:12px 12px}
+#bizList{display:flex;flex-direction:column;gap:8px}
+#bizList.scrolling{max-height:380px;overflow:auto;border-top:1px dashed #eee;padding-top:8px}
 
-    /* ===== Main productos ===== */
-    main .headline{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
-    .biz-title{display:flex;align-items:center;gap:10px;font-weight:900}
-    .biz-title .badge{display:inline-grid;grid-auto-flow:column;align-items:center;gap:6px;border:1px solid #0fb67d;background:rgba(16,185,129,.08);padding:4px 8px;font-size:.9rem;color:#047857;font-weight:900}
-    .biz-title .badge img{width:16px;height:16px}
+#results.grid{display:grid;grid-template-columns: repeat(4, minmax(0,1fr));gap:var(--gap)}
+.product-item{background:#fff;border:1px solid #eee;border-radius:0;}
+.product-item .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:1px solid #e9e9ee}
+.product-item .meta{padding:8px 2px}
+.badge{display:inline-block;font-size:12px;padding:4px 8px;border:1px solid #ddd;background:#fafafa}
+.price{font-weight:800;margin:4px 0}
 
-    #results{display:grid;gap:18px;grid-template-columns:repeat(6,minmax(0,1fr))}
-    @media(max-width:1480px){#results{grid-template-columns:repeat(5,1fr)}}
-    @media(max-width:1200px){#results{grid-template-columns:repeat(4,1fr)}}
-    @media(max-width:980px){#results{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:640px){#results{grid-template-columns:repeat(3,1fr)}}
+.verified-badge{display:inline-flex;align-items:center;margin-left:6px;vertical-align:middle}
+.verified-badge img{width:18px;height:18px;object-fit:contain}
 
-    .card{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#fff 70%,#f4f6fb 150%);border-radius:var(--radius);display:flex;flex-direction:column}
-    .thumb{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eef1f6;border-bottom:1px solid var(--line)}
-    .meta{padding:12px;display:grid;gap:8px}
-    .category{justify-self:start;border:1px solid var(--line);padding:4px 8px;font-size:12px;color:var(--muted);background:#fff;border-radius:6px}
-    .meta h4{margin:0;font-size:15px;font-weight:800;min-height:38px}
-    .price{font-weight:900;color:#111}
-    .cta{display:flex;gap:8px}
-    .btn-ghost{border:1px solid var(--line);background:#fff;color:#111;font-weight:800;padding:9px 12px;cursor:pointer}
-    .btn-orange{border:none;background:var(--orange);color:#fff;padding:9px 12px;font-weight:900;cursor:pointer}
-    .btn-orange:hover{background:var(--orange-700)}
+/* ====== PUBLICIDAD ====== */
+.local-ads {margin: 20px 0;padding: 16px;background: #f9f9f9;border: 1px solid #ddd;}
+.local-ads h3 {margin-bottom: 12px;font-size: 18px;color: #222;font-weight: 600;}
+.ads-grid {display: grid;grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));gap: 12px;}
+.ad-card {text-align: center;background: #fff;border: 1px solid #eee;padding: 8px;transition: transform 0.3s, box-shadow 0.3s;}
+.ad-card img {width: 100%;height: 120px;object-fit: cover;}
+.ad-card:hover {transform: scale(1.03);box-shadow: 0 2px 8px rgba(0,0,0,0.15);}
+.ad-card p {margin-top: 6px;font-size: 14px;color: #444;}
 
-    /* ===== Carrusel de anuncios ===== */
-    .ads{margin-top:36px;border-top:1px solid var(--line);padding-top:18px}
-    .ads .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .slider{position:relative;overflow:hidden;border:1px solid var(--line);background:#fff}
-    .slides{display:flex;transition:transform .5s ease}
-    .slide{min-width:100%;flex:0 0 100%;border-right:1px solid var(--line)}
-    .slide a{display:block}
-    .slide img{width:100%;height:260px;object-fit:cover;display:block}
-    .nav{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
-    .nav button{pointer-events:auto;background:rgba(0,0,0,.45);color:#fff;border:none;width:42px;height:42px;display:grid;place-items:center;cursor:pointer}
-    .dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
-    .dot{width:8px;height:8px;border-radius:50%;background:#c9ced9}
-    .dot.active{background:#111}
+/* ====== FOOTER ====== */
+.footer{background:#fff;border-top:1px solid #eee;padding:12px;text-align:center;margin-top:auto}
+.footer a{margin:0 8px;color:#111;text-decoration:underline;transition:color .2s}
+.footer a:hover{color:#007bff;}
 
-    /* ===== Footer ===== */
-    footer{border-top:1px solid var(--line);background:var(--bg-2);padding:22px;text-align:center;color:var(--muted);margin-top:auto}
+/* ====== RESPONSIVE ====== */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  aside{position:fixed;top:0;left:0;height:100%;}
+  .menu-toggle{display:block}
+}
+@media (max-width:600px){#results.grid{grid-template-columns: repeat(2,minmax(0,1fr));}}
+@media (max-width:400px){#results.grid{grid-template-columns:1fr}}
 
-    /* ===== Utilities ===== */
-    .wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
-    .muted{color:var(--muted)}
-    .hide{display:none}
   </style>
 </head>
 <body>
-  <!-- ===================== TOPBAR ===================== -->
-  <header class="topbar">
-    <div class="top">
-      <div class="brand" id="brand">WapMarket</div>
-      <form class="search" id="searchForm" onsubmit="return false;">
-        <fieldset>
-          <input id="q" placeholder="Buscar productos o servicios... (pulsa /)" />
-          <span class="kbd">/</span>
-          <button id="btnSearch" class="btn black" type="button">Buscar</button>
-        </fieldset>
-      </form>
-      <div class="actions">
-        <button id="openDrawer" class="icon-btn" title="Negocios &amp; Carrito" aria-label="Abrir panel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <a href="#" class="icon-btn" id="cartBtn" data-has-items="false" title="Carrito">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 12.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        </a>
-      </div>
-    </div>
-  </header>
 
-  <!-- ===================== DRAWER MÓVIL ===================== -->
-  <div class="drawer-scrim" id="drawerScrim"></div>
-  <aside class="drawer" id="drawer">
-    <div class="panel">
-      <div class="aside">
-        <header>
-          <h3>Panel</h3>
-          <button class="btn black" id="closeDrawerBtn">Cerrar</button>
-        </header>
-        <div class="section">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-            <strong>Negocios</strong>
-            <span class="muted" style="font-size:12px">selecciona uno</span>
-          </div>
-          <div class="biz-search">
-            <input id="bizSearch" placeholder="Buscar negocios..." />
-            <button id="btnBizSearch" class="btn">Buscar</button>
-          </div>
-          <div id="bizListDrawer" class="biz-list"></div>
-        </div>
-        <div class="section">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-            <strong>Carrito</strong>
-            <span class="muted" style="font-size:12px">resumen</span>
-          </div>
-          <div id="cartBoxDrawer" class="cart-box"></div>
-          <div class="delivery" style="margin-top:10px">
-            <label><input type="checkbox" id="deliveryChkDrawer"> Envío a domicilio (+2000 XAF)</label>
-            <div id="addressBoxDrawer" class="hide" style="margin-top:8px">
-              <input id="addressDrawer" placeholder="Dirección exacta (opcional)" />
-            </div>
-          </div>
-          <div class="checkout" style="margin-top:10px">
-            <input id="cnameDrawer" placeholder="Tu nombre (opcional)" />
-            <input id="cphoneDrawer" placeholder="Teléfono (WhatsApp)" />
-            <textarea id="cnoteDrawer" placeholder="Nota (opcional)"></textarea>
-            <div class="cart-total"><span>Total</span><span id="totalDrawer">0 XAF</span></div>
-            <button id="checkoutDrawer" class="btn">Confirmar pedido</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
+<header class="header">
+  <div class="row wrapper">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <div class="logo">WapMarket</div>
+    <form id="searchForm" class="search" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos o servicios..." />
+      <button class="btn" id="btnBuscar">Buscar</button>
+    </form>
+  </div>
+</header>
 
-  <!-- ===================== LAYOUT DESKTOP ===================== -->
-  <div class="layout wrap">
-    <!-- ===== FIXED ASIDE (desktop) ===== -->
-    <aside class="aside" id="asideDesktop">
-      <header>
-        <h3>Negocios &amp; Carrito</h3>
-        <span class="muted" style="font-size:12px">desktop</span>
-      </header>
-      <div class="section">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-          <strong>Negocios</strong>
-          <span class="muted" style="font-size:12px">verificados incluidos</span>
-        </div>
-        <div class="biz-search">
-          <input id="bizSearchDesk" placeholder="Buscar negocios..." />
-          <button id="btnBizSearchDesk" class="btn">Buscar</button>
-        </div>
-        <div id="bizList" class="biz-list"></div>
-      </div>
+<div class="overlay" id="overlay"></div>
 
-      <div class="section">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-          <strong>Carrito</strong>
-          <span class="muted" style="font-size:12px">resumen</span>
+<main class="wrapper">
+  <div class="layout">
+    <aside id="sidebar" class="hidden-mobile">
+      <div class="card">
+        <div class="body">
+          <h3>Negocios disponibles</h3>
+          <div id="bizList"></div>
         </div>
-        <div id="cartBox" class="cart-box"></div>
-        <div class="delivery" style="margin-top:10px">
-          <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
-          <div id="addressBox" class="hide" style="margin-top:8px">
-            <input id="address" placeholder="Dirección exacta (opcional)" />
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="body">
+          <h3>Carrito</h3>
+          <div id="cartItems"></div>
+          <div style="margin-top:8px">
+            <button class="btn" onclick="openCart()">Ver carrito</button>
           </div>
         </div>
-        <div class="checkout" style="margin-top:10px">
-          <input id="cname" placeholder="Tu nombre (opcional)" />
-          <input id="cphone" placeholder="Teléfono (WhatsApp)" />
-          <textarea id="cnote" placeholder="Nota (opcional)"></textarea>
-          <div class="cart-total"><span>Total</span><span id="totalDesk">0 XAF</span></div>
-          <button id="checkoutDesk" class="btn">Confirmar pedido</button>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="body">
+          <h3>Filtros</h3>
+          <label>Categoría
+            <select id="category" style="width:100%;padding:6px;border:1px solid #ddd">
+              <option value="">Todas</option>
+              <option>Servicios</option><option>Comida</option><option>Tiendas</option><option>Salud</option><option>Transporte</option><option>Tecnología</option>
+            </select>
+          </label>
         </div>
       </div>
+      <!-- Publicidad fija -->
+      <section class="local-ads">
+        <h3>Publicidad</h3>
+        <div class="ads-grid">
+          <div class="ad-card">
+            <a href="https://wa.me/240555218661" target="_blank">
+              <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
+              <p>Wap Tech & Services</p>
+            </a>
+          </div>
+          <div class="ad-card">
+            <a href="https://wa.me/240555218661" target="_blank">
+              <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
+              <p>CiberSegurida Prisma</p>
+            </a>
+          </div>
+        </div>
+      </section>
     </aside>
 
-    <!-- ===== MAIN ===== -->
-    <main>
-      <div class="headline">
-        <div class="biz-title">
-          <h3 id="bizTitle" style="margin:0">Selecciona un negocio</h3>
-          <span id="bizBadge" class="badge hide"><img src="aseo/icons8-verified-50.png" alt="V"/> Verificado</span>
+    <section>
+      <div class="card">
+        <div class="body">
+          <h3 id="bizTitle">Selecciona un negocio</h3>
+          <div id="results" class="grid"></div>
+          <div style="display:flex;justify-content:center;margin-top:12px">
+            <button id="nextBtn" class="btn" style="display:none">Next</button>
+          </div>
         </div>
-        <div class="muted">Catálogo 3× en móvil, 4–6 en escritorio • cards planas</div>
       </div>
-
-      <div id="results"></div>
-
-      <!-- ===== Carrusel de Anuncios ===== -->
-      <section class="ads">
-        <div class="head">
-          <h3 style="margin:0">Publicidad</h3>
-          <div class="muted" style="font-size:12px">desde API</div>
-        </div>
-        <div class="slider" id="adSlider">
-          <div class="slides" id="adSlides"></div>
-          <div class="nav">
-            <button id="adPrev" aria-label="Anterior">‹</button>
-            <button id="adNext" aria-label="Siguiente">›</button>
-          </div>
-        </div>
-        <div class="dots" id="adDots"></div>
-      </section>
-    </main>
+    </section>
   </div>
+</main>
 
-  <!-- ===================== FOOTER ===================== -->
-  <footer>
-    © WapMarket — UI claro/negro/plata; acciones naranja/negro. Aside colapsable en móvil. Carrusel de anuncios desde API.
-  </footer>
+<footer class="footer">
+  <span>© WapMarket</span>
+</footer>
 
-  <!-- ===================== API WRAPPER ===================== -->
-  <script>
-  // Si existe window.API (por /api.js propio del proyecto), lo usamos.
-  // Si no, definimos un wrapper básico a fetch.
-  const API = window.API || {
-    async get(path){
-      const res = await fetch(path, { credentials:'include' });
-      if(!res.ok) throw new Error('GET '+path+' '+res.status); return res.json();
-    },
-    async post(path, body){
-      const res = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), credentials:'include' });
-      if(!res.ok) throw new Error('POST '+path+' '+res.status); return res.json();
-    }
-  };
-  </script>
+<script src="/api.js"></script>
+<script>
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+document.getElementById('menuToggle').onclick=()=>{
+  sidebar.classList.toggle('visible-mobile');
+  overlay.classList.toggle('active');
+};
+overlay.onclick=()=>{
+  sidebar.classList.remove('visible-mobile');
+  overlay.classList.remove('active');
+};
 
-  <!-- ===================== APP SCRIPT ===================== -->
-  <script>
-    // ========================================================
-    // ESTADO & CONSTANTES
-    // ========================================================
-    const DELIVERY_FEE = 2000;
-    let businesses = [];
-    let selectedBusiness = null;
-    let currentProducts = [];
-    let cart = JSON.parse(localStorage.getItem('cart')||'[]');
+let selectedBusiness=null;
+let cart=[];
+let currentProducts=[];
 
-    const els = {
-      // Drawer
-      drawer: document.getElementById('drawer'),
-      drawerScrim: document.getElementById('drawerScrim'),
-      openDrawerBtn: document.getElementById('openDrawer'),
-      closeDrawerBtn: document.getElementById('closeDrawerBtn'),
-      // Biz lists
-      bizListDesk: document.getElementById('bizList'),
-      bizListDrawer: document.getElementById('bizListDrawer'),
-      bizSearchDesk: document.getElementById('bizSearchDesk'),
-      bizSearch: document.getElementById('bizSearch'),
-      // Results
-      results: document.getElementById('results'),
-      bizTitle: document.getElementById('bizTitle'),
-      bizBadge: document.getElementById('bizBadge'),
-      // Search
-      q: document.getElementById('q'),
-      btnSearch: document.getElementById('btnSearch'),
-      // Cart (desk)
-      cartBoxDesk: document.getElementById('cartBox'),
-      totalDesk: document.getElementById('totalDesk'),
-      deliveryChk: document.getElementById('deliveryChk'),
-      addressBox: document.getElementById('addressBox'),
-      address: document.getElementById('address'),
-      cname: document.getElementById('cname'),
-      cphone: document.getElementById('cphone'),
-      cnote: document.getElementById('cnote'),
-      checkoutDesk: document.getElementById('checkoutDesk'),
-      // Cart (drawer)
-      cartBoxDrawer: document.getElementById('cartBoxDrawer'),
-      totalDrawer: document.getElementById('totalDrawer'),
-      deliveryChkDrawer: document.getElementById('deliveryChkDrawer'),
-      addressBoxDrawer: document.getElementById('addressBoxDrawer'),
-      addressDrawer: document.getElementById('addressDrawer'),
-      cnameDrawer: document.getElementById('cnameDrawer'),
-      cphoneDrawer: document.getElementById('cphoneDrawer'),
-      cnoteDrawer: document.getElementById('cnoteDrawer'),
-      checkoutDrawer: document.getElementById('checkoutDrawer'),
-      // Cart button
-      cartBtn: document.getElementById('cartBtn'),
-      // Ads slider
-      adSlides: document.getElementById('adSlides'),
-      adDots: document.getElementById('adDots'),
-      adPrev: document.getElementById('adPrev'),
-      adNext: document.getElementById('adNext')
-    };
+function setBusiness(b){
+  selectedBusiness=b;
+  document.getElementById('bizTitle').innerHTML=
+    'Productos de '+b.name+(b.business_type==='verified'?'<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>':'');
+  loadProducts();
+}
 
-    // ========================================================
-    // DRAWER (MÓVIL)
-    // ========================================================
-    function openDrawer(){ els.drawer.classList.add('open'); els.drawerScrim.classList.add('open'); }
-    function closeDrawer(){ els.drawer.classList.remove('open'); els.drawerScrim.classList.remove('open'); }
-    els.openDrawerBtn.addEventListener('click', openDrawer);
-    els.closeDrawerBtn.addEventListener('click', closeDrawer);
-    els.drawerScrim.addEventListener('click', closeDrawer);
+async function loadBusinesses(){
+  const data=await API.get('/public/businesses');
+  const box=document.getElementById('bizList');
+  box.innerHTML='';
+  (data.items||[]).forEach(b=>{
+    const el=document.createElement('div');
+    el.style.cssText='padding:8px;border:1px solid #eee;margin:6px 0;cursor:pointer;background:#fff;';
+    el.innerHTML=`<strong>${b.name}</strong> ${b.business_type==='verified'?'<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>':''}`;
+    el.onclick=()=>{setBusiness(b);sidebar.classList.remove('visible-mobile');overlay.classList.remove('active');};
+    box.appendChild(el);
+  });
+  if((data.items||[]).length) setBusiness(data.items[0]);
+}
 
-    // ========================================================
-    // BÚSQUEDA
-    // ========================================================
-    document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); els.q.focus(); }});
-    els.btnSearch.addEventListener('click', ()=>{ if(selectedBusiness) loadProducts(); });
+async function loadProducts(){
+  if(!selectedBusiness)return;
+  const data=await API.get('/public/products?business_id='+selectedBusiness.id);
+  currentProducts=data.items||[];
+  const list=document.getElementById('results');
+  list.innerHTML='';
+  currentProducts.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='product-item';
+    el.innerHTML=`
+      <img class="thumb" src="${p.image_url||'https://placehold.co/600x400'}">
+      <div class="meta">
+        <div class="badge">${p.category||''}</div>
+        <h4>${p.title}</h4>
+        <div class="price">${p.price_xaf?Number(p.price_xaf).toLocaleString()+' XAF':''}</div>
+        <button class="btn" onclick="addToCart(${p.id})">Añadir</button>
+      </div>`;
+    list.appendChild(el);
+  });
+}
 
-    // ========================================================
-    // NEGOCIOS
-    // ========================================================
-    async function loadBusinesses(){
-      const data = await API.get('/public/businesses');
-      businesses = data.items || data || [];
-      renderBizLists();
-      if(!selectedBusiness && businesses.length){ setBusiness(businesses[0]); }
-    }
+function addToCart(id){
+  const p=currentProducts.find(x=>x.id==id);
+  if(!p) return;
+  cart.push({...p,qty:1});
+  renderCart();
+}
 
-    function renderBizLists(){
-      const makeCard = (b)=>{
-        const div = document.createElement('div');
-        div.className = 'biz-card';
-        div.innerHTML = `
-          <div style="width:14px;height:14px;background:linear-gradient(90deg,#111,#555);"></div>
-          <div>
-            <div class="biz-name">${b.name}</div>
-            <div class="biz-loc">${b.location||''}</div>
-            ${b.business_type==='verified' ? '<div class="v-badge"><img src="aseo/icons8-verified-50.png" alt="V"/> Verificado</div>' : ''}
-          </div>
-          <div style="font-weight:900;color:#111">→</div>`;
-        div.addEventListener('click',()=>{ setBusiness(b); if(window.innerWidth<981) closeDrawer(); });
-        return div;
-      };
-      els.bizListDesk.innerHTML = '';
-      els.bizListDrawer.innerHTML = '';
-      businesses.forEach(b=>{
-        els.bizListDesk.appendChild(makeCard(b));
-        els.bizListDrawer.appendChild(makeCard(b));
-      });
-    }
+function renderCart(){
+  const box=document.getElementById('cartItems');
+  box.innerHTML='';
+  cart.forEach(item=>{
+    const el=document.createElement('div');
+    el.textContent=item.title+' x'+item.qty;
+    box.appendChild(el);
+  });
+}
 
-    function filterBusinesses(term){
-      term = term.toLowerCase();
-      [els.bizListDesk, els.bizListDrawer].forEach(list=>{
-        list.querySelectorAll('.biz-card').forEach(card=>{
-          const name = card.querySelector('.biz-name')?.textContent?.toLowerCase()||'';
-          const loc  = card.querySelector('.biz-loc')?.textContent?.toLowerCase()||'';
-          card.style.display = (name.includes(term)||loc.includes(term))? 'grid':'none';
-        });
-      });
-    }
-    document.getElementById('btnBizSearchDesk').addEventListener('click',()=>filterBusinesses(els.bizSearchDesk.value.trim()));
-    document.getElementById('btnBizSearch').addEventListener('click',()=>filterBusinesses(els.bizSearch.value.trim()));
-    els.bizSearchDesk.addEventListener('input',e=>filterBusinesses(e.target.value));
-    els.bizSearch.addEventListener('input',e=>filterBusinesses(e.target.value));
-
-    function setBusiness(b){
-      selectedBusiness = b;
-      els.bizTitle.textContent = `Productos de ${b.name}`;
-      if(b.business_type==='verified'){ els.bizBadge.classList.remove('hide'); } else { els.bizBadge.classList.add('hide'); }
-      if(cart.length && cart[0].business_id !== b.id){
-        if(confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con '+b.name+'?')){ cart = []; saveCart(); } else { return; }
-      }
-      loadProducts();
-    }
-
-    // ========================================================
-    // PRODUCTOS
-    // ========================================================
-    async function loadProducts(){
-      if(!selectedBusiness) return;
-      const params = new URLSearchParams();
-      params.set('business_id', selectedBusiness.id);
-      const q = els.q.value.trim(); if(q) params.set('q', q);
-      const data = await API.get('/public/products?'+params.toString());
-      currentProducts = data.items || data || [];
-      renderProducts();
-    }
-
-    function renderProducts(){
-      els.results.innerHTML = '';
-      currentProducts.forEach(p=>{
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img class="thumb" src="${p.image_url || 'https://placehold.co/800x800?text=Producto'}" alt="${p.title||''}">
-          <div class="meta">
-            <span class="category">${p.category||'General'}</span>
-            <h4>${p.title||''}</h4>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString()+' XAF' : ''}</div>
-              <div class="cta">
-                <button class="btn-ghost" data-id="${p.id}" data-act="add">Añadir</button>
-                <a class="btn-orange" href="https://wa.me/240555218661?text=Hola! Me interesa ${encodeURIComponent(p.title||'este producto')}" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-          </div>`;
-        els.results.appendChild(card);
-      });
-
-      // Delegación para añadir al carrito
-      els.results.onclick = (e)=>{
-        const btn = e.target.closest('button[data-id]'); if(!btn) return;
-        const id = btn.dataset.id;
-        const p = currentProducts.find(x=>String(x.id)===String(id)); if(!p) return;
-        if (cart.length && cart[0].business_id !== p.business_id){
-          if(!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a '+(selectedBusiness?.name||'este negocio')+'?')) return;
-          cart = [];
-        }
-        const exists = cart.find(x=>x.id===p.id);
-        if (exists) exists.qty = Number(exists.qty||1)+1;
-        else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id:p.business_id });
-        saveCart();
-      };
-    }
-
-    // ========================================================
-    // CARRITO
-    // ========================================================
-    function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartUI(); }
-
-    function updateCartUI(){
-      // contador en icono
-      const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
-      els.cartBtn.setAttribute('data-has-items', count>0 ? 'true' : 'false');
-
-      const renderLines = (box)=>{
-        box.innerHTML = '';
-        let subtotal = 0;
-        cart.forEach((item, idx)=>{
-          const div = document.createElement('div');
-          div.className = 'cart-line';
-          div.innerHTML = `
-            <img src="${item.image_url || 'https://placehold.co/80'}" alt="">
-            <div>
-              <div style="font-weight:900">${item.title}</div>
-              <div class="muted" style="font-size:12px">${(item.price_xaf||0).toLocaleString()} XAF • ${item.category||''}</div>
-            </div>
-            <div class="qtyctl">
-              <button data-idx="${idx}" data-act="dec">-</button>
-              <span style="font-weight:900">${item.qty}</span>
-              <button data-idx="${idx}" data-act="inc">+</button>
-            </div>
-            <button class="btn black" data-idx="${idx}" data-act="del">Quitar</button>`;
-          subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
-          box.appendChild(div);
-        });
-        return subtotal;
-      };
-
-      const subtotalDesk = renderLines(els.cartBoxDesk);
-      const subtotalDrawer = renderLines(els.cartBoxDrawer);
-
-      const totalDesk = subtotalDesk + (els.deliveryChk.checked? DELIVERY_FEE:0);
-      const totalDrawer = subtotalDrawer + (els.deliveryChkDrawer.checked? DELIVERY_FEE:0);
-      els.totalDesk.textContent = totalDesk.toLocaleString() + ' XAF';
-      els.totalDrawer.textContent = totalDrawer.toLocaleString() + ' XAF';
-
-      // Click handlers (delegación) — desk
-      els.cartBoxDesk.onclick = (e)=>{
-        const btn = e.target.closest('button'); if(!btn) return;
-        const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-        if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-        if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-        if (act==='del') cart.splice(i,1);
-        saveCart();
-      };
-      // Click handlers — drawer
-      els.cartBoxDrawer.onclick = (e)=>{
-        const btn = e.target.closest('button'); if(!btn) return;
-        const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-        if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-        if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-        if (act==='del') cart.splice(i,1);
-        saveCart();
-      };
-    }
-
-    // Delivery toggles
-    function syncDeliveryBoxes(){
-      els.addressBox.classList.toggle('hide', !els.deliveryChk.checked);
-      els.addressBoxDrawer.classList.toggle('hide', !els.deliveryChkDrawer.checked);
-      updateCartUI();
-    }
-    els.deliveryChk.addEventListener('change', syncDeliveryBoxes);
-    els.deliveryChkDrawer.addEventListener('change', syncDeliveryBoxes);
-
-    // CHECKOUT (desk + drawer)
-    async function doCheckout(source){
-      if(!cart.length) return alert('Tu carrito está vacío');
-      const isDesk = source==='desk';
-      const payload = {
-        items: cart.map(c=>({ product_id:c.id, qty:c.qty })),
-        customer_name: isDesk? els.cname.value : els.cnameDrawer.value,
-        customer_phone: isDesk? els.cphone.value : els.cphoneDrawer.value,
-        address: (isDesk? els.deliveryChk.checked : els.deliveryChkDrawer.checked) ? (isDesk? els.address.value : els.addressDrawer.value) : undefined,
-        note: isDesk? els.cnote.value : els.cnoteDrawer.value,
-        delivery: isDesk? els.deliveryChk.checked : els.deliveryChkDrawer.checked
-      };
-      try{
-        const res = await API.post('/public/cart/checkout', payload);
-        if(res.error){ alert(res.error); return; }
-        alert('Pedido confirmado. Código: '+res.group_id+'\nTotal: '+(res.total_xaf||0).toLocaleString()+' XAF');
-        cart = []; saveCart();
-        if(!isDesk) closeDrawer();
-      }catch(err){
-        alert('Error en checkout: '+(err.message||err));
-      }
-    }
-    els.checkoutDesk.addEventListener('click', ()=>doCheckout('desk'));
-    els.checkoutDrawer.addEventListener('click', ()=>doCheckout('drawer'));
-
-    // ========================================================
-    // PUBLICIDAD — Carrusel desde API
-    // Endpoint esperado: GET /api/ads → [{id,image,link,title}]
-    // ========================================================
-    let ads = [];
-    let adIndex = 0;
-    let adTimer = null;
-
-    async function loadAds(){
-      try{
-        const data = await API.get('/api/ads');
-        ads = Array.isArray(data)? data : (data.items||[]);
-        renderAds();
-        startAuto();
-      }catch(err){
-        // fallback silencioso
-        ads = [];
-      }
-    }
-
-    function renderAds(){
-      els.adSlides.innerHTML = '';
-      els.adDots.innerHTML = '';
-      ads.forEach((a, i)=>{
-        const slide = document.createElement('div');
-        slide.className = 'slide';
-        slide.innerHTML = `<a href="${a.link||'#'}" target="_blank" rel="noopener">
-          <img src="${a.image||'https://placehold.co/1600x600?text=Publicidad'}" alt="${a.title||''}">
-        </a>`;
-        els.adSlides.appendChild(slide);
-
-        const dot = document.createElement('div');
-        dot.className = 'dot'+(i===0?' active':'');
-        dot.addEventListener('click', ()=>goTo(i));
-        els.adDots.appendChild(dot);
-      });
-      updateSlider();
-    }
-
-    function updateSlider(){
-      const width = els.adSlides.clientWidth;
-      els.adSlides.style.transform = `translateX(-${adIndex*width}px)`;
-      els.adDots.querySelectorAll('.dot').forEach((d,i)=>{
-        d.classList.toggle('active', i===adIndex);
-      });
-    }
-
-    function prev(){ adIndex = (adIndex-1+ads.length)%ads.length; updateSlider(); }
-    function next(){ adIndex = (adIndex+1)%ads.length; updateSlider(); }
-    function goTo(i){ adIndex = i%ads.length; updateSlider(); restartAuto(); }
-
-    function startAuto(){
-      stopAuto(); if(ads.length<=1) return;
-      adTimer = setInterval(next, 5000);
-    }
-    function stopAuto(){ if(adTimer){ clearInterval(adTimer); adTimer=null; } }
-    function restartAuto(){ stopAuto(); startAuto(); }
-
-    els.adPrev.addEventListener('click', ()=>{ prev(); restartAuto(); });
-    els.adNext.addEventListener('click', ()=>{ next(); restartAuto(); });
-    window.addEventListener('resize', updateSlider);
-
-    // ========================================================
-    // INIT
-    // ========================================================
-    function init(){
-      syncDeliveryBoxes();
-      updateCartUI();
-      loadBusinesses();
-      loadAds();
-    }
-
-    init();
-  </script>
+loadBusinesses();
+</script>
 </body>
 </html>
