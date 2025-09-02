@@ -420,6 +420,33 @@ section .card{ background: transparent !important; border:none !important; }
 /* Keep verified badge visible */
 .verified-badge img{ filter: none !important; }
 
+  
+/* ===== EXTRA ADJUSTMENTS (mobile grid, background, filters, cart modal) ===== */
+
+/* 1. Background unified to Amazon light gray */
+body{ background:#eaeded !important; }
+
+/* 2. Mobile grid 3x3 (instead of 2x2 or 1) */
+@media (max-width:900px){
+  #results.grid{grid-template-columns: repeat(3, minmax(0,1fr)) !important;}
+}
+@media (max-width:520px){
+  #results.grid{grid-template-columns: repeat(3, minmax(0,1fr)) !important;}
+  .search{ width:100% !important; }
+  .search input{ width:100% !important; }
+}
+
+/* 3. Filters: remove graphical background, just plain text */
+.chip{ background:transparent !important; border:none !important; padding:0 !important; text-decoration:none !important; }
+
+/* 4. Align header elements */
+.header .row{ flex-wrap:nowrap !important; justify-content:space-between !important; }
+.search{ flex:1 !important; margin:0 8px !important; }
+#btnOpenCart{ margin-left:8px !important; }
+
+/* 5. Modal cart above topbar */
+.modal{ z-index:100 !important; }
+
   </style>
 </head>
 <body>
