@@ -471,6 +471,21 @@ body{display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;}
 .pagination button{min-width:32px;height:32px;border-radius:4px;border:1px solid #ddd;background:#fff;cursor:pointer;font-weight:600;}
 .pagination button.active{background:#febd69;border-color:#f0a947;color:#111;}
 
+
+/* ===== EXTRA RESPONSIVE FIXES ===== */
+
+/* Grid always 2x2 on small screens */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Card content alignment */
+.product-card{display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:12px;}
+.product-card img{max-width:100%;height:auto;margin-bottom:8px;}
+.product-card h3,.product-card p{margin:4px 0;}
+.product-card .price{font-weight:700;margin-top:6px;}
+.product-card .actions{margin-top:auto;display:flex;gap:8px;justify-content:center;}
+
 </style>
 </head>
 <body>
