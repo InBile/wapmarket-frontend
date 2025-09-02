@@ -486,6 +486,32 @@ body{display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;}
 .product-card .price{font-weight:700;margin-top:6px;}
 .product-card .actions{margin-top:auto;display:flex;gap:8px;justify-content:center;}
 
+
+/* ===== CONSISTENCY FIXES ===== */
+
+/* Ensure header always full width and not cut */
+.header{position:sticky;top:0;left:0;right:0;width:100%;z-index:200;}
+
+/* Wrapper should not collapse */
+.wrapper{max-width:1200px;margin:0 auto;padding:0 12px;box-sizing:border-box;width:100%;}
+
+/* Grid consistency */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:stretch;}
+
+/* Force consistent card sizing */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;padding:12px;background:#fff;border:1px solid #ddd;box-sizing:border-box;}
+
+/* Prevent oversized cards */
+.product-card img{max-width:100%;height:auto;object-fit:contain;}
+
+/* Responsive 2x2 layout on phones */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Ensure body takes full width and no overflow */
+body{margin:0;width:100%;overflow-x:hidden;}
+
 </style>
 </head>
 <body>
