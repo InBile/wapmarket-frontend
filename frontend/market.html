@@ -463,54 +463,23 @@ body{ background:#eaeded !important; }
 
   
 /* ===== RESPONSIVE + PAGINATION FIXES ===== */
+
+/* Ensure header always visible and aligned */
 .header{position:sticky;top:0;width:100%;z-index:100;background:#131921;}
+
+/* Wrapper fix */
 .wrapper{max-width:1200px;margin:0 auto;padding:16px;box-sizing:border-box;}
+
+/* Body layout */
 body{display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;}
+
+/* Product grid stable */
 #results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr)) !important;gap:16px;}
+
+/* Pagination */
 .pagination{display:flex;gap:6px;justify-content:center;margin:20px 0;flex-wrap:wrap;}
 .pagination button{min-width:32px;height:32px;border-radius:4px;border:1px solid #ddd;background:#fff;cursor:pointer;font-weight:600;}
 .pagination button.active{background:#febd69;border-color:#f0a947;color:#111;}
-
-
-/* ===== EXTRA RESPONSIVE FIXES ===== */
-
-/* Grid always 2x2 on small screens */
-@media(max-width:768px){
-  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
-}
-
-/* Card content alignment */
-.product-card{display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:12px;}
-.product-card img{max-width:100%;height:auto;margin-bottom:8px;}
-.product-card h3,.product-card p{margin:4px 0;}
-.product-card .price{font-weight:700;margin-top:6px;}
-.product-card .actions{margin-top:auto;display:flex;gap:8px;justify-content:center;}
-
-
-/* ===== CONSISTENCY FIXES ===== */
-
-/* Ensure header always full width and not cut */
-.header{position:sticky;top:0;left:0;right:0;width:100%;z-index:200;}
-
-/* Wrapper should not collapse */
-.wrapper{max-width:1200px;margin:0 auto;padding:0 12px;box-sizing:border-box;width:100%;}
-
-/* Grid consistency */
-#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:stretch;}
-
-/* Force consistent card sizing */
-.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;padding:12px;background:#fff;border:1px solid #ddd;box-sizing:border-box;}
-
-/* Prevent oversized cards */
-.product-card img{max-width:100%;height:auto;object-fit:contain;}
-
-/* Responsive 2x2 layout on phones */
-@media(max-width:768px){
-  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
-}
-
-/* Ensure body takes full width and no overflow */
-body{margin:0;width:100%;overflow-x:hidden;}
 
 </style>
 </head>
@@ -579,10 +548,7 @@ body{margin:0;width:100%;overflow-x:hidden;}
           </div>
 
           <div id="results" class="grid"></div>
-<div id="paginationBox" class="pagination"></div>
-          <div style="display:flex;justify-content:center;margin-top:12px">
-            <button id="nextBtn" class="btn" style="display:none">Ver más</button>
-          </div>
+          <div id="paginationBox" class="pagination"></div>
         </div>
       </div>
 
