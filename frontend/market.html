@@ -1171,59 +1171,5 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   cart = []; saveCart(); closeCart();
 });
 </script>
-
-<style>
-/* Limit pagination dots to max 4 visible */
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  max-width: 160px; /* enough for 4 dots */
-  overflow: hidden;
-  margin: 10px auto;
-}
-.carousel-dots button {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 1px solid #999;
-  background: #e0e0e0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.carousel-dots button:hover {
-  background: #bbb;
-}
-.carousel-dots button.active {
-  background: #333;
-  border-color: #333;
-  transform: scale(1.2);
-}
-</style>
-<script>
-// JS logic: keep only 4 dots visible centered around the active one
-document.addEventListener("DOMContentLoaded", () => {
-  const dotsContainer = document.querySelector(".carousel-dots");
-  if (!dotsContainer) return;
-  const dots = Array.from(dotsContainer.querySelectorAll("button"));
-  function updateDots(activeIndex) {
-    dots.forEach((dot, i) => {
-      if (Math.abs(i - activeIndex) <= 2) {
-        dot.style.display = "inline-block";
-      } else {
-        dot.style.display = "none";
-      }
-    });
-    dots[activeIndex].style.display = "inline-block";
-  }
-  dots.forEach((dot, i) => {
-    dot.addEventListener("click", () => {
-      updateDots(i);
-    });
-  });
-  updateDots(0);
-});
-</script>
-
 </body>
 </html>
