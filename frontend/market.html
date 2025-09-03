@@ -730,10 +730,10 @@ function renderProductsPage(){
           <span class="badge">${p.category || ''}</span>
           ${p.price_xaf ? `<span class="price">${Number(p.price_xaf).toLocaleString()} XAF</span>` : '<span></span>'}
         </div>
-        <h4 style="margin:8px 0 8px; font-size:1.02rem">${p.title}</h4>
+        <h4 style="margin:8px 0 8px; font-size:1.02rem"><a href="product_detail.html?id=${p.id}" style="color:inherit;text-decoration:none">${p.title}</a></h4>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between">
           <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
-          <button class="btn ghost" data-prev="${p.image_url || ''}" title="Vista">Vista</button>
+          <a class="btn ghost" href="product_detail.html?id=${p.id}" title="Ver más">Ver más</a>
         </div>
       </div>`;
     list.appendChild(el);
