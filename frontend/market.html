@@ -650,6 +650,8 @@ footer{background:#eaeded!important;color:#111!important;margin-top:auto!importa
 }
 
 </style>
+
+<link rel="stylesheet" href="wapmarket_v16.css">
 </head>
 <body>
 
@@ -1191,5 +1193,18 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   cart = []; saveCart(); closeCart();
 });
 </script>
+
+<!-- v16: disable pagination and keep full list -->
+<script>
+try{
+  // neutralize pagination if exists
+  window.pageSize = Number.MAX_SAFE_INTEGER;
+  window.currentPage = 1;
+  if(typeof renderPagination === 'function'){
+    renderPagination = function(){ const el = document.getElementById('paginationBox'); if(el) el.remove(); };
+  }
+} catch(e){}
+</script>
+
 </body>
 </html>
