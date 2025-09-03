@@ -704,6 +704,7 @@ async function loadBusinesses(){
     el.onmouseenter=()=>el.style.transform='translateY(-2px)';
     el.onmouseleave=()=>el.style.transform='translateY(0)';
     el.innerHTML = `
+      <a href="product_detail.html?id=${p.id}" style="text-decoration:none;color:inherit;display:block">
       <strong style="font-size:1.02rem">${b.name}</strong>
       ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
       <div class="small">${b.location||''}</div>`;
@@ -724,6 +725,7 @@ function renderProductsPage(){
     const el = document.createElement('div');
     el.className = 'product-item';
     el.innerHTML = `
+      <a href="product_detail.html?id=${p.id}" style="text-decoration:none;color:inherit;display:block">
       <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
       <div class="meta">
         <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
@@ -733,9 +735,11 @@ function renderProductsPage(){
         <h4 style="margin:8px 0 8px; font-size:1.02rem"><a href="product_detail.html?id=${p.id}" style="color:inherit;text-decoration:none">${p.title}</a></h4>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between">
           <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
-          <a class="btn ghost" href="product_detail.html?id=${p.id}" title="Ver más">Ver más</a>
+          <a class="btn ghost ver-mas" href="product_detail.html?id=${p.id}" title="Ver más">Ver más</a>
         </div>
       </div>`;
+          </a>
+    `;
     list.appendChild(el);
   });
 
