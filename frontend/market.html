@@ -190,7 +190,12 @@
 
     /* ====== MODALES / DRAWER CARRITO ====== */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:stretch;justify-content:flex-end;padding:0;z-index:40}
-    
+    .dialog{
+      background:var(--card); width:min(480px, 100%); height:100%; overflow:auto;
+      box-shadow: var(--shadow-lg); border-left:1px solid rgba(0,0,0,.08);
+      padding:16px 16px 24px;
+      animation: slideIn .25s ease both;
+    }
     @keyframes slideIn{from{transform:translateX(30px); opacity:0} to{transform:translateX(0); opacity:1}}
     .small{font-size:.92em;color:var(--muted)}
     .kbd{font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -395,7 +400,12 @@ section .card{ background: transparent !important; border:none !important; }
 
 /* Modal (Cart) => Amazon checkout vibe */
 .modal{ background: rgba(0,0,0,.5) !important; }
-
+.dialog{
+  border-left: none !important;
+  border-radius:0 !important;
+  width:min(520px,100%) !important;
+  background:#fff !important;
+}
 #cartModal .dialog h3{ font-weight:800 !important; }
 #cartItems img{ border-radius:4px !important; }
 #totals{ color:#111 !important; font-size:1.05rem !important; }
@@ -410,73 +420,7 @@ section .card{ background: transparent !important; border:none !important; }
 /* Keep verified badge visible */
 .verified-badge img{ filter: none !important; }
 
-  
-/* ===== EXTRA ADJUSTMENTS (mobile grid, background, filters, cart modal) ===== */
-
-/* 1. Background unified to Amazon light gray */
-body{ background:#eaeded !important; }
-
-/* 2. Mobile grid 3x3 (instead of 2x2 or 1) */
-@media (max-width:900px){
-  #results.grid{grid-template-columns: repeat(3, minmax(0,1fr)) !important;}
-}
-@media (max-width:520px){
-  #results.grid{grid-template-columns: repeat(3, minmax(0,1fr)) !important;}
-  .search{ width:100% !important; }
-  .search input{ width:100% !important; }
-}
-
-/* 3. Filters: remove graphical background, just plain text */
-.chip{ background:transparent !important; border:none !important; padding:0 !important; text-decoration:none !important; }
-
-/* 4. Align header elements */
-.header .row{ flex-wrap:nowrap !important; justify-content:space-between !important; }
-.search{ flex:1 !important; margin:0 8px !important; }
-#btnOpenCart{ margin-left:8px !important; }
-
-/* 5. Modal cart above topbar */
-.modal{ z-index:100 !important; }
-
-  
-/* ===== FINAL ADJUSTMENTS ===== */
-
-/* 1. Mobile grid 2x2 instead of 3x3 */
-@media (max-width:900px){
-  #results.grid{grid-template-columns: repeat(2, minmax(0,1fr)) !important;}
-}
-@media (max-width:520px){
-  #results.grid{grid-template-columns: repeat(2, minmax(0,1fr)) !important;}
-}
-
-/* 2. Filters only text (remove emojis manually with CSS hiding technique) */
-.chip::after, .chip::before{ display:none !important; }
-
-  
-/* ===== FIXED MODAL Z-INDEX & CLEAN CASCADE ===== */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999 !important;
-}
-.dialog {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  position: relative;
-  z-index: 10000 !important;
-}
-
-</style>
+  </style>
 </head>
 <body>
 
