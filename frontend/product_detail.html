@@ -100,7 +100,7 @@ async function loadRelated(businessId, excludeId){
   const grid = document.getElementById('relatedGrid');
   grid.innerHTML = items.map(p=>`
     <div class="product">
-      <a href="product_detail_related.html?id=${p.id}" style="text-decoration:none;color:inherit">
+      <a href="product_detail_fixed.html?id=${p.id}" style="text-decoration:none;color:inherit">
         <img src="${p.image_url||'https://placehold.co/400x300'}" alt="${p.title}">
         <div class="info">
           <h4>${p.title}</h4>
