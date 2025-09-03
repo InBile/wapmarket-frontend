@@ -1,215 +1,486 @@
-
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WapMarket — Nueva Experiencia</title>
+  <title>WapMarket — Experiencia Moderna</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #f4f5f7;
-      --card: #fff;
-      --text: #111;
-      --muted: #666;
-      --primary: #2563eb;
-      --accent: #f97316;
-      --radius: 14px;
-      --shadow: 0 6px 20px rgba(0,0,0,.08);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'Inter',system-ui,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      display:flex;flex-direction:column;min-height:100vh;
-    }
-    header{
-      background:#fff;
-      border-bottom:1px solid #ddd;
-      padding:12px 20px;
-      text-align:center;
-      position:sticky;top:0;z-index:50;
-      box-shadow:0 2px 6px rgba(0,0,0,.05);
-    }
-    header h1{font-size:1.5rem;font-weight:800;color:var(--primary)}
-    .wrapper{max-width:1200px;margin:0 auto;padding:20px;width:100%}
-    /* Filtros */
-    .filters{display:flex;gap:16px;justify-content:center;margin:16px 0;flex-wrap:wrap}
-    .filter{background:none;border:none;font-size:1rem;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 10px;position:relative}
-    .filter.active{color:var(--primary)}
-    .filter.active::after{content:"";position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--primary)}
-    /* Grid productos */
-    #results{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-    .product-item{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      display:flex;flex-direction:column;
-      transition:transform .2s;
-    }
-    .product-item:hover{transform:translateY(-3px)}
-    .thumb{width:100%;aspect-ratio:1/1;object-fit:cover}
-    .meta{padding:12px}
-    .meta h4{font-size:1rem;font-weight:600;margin-bottom:6px}
-    .price{color:var(--accent);font-weight:800;margin-bottom:10px}
-    .actions{display:flex;gap:8px}
-    .btn{flex:1;padding:8px 10px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-    .btn.primary{background:var(--primary);color:#fff}
-    .btn.ghost{background:#f3f4f6;color:var(--text)}
-    /* Carrito modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:100}
-    .dialog{
-      background:#fff;
-      border-radius:var(--radius);
-      width:min(480px,90%);
-      max-height:90vh;
-      overflow:auto;
-      padding:20px;
-      box-shadow:var(--shadow);
-      animation:fadeIn .25s ease both;
-    }
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-    footer{
-      background:#fff;
-      border-top:1px solid #ddd;
-      text-align:center;
-      padding:14px;
-      margin-top:auto;
-      font-size:.9rem;
-      color:var(--muted);
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<header>
-  <h1>WapMarket</h1>
-</header>
-<main class="wrapper">
-  <div class="filters" id="chips"></div>
-  <div id="results"></div>
-  <div style="text-align:center;margin-top:20px">
-    <button id="nextBtn" class="btn primary" style="display:none">Ver más</button>
+<header class="topbar">
+  <div class="container row spread">
+    <div class="logo">
+      <span class="mark"></span>
+      <span>WapMarket</span>
+    </div>
+    <form class="search" id="searchForm" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos o servicios…" autocomplete="off" />
+      <button id="btnBuscar" class="btn primary" aria-label="Buscar">Buscar</button>
+      <ul id="suggBox" class="sugg" role="listbox" aria-label="Sugerencias"></ul>
+    </form>
+    <div class="actions">
+      <button class="btn ghost" id="modeToggle" title="Cambiar tema">🌙</button>
+      <button class="cart-btn" id="btnOpenCart" aria-label="Abrir carrito" data-count="0">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.45A2 2 0 0 0 10 19h9v-2h-9l1.1-2h6.45a2 2 0 0 0 1.79-1.11L22 7H6.21l-.94-2zM7 20a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 .001 4A2 2 0 0 0 17 20z" fill="currentColor"/></svg>
+      </button>
+    </div>
   </div>
+</header>
+
+<main class="container layout">
+  <aside class="sidebar">
+    <section class="card">
+      <h3>Negocios disponibles</h3>
+      <div id="bizList" class="biz-list"></div>
+    </section>
+
+    <section class="card">
+      <h3>Filtros</h3>
+      <div id="filters" class="filters"></div>
+      <select id="category" hidden>
+        <option value="">Todas</option>
+        <option>Servicios</option><option>Comida</option><option>Tiendas</option>
+        <option>Salud</option><option>Transporte</option><option>Tecnología</option>
+      </select>
+    </section>
+
+    <section class="card">
+      <h3>Publicidad</h3>
+      <div class="ads">
+        <div class="ads-track" id="adsTrack">
+          <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
+            <img src="https://placehold.co/600x300?text=Wap+Tech+%26+Services" alt="Wap Tech & Services">
+            <span>Wap Tech & Services</span>
+          </a>
+          <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
+            <img src="https://placehold.co/600x300?text=CiberSeguridad+Prisma" alt="CiberSeguridad Prisma">
+            <span>CiberSeguridad Prisma</span>
+          </a>
+          <a class="ad" href="https://wa.me/240555218661" target="_blank" rel="noopener">
+            <img src="https://placehold.co/600x300?text=Ofertas+del+Mes" alt="Ofertas del Mes">
+            <span>Ofertas del Mes</span>
+          </a>
+        </div>
+        <div class="ads-nav">
+          <button class="ads-btn" data-dir="-1" aria-label="Anterior">‹</button>
+          <div class="ads-dots" id="adsDots"></div>
+          <button class="ads-btn" data-dir="1" aria-label="Siguiente">›</button>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <section class="content">
+    <div class="card soft">
+      <div class="row spread wrap">
+        <h2 id="bizTitle">Selecciona un negocio</h2>
+        <div class="pagination" id="paginationBox"></div>
+      </div>
+
+      <div id="featuredWrap" class="featured hidden">
+        <div class="feat-track" id="featCarousel"></div>
+        <div class="feat-nav">
+          <button class="feat-btn" data-dir="-1" data-target="feat" aria-label="Anterior">‹</button>
+          <div class="feat-dots" id="featDots"></div>
+          <button class="feat-btn" data-dir="1" data-target="feat" aria-label="Siguiente">›</button>
+        </div>
+      </div>
+
+      <div id="results" class="grid"></div>
+      <div class="center mt">
+        <button id="nextBtn" class="btn primary" style="display:none">Ver más</button>
+      </div>
+    </div>
+  </section>
 </main>
 
-<!-- Carrito -->
-<div class="modal" id="cartModal">
+<!-- Modal Carrito -->
+<div class="modal" id="cartModal" aria-hidden="true">
   <div class="dialog">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h2>Tu Carrito</h2>
-      <button class="btn ghost" onclick="closeCart()">✕</button>
+    <div class="row spread">
+      <h3>Tu carrito</h3>
+      <button class="btn ghost" type="button" onclick="closeCart()">✕</button>
     </div>
-    <div id="cartInfo" style="margin-bottom:8px;font-size:.9rem;color:var(--muted)"></div>
+    <div id="cartInfo" class="muted mb"></div>
     <div id="cartItems"></div>
-    <div id="totals" style="margin:16px 0;font-weight:700"></div>
-    <form id="checkoutForm" style="display:grid;gap:10px">
-      <input id="cname" placeholder="Tu nombre (opcional)" style="padding:10px;border:1px solid #ddd;border-radius:8px">
-      <input id="cphone" placeholder="Teléfono (WhatsApp)" required style="padding:10px;border:1px solid #ddd;border-radius:8px">
-      <textarea id="cnote" placeholder="Nota" style="padding:10px;border:1px solid #ddd;border-radius:8px"></textarea>
-      <button class="btn primary" type="submit">Confirmar pedido</button>
+    <div id="totals" class="totals"></div>
+    <form id="checkoutForm" class="form">
+      <label>Tu nombre (opcional)
+        <input id="cname">
+      </label>
+      <label>Teléfono (WhatsApp)
+        <input id="cphone" required>
+      </label>
+      <label>Nota
+        <textarea id="cnote" placeholder="Ej: Entrega 18:00"></textarea>
+      </label>
+      <div class="row end gap">
+        <button class="btn primary" type="submit">Confirmar pedido</button>
+        <button class="btn ghost" type="button" onclick="closeCart()">Cerrar</button>
+      </div>
     </form>
   </div>
 </div>
 
-<footer>© 2025 WapMarket — Nueva Experiencia</footer>
+<footer class="footer">
+  <div class="container">
+    <span>© WapMarket — pulsa <kbd>/</kbd> para buscar</span>
+  </div>
+</footer>
 
 <script src="/api.js"></script>
 <script>
-/* === Manteniendo lógica original simplificada === */
+// ======= ESTADO & UTILIDADES =======
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentProducts = [];
 let pageSize = 20, currentPage = 1;
+const qInput = document.getElementById('q');
+const suggBox = document.getElementById('suggBox');
 
-function saveCart(){localStorage.setItem('cart',JSON.stringify(cart));}
-function closeCart(){document.getElementById('cartModal').style.display='none';}
-function openCart(){document.getElementById('cartModal').style.display='flex';renderCart();}
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a + Number(c.qty||1), 0);
+  const btn = document.getElementById('btnOpenCart');
+  btn.setAttribute('data-count', String(count));
+}
+function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
 
-function categoryChipsInit(){
-  const categories=["Todas","Servicios","Comida","Tiendas","Salud","Transporte","Tecnología"];
-  const wrap=document.getElementById('chips');
-  wrap.innerHTML='';
+// Tema oscuro
+const modeToggle = document.getElementById('modeToggle');
+function applyTheme(t){
+  document.body.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  modeToggle.textContent = t==='dark' ? '☀️' : '🌙';
+}
+applyTheme(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+modeToggle.addEventListener('click', ()=>applyTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+// ======= NEGOCIOS =======
+function bizBadge(isVerified){
+  return isVerified ? '<span class="v-badge" title="Verificado" aria-label="Verificado"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".12"/><path d="M9.5 12.5l2 2 4-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : '';
+}
+function setBusiness(b){
+  selectedBusiness = b;
+  document.getElementById('bizTitle').innerHTML = 'Productos de ' + b.name + (b.business_type==='verified' ? ' ' + bizBadge(true) : '');
+  // Cambiar carrito si pertenece a otro negocio
+  if (cart.length && cart[0].business_id !== b.id){
+    if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
+      cart = []; saveCart();
+    }
+  }
+  currentPage = 1;
+  loadProducts();
+}
+async function loadBusinesses(){
+  const data = await API.get('/public/businesses');
+  const box = document.getElementById('bizList');
+  box.innerHTML='';
+  (data.items||[]).forEach(b=>{
+    const el = document.createElement('button');
+    el.className='biz';
+    el.innerHTML = '<div class="biz-name">'+b.name+(b.business_type==='verified'?bizBadge(true):'')+'</div>'+
+                   (b.location?'<div class="muted">'+b.location+'</div>':'');
+    el.addEventListener('click', ()=>setBusiness(b));
+    box.appendChild(el);
+  });
+  if(!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+}
+
+// ======= FILTROS =======
+function initFilters(){
+  const categories = ["Todas","Servicios","Comida","Tiendas","Salud","Transporte","Tecnología"];
+  const wrap = document.getElementById('filters'); wrap.innerHTML='';
   categories.forEach(cat=>{
-    const b=document.createElement('button');
-    b.className='filter'+(cat==="Todas"?' active':'');b.textContent=cat;
-    b.onclick=()=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='filter-link'+(cat==='Todas'?' active':'');
+    btn.textContent = cat;
+    btn.dataset.value = cat==='Todas' ? '' : cat;
+    btn.onclick = ()=>{
       [...wrap.children].forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      document.getElementById('category').value=(cat==="Todas"?"":cat);
-      if(selectedBusiness) loadProducts();
+      btn.classList.add('active');
+      document.getElementById('category').value = btn.dataset.value;
+      if (selectedBusiness) loadProducts();
     };
-    wrap.appendChild(b);
+    wrap.appendChild(btn);
   });
 }
 
-async function loadBusinesses(){
-  const data=await API.get('/public/businesses');
-  if((data.items||[]).length){selectedBusiness=data.items[0];loadProducts();}
-}
-
-async function loadProducts(){
-  if(!selectedBusiness) return;
-  const data=await API.get('/public/products?business_id='+selectedBusiness.id);
-  currentProducts=data.items||[];currentPage=1;renderProductsPage();
-}
-
+// ======= PRODUCTOS =======
 function renderProductsPage(){
-  const list=document.getElementById('results');
-  list.innerHTML='';
-  const start=(currentPage-1)*pageSize;
-  const items=currentProducts.slice(start,start+pageSize);
-  items.forEach(p=>{
-    const el=document.createElement('div');
-    el.className='product-item';
-    el.innerHTML=`
-      <img class="thumb" src="${p.image_url||'https://placehold.co/600x600'}">
-      <div class="meta">
-        <h4>${p.title}</h4>
-        <div class="price">${p.price_xaf?Number(p.price_xaf).toLocaleString()+" XAF":""}</div>
-        <div class="actions">
+  const list = document.getElementById('results');
+  list.innerHTML = '';
+  const start = (currentPage-1)*pageSize;
+  const pageItems = currentProducts.slice(start, start+pageSize);
+
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'card product';
+    el.innerHTML = `
+      <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="${p.title}">
+      <div class="p12">
+        <div class="row spread vcenter">
+          <span class="chip">${p.category || ''}</span>
+          ${p.price_xaf ? `<span class="price">${Number(p.price_xaf).toLocaleString()} XAF</span>` : '<span></span>'}
+        </div>
+        <h4 class="title">${p.title}</h4>
+        <div class="row gap">
           <button class="btn primary" data-id="${p.id}">Añadir</button>
-          <button class="btn ghost" onclick="openCart()">Ver carrito</button>
+          <button class="btn ghost" data-prev="${p.image_url||''}" onclick="openCart()">Carrito</button>
         </div>
       </div>`;
     list.appendChild(el);
   });
-  list.onclick=e=>{
-    const btn=e.target.closest('button[data-id]');
-    if(!btn) return;
-    const p=currentProducts.find(x=>x.id==btn.dataset.id);
-    if(p){cart.push({...p,qty:1});saveCart();}
+
+  // Añadir al carrito (delegación)
+  list.onclick = (e)=>{
+    const addBtn = e.target.closest('button[data-id]');
+    if(addBtn){
+      const id = addBtn.dataset.id;
+      const p = currentProducts.find(x=>x.id == id);
+      if(!p) return;
+      if (cart.length && cart[0].business_id !== p.business_id){
+        if(!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a este negocio?')) return;
+        cart = [];
+      }
+      const exists = cart.find(x=>x.id===p.id);
+      if (exists) exists.qty = Number(exists.qty||1)+1;
+      else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+      saveCart();
+    }
+  };
+
+  // Botón "Ver más"
+  const nextBtn = document.getElementById('nextBtn');
+  const hasMore = start + pageSize < currentProducts.length;
+  nextBtn.style.display = hasMore ? 'inline-block' : 'none';
+}
+function renderFeatured(){
+  const wrap = document.getElementById('featuredWrap');
+  const car = document.getElementById('featCarousel');
+  const dots = document.getElementById('featDots');
+  if (!currentProducts.length){ wrap.classList.add('hidden'); return; }
+
+  const items = currentProducts.slice(0, Math.min(6, currentProducts.length));
+  car.innerHTML = items.map(p=>`
+    <div class="feat-slide">
+      <img src="${p.image_url || 'https://placehold.co/1200x480?text=WapMarket'}" alt="${p.title}">
+      <div class="feat-caption">
+        <strong>${p.title}</strong> ${p.price_xaf ? '• '+Number(p.price_xaf).toLocaleString()+' XAF':''}
+      </div>
+    </div>`).join('');
+
+  dots.innerHTML = '';
+  items.forEach((_,i)=>{
+    const d=document.createElement('button'); d.className='dot'+(i===0?' active':''); d.type='button';
+    d.addEventListener('click',()=>featGo(i));
+    dots.appendChild(d);
+  });
+  wrap.classList.remove('hidden');
+
+  let idx=0;
+  function featGo(i){
+    const slides = items.length;
+    idx = (i+slides)%slides;
+    car.style.transform = `translateX(-${idx*100}%)`;
+    [...dots.children].forEach((d,j)=>d.classList.toggle('active', j===idx));
+  }
+  document.querySelectorAll('.feat-btn[data-target="feat"]').forEach(b=>{
+    b.onclick=()=>featGo(idx + Number(b.dataset.dir||1));
+  });
+}
+
+// Navegación/paginación
+function renderPagination(){
+  const box = document.getElementById('paginationBox');
+  box.innerHTML = '';
+  const total = currentProducts.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  if (pages <= 1) return;
+
+  const prev = document.createElement('button');
+  prev.className = 'page';
+  prev.textContent = '‹';
+  prev.disabled = currentPage===1;
+  prev.onclick = ()=>{ if(currentPage>1){ currentPage--; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'});} };
+  box.appendChild(prev);
+
+  for(let i=1; i<=pages; i++){
+    const b=document.createElement('button');
+    b.className='page'+(i===currentPage?' active':'');
+    b.textContent=String(i);
+    b.onclick=()=>{ currentPage=i; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+    box.appendChild(b);
+  }
+
+  const next = document.createElement('button');
+  next.className = 'page';
+  next.textContent = '›';
+  next.disabled = currentPage===pages;
+  next.onclick = ()=>{ if(currentPage<pages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'});} };
+  box.appendChild(next);
+}
+
+// ======= CARRITO =======
+function renderCart(){
+  const box = document.getElementById('cartItems');
+  const info = document.getElementById('cartInfo');
+  if (!cart.length){
+    box.innerHTML = '<p class="muted">Tu carrito está vacío.</p>';
+    info.textContent=''; document.getElementById('totals').textContent=''; return;
+  }
+  info.textContent = 'Items: ' + cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  box.innerHTML = '';
+  let subtotal = 0;
+  cart.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.className='cart-line';
+    div.innerHTML = `
+      <img src="${item.image_url || 'https://placehold.co/80'}" alt="">
+      <div class="cart-meta">
+        <strong>${item.title}</strong>
+        <span class="muted">${(item.price_xaf||0).toLocaleString()} XAF • ${item.category||''}</span>
+        <div class="row gap">
+          <button class="btn ghost" data-idx="${idx}" data-act="dec">-</button>
+          <span>${item.qty}</span>
+          <button class="btn ghost" data-idx="${idx}" data-act="inc">+</button>
+          <button class="btn danger" data-idx="${idx}" data-act="del">Quitar</button>
+        </div>
+      </div>`;
+    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+    box.appendChild(div);
+  });
+  const total = subtotal;
+  document.getElementById('totals').textContent = 'Total: ' + total.toLocaleString() + ' XAF';
+  box.onclick = (e)=>{
+    const btn = e.target.closest('button[data-idx]'); if(!btn) return;
+    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+    if (act==='del') cart.splice(i,1);
+    saveCart(); renderCart();
   }
 }
 
-function renderCart(){
-  const box=document.getElementById('cartItems');
-  box.innerHTML='';
-  let subtotal=0;
-  cart.forEach((item,i)=>{
-    subtotal+=item.price_xaf*item.qty;
-    const div=document.createElement('div');
-    div.style.margin='10px 0';
-    div.innerHTML=`<strong>${item.title}</strong> - ${item.price_xaf} XAF (x${item.qty})`;
-    box.appendChild(div);
+// ======= ADS =======
+(function initAds(){
+  const track = document.getElementById('adsTrack');
+  const dotsBox = document.getElementById('adsDots');
+  if (!track || !dotsBox) return;
+  const slides = Array.from(track.children);
+  let idx=0;
+
+  slides.forEach((_,i)=>{
+    const dot=document.createElement('button');
+    dot.className='dot'+(i===0?' active':''); dot.type='button';
+    dot.addEventListener('click',()=>go(i));
+    dotsBox.appendChild(dot);
   });
-  document.getElementById('totals').textContent="Total: "+subtotal.toLocaleString()+" XAF";
+  function go(i){
+    idx=(i+slides.length)%slides.length;
+    track.style.transform = `translateX(-${idx*100}%)`;
+    [...dotsBox.children].forEach((d,j)=>d.classList.toggle('active', j===idx));
+  }
+  document.querySelectorAll('.ads-btn').forEach(b=>{
+    b.addEventListener('click',()=> go(idx + Number(b.dataset.dir||1)));
+  });
+  // track.addEventListener('touchstart',... ) // (opcional)
+})();
+
+// ======= FETCH =======
+async function loadProducts(){
+  if (!selectedBusiness) return;
+  const q = document.getElementById('q').value.trim();
+  const cat = document.getElementById('category').value;
+  const params = new URLSearchParams();
+  params.set('business_id', selectedBusiness.id);
+  if (q) params.set('q', q);
+  if (cat) params.set('category', cat);
+  const data = await API.get('/public/products?' + params.toString());
+  currentProducts = data.items || [];
+  currentPage = 1;
+  renderFeatured();
+  renderProductsPage();
+  renderPagination();
+  renderSuggestions();
 }
 
-document.getElementById('checkoutForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  if(!cart.length) return alert("Carrito vacío");
-  const payload={items:cart.map(c=>({product_id:c.id,qty:c.qty})),customer_phone:document.getElementById('cphone').value};
-  const res=await API.post('/public/cart/checkout',payload);
-  if(res.error) return alert(res.error);
-  alert("Pedido confirmado. Código: "+res.group_id);
-  cart=[];saveCart();closeCart();
+// ======= BUSCADOR =======
+let typingTimer;
+function renderSuggestions(){
+  const term = qInput.value.trim().toLowerCase();
+  if(!term || !currentProducts.length){ suggBox.style.display='none'; return; }
+  const matches = currentProducts.filter(p => (p.title||'').toLowerCase().includes(term)).slice(0,8);
+  if(!matches.length){ suggBox.style.display='none'; return; }
+  suggBox.innerHTML = matches.map(m=>`
+    <li role="option" data-id="${m.id}">
+      <img src="${m.image_url || 'https://placehold.co/64'}" alt="">
+      <div><strong>${m.title}</strong><div class="muted">${m.category||''} ${m.price_xaf? '• '+Number(m.price_xaf).toLocaleString()+' XAF':''}</div></div>
+    </li>`).join('');
+  suggBox.style.display='block';
+  suggBox.querySelectorAll('li').forEach(li=>{
+    li.onclick=()=>{
+      const id = li.dataset.id;
+      const p = currentProducts.find(x=>''+x.id === ''+id);
+      if (p){
+        qInput.value = p.title;
+        suggBox.style.display='none';
+        const idx = currentProducts.findIndex(x=>x.id===p.id);
+        currentPage = Math.floor(idx / pageSize) + 1;
+        renderProductsPage();
+        const itemEl = [...document.querySelectorAll('.product')][idx % pageSize];
+        if (itemEl) itemEl.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    };
+  });
+}
+qInput.addEventListener('input', ()=>{
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(()=>{ if(selectedBusiness) loadProducts(); }, 250);
+  renderSuggestions();
+});
+qInput.addEventListener('focus', ()=>renderSuggestions());
+document.addEventListener('click', e=>{ if(!e.target.closest('.search')) suggBox.style.display='none'; });
+document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+
+// Tecla / para foco
+document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); qInput.focus(); } });
+
+// Botones principales
+document.getElementById('btnOpenCart').addEventListener('click', openCart);
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const maxPages = Math.ceil(currentProducts.length / pageSize);
+  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
 });
 
-function init(){categoryChipsInit();loadBusinesses();}
+// Checkout
+document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (!cart.length) return alert('Tu carrito está vacío');
+  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+  const payload = {
+    items,
+    customer_name: document.getElementById('cname').value,
+    customer_phone: document.getElementById('cphone').value,
+    note: document.getElementById('cnote').value
+  };
+  const res = await API.post('/public/cart/checkout', payload);
+  if (res.error){ alert(res.error); return; }
+  alert('Pedido confirmado. Código: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
+  cart = []; saveCart(); closeCart();
+});
+
+// INIT
+function init(){
+  updateCartCount();
+  initFilters();
+  loadBusinesses();
+}
 init();
 </script>
 </body>
