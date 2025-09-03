@@ -512,6 +512,123 @@ body{display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;}
 /* Ensure body takes full width and no overflow */
 body{margin:0;width:100%;overflow-x:hidden;}
 
+
+/* ===== STYLE BUG FIXES ===== */
+
+/* Ensure body background consistent */
+body{background:#eaeded!important;color:#111;}
+
+/* Reset section backgrounds to transparent */
+section, .section, .content, .container{background:transparent!important;}
+
+/* Business containers consistent look */
+.business-card{background:#fff!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;}
+
+/* Fix results container background */
+#results{background:transparent!important;}
+
+
+/* ===== FINAL STYLE CONSISTENCY FIXES ===== */
+
+/* Business list container */
+#businessList, .business-card{
+  background:#fff!important;
+  color:#111!important;
+  border:1px solid #ddd!important;
+  padding:10px;
+  border-radius:4px;
+  margin-bottom:8px;
+}
+
+/* Business list text */
+#businessList h3, #businessList p, .business-card h3, .business-card p{
+  color:#111!important;
+}
+
+/* Publicidad section background */
+#ads, .ads-section, .publicidad, .ad-card{
+  background:#eaeded!important;
+  color:#111!important;
+  border:none!important;
+}
+
+/* Ensure footer consistent */
+footer{
+  background:#eaeded!important;
+  color:#111!important;
+}
+
+
+/* ===== v13 RESPONSIVE & CONSISTENCY FIXES ===== */
+
+/* Topbar fixes */
+.header{position:sticky;top:0;left:0;right:0;width:100%!important;z-index:200;background:#131921!important;}
+.header .row{display:flex;align-items:center;flex-wrap:nowrap!important;gap:8px;}
+.search{flex:1!important;min-width:0;}
+.search input{width:100%!important;}
+#btnOpenCart{flex-shrink:0;}
+
+/* Body background uniform */
+body{background:#eaeded!important;color:#111;overflow-x:hidden;margin:0;}
+
+/* Product grid */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:16px;align-items:stretch;}
+
+/* Always 2x2 on very small screens */
+@media(max-width:600px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Product cards */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;background:#fff;border:1px solid #ddd;box-sizing:border-box;padding:12px;}
+.product-card img{max-width:100%;height:auto;object-fit:contain;margin-bottom:8px;}
+.product-card h3,.product-card p,.product-card .price{margin:4px 0;}
+
+/* Business list cards */
+.business-card{background:#fff!important;color:#111!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;margin-bottom:10px;text-align:center;}
+.business-card h3,.business-card p{color:#111!important;}
+
+/* Ads / Publicidad */
+#ads,.ads-section,.publicidad,.ad-card{background:#eaeded!important;color:#111!important;border:none!important;}
+.wa-carousel-wrap{background:#eaeded!important;border:none!important;}
+
+/* Footer */
+footer{background:#eaeded!important;color:#111!important;}
+
+
+/* ===== v14 STRUCTURE & RESPONSIVE FIXES ===== */
+
+/* Ensure full height layout */
+html, body {min-height:100%!important;width:100%!important;margin:0;padding:0;}
+body{display:flex;flex-direction:column;min-height:100vh!important;background:#eaeded!important;color:#111;overflow-x:hidden;}
+
+/* Wrapper fills width */
+.wrapper{max-width:1200px;margin:0 auto;padding:0 12px;box-sizing:border-box;width:100%!important;}
+
+/* Grid consistency */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:16px;align-items:stretch;width:100%;}
+
+/* Force 2x2 on small screens */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Product cards */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;background:#fff;border:1px solid #ddd;box-sizing:border-box;padding:12px;}
+.product-card img{max-width:100%;height:auto;object-fit:contain;margin-bottom:8px;}
+.product-card h3,.product-card p,.product-card .price{margin:4px 0;}
+
+/* Business cards */
+.business-card{background:#fff!important;color:#111!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;margin-bottom:10px;text-align:center;}
+.business-card h3,.business-card p{color:#111!important;}
+
+/* Ads consistency */
+#ads,.ads-section,.publicidad,.ad-card{background:#eaeded!important;color:#111!important;border:none!important;}
+.wa-carousel-wrap{background:#eaeded!important;border:none!important;}
+
+/* Footer anchored */
+footer{background:#eaeded!important;color:#111!important;margin-top:auto!important;width:100%!important;}
+
 </style>
 </head>
 <body>
