@@ -50,7 +50,7 @@
         radial-gradient(1200px 600px at 100% -10%,rgba(138,91,255,.06),transparent 60%),
         radial-gradient(1200px 600px at -10% 110%,rgba(91,140,255,.06),transparent 60%),
         var(--bg);
-      font-family:'Futura PT', system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Futura PT', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
       color:var(--text);
       display:flex;
       flex-direction:column;
@@ -461,7 +461,101 @@ body{ background:#eaeded !important; }
 /* 2. Filters only text (remove emojis manually with CSS hiding technique) */
 .chip::after, .chip::before{ display:none !important; }
 
-  </style>
+  
+/* ==== USER OVERRIDES (requested) ==== */
+/* Force header wrapper to use full device width so header never shrinks on small phones */
+.header > .wrapper {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+/* Keep row items spaced and not wrapped on small screens */
+.header .row {
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+/* Ensure cart modal appears above everything (including header/topbar) */
+.modal {
+  z-index: 99999 !important;
+}
+
+/* Apple-like typography for the whole platform and modal text */
+body, input, textarea, button, select {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, "Futura PT", system-ui !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Slightly lighter weight for modal text to mimic Apple's UI */
+.dialog, .dialog * {
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Cards & product grid: make them dynamic/responsive to any screen width */
+#results.grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: var(--gap) !important;
+}
+
+/* Make product meta layout stack reliably so name, price and category are always visible */
+.product-item .meta {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+}
+
+/* Name first, price and category clearly visible */
+.product-item h4 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  color: inherit !important;
+}
+
+/* Price emphasized */
+.product-item .price {
+  font-size: 1.06rem !important;
+  font-weight: 800 !important;
+  color: inherit !important;
+}
+
+/* Badge (category) secondary but visible */
+.product-item .badge {
+  font-size: 0.88rem !important;
+  padding: 4px 6px !important;
+}
+
+/* Ensure thumb adapts and keeps aspect ratio while being flexible */
+.product-item .thumb {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3 !important;
+  object-fit: cover !important;
+}
+
+/* Buttons: keep them usable on small screens */
+.product-item .meta > div:last-child {
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: 6px !important;
+}
+
+/* Small screens: make header elements stack neatly but header still full width */
+@media (max-width:420px) {
+  .header > .wrapper { padding-left: 8px !important; padding-right: 8px !important; }
+  .search input { height: 40px !important; }
+  #btnBuscar { height: 40px !important; padding: 0 12px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -724,18 +818,19 @@ function renderProductsPage(){
     const el = document.createElement('div');
     el.className = 'product-item';
     el.innerHTML = `
-      <img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
-      <div class="meta">
-        <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
-          <span class="badge">${p.category || ''}</span>
-          ${p.price_xaf ? `<span class="price">${Number(p.price_xaf).toLocaleString()} XAF</span>` : '<span></span>'}
-        </div>
-        <h4 style="margin:8px 0 8px; font-size:1.02rem">${p.title}</h4>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between">
-          <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
-          <button class="btn ghost" data-prev="${p.image_url || ''}" title="Vista">Vista</button>
-        </div>
-      </div>`;
+<img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
+<div class="meta">
+  <h4 style="margin:0 0 4px; font-size:1rem">${p.title}</h4>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString() + ' XAF' : ''}</span>
+    <span class="badge">${p.category || ''}</span>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:space-between;margin-top:6px">
+    <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
+    <button class="btn ghost" data-prev="${p.image_url || ''}" title="Vista">Vista</button>
+  </div>
+</div>
+`;
     list.appendChild(el);
   });
 
