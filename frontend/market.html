@@ -464,12 +464,16 @@ body{ background:#eaeded !important; }
   
 /* ==== USER OVERRIDES (requested) ==== */
 /* Force header wrapper to use full device width so header never shrinks on small phones */
+
 .header > .wrapper {
   max-width: 100% !important;
+  width: 100vw !important;
   margin: 0 !important;
   padding-left: 12px !important;
   padding-right: 12px !important;
+  box-sizing: border-box !important;
 }
+
 
 /* Keep row items spaced and not wrapped on small screens */
 .header .row {
@@ -498,7 +502,8 @@ body, input, textarea, button, select {
 
 /* Cards & product grid: make them dynamic/responsive to any screen width */
 #results.grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
   gap: var(--gap) !important;
 }
 
@@ -551,7 +556,16 @@ body, input, textarea, button, select {
 
 /* Small screens: make header elements stack neatly but header still full width */
 @media (max-width:420px) {
-  .header > .wrapper { padding-left: 8px !important; padding-right: 8px !important; }
+  
+.header > .wrapper {
+  max-width: 100% !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+
   .search input { height: 40px !important; }
   #btnBuscar { height: 40px !important; padding: 0 12px !important; }
 }
