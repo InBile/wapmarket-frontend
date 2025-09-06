@@ -569,6 +569,56 @@ body, input, textarea, button, select {
   .search input { height: 40px !important; }
   #btnBuscar { height: 40px !important; padding: 0 12px !important; }
 }
+
+/* ==== CONSOLIDATED OVERRIDES ==== */
+
+/* Remove variation between verified/unverified businesses by normalizing grid */
+#results.grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: var(--gap) !important;
+  width: 100% !important;
+}
+
+/* Ensure header never cuts */
+.header > .wrapper {
+  max-width: 100% !important;
+  width: 100vw !important;
+  margin: 0 auto !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+
+/* Normalize product card buttons visibility */
+.product-item .meta > div:last-child {
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-top: 6px !important;
+  flex-wrap: nowrap !important;
+}
+
+.product-item button.btn,
+.product-item button.btn.ghost {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Ensure cards look the same across all contexts */
+.product-item {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Remove carousel dots for product navigation */
+.slick-dots, .glide__bullets, .swiper-pagination {
+  display: none !important;
+}
 </style>
 </head>
 <body>
