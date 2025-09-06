@@ -224,7 +224,7 @@
     .wa-slide p{margin:8px 0 12px;font-size:14px}
     .wa-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
     .wa-btn{background:linear-gradient(90deg,var(--brand1),var(--brand2));color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;box-shadow:var(--shadow)}
-    .wa-dots{display:flex;gap:6px;flex:1;justify-content:center}
+    .wa-dots{display:none;gap:6px;flex:1;justify-content:center}
     .wa-dot{width:8px;height:8px;border-radius:50%;background:#cfcfcf;border:none}
     .wa-dot.active{background:linear-gradient(90deg,var(--brand1),var(--brand2))}
     @media (max-width:520px){.wa-slide img{height:190px} .wa-btn{width:40px;height:40px}}
@@ -764,6 +764,32 @@ html, body { overflow-x: hidden !important; }
   </div>
 </header>
 
+<!-- Publicidad principal (movida arriba, debajo del header) -->
+<section class="wa-ads" aria-label="Publicidad" style="margin:16px auto;max-width:1200px">
+  <div class="wa-carousel-wrap">
+    <div class="wa-carousel" id="topAdsCarousel">
+      <div class="wa-slide">
+        <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
+          <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
+          <p>Wap Tech &amp; Services</p>
+        </a>
+      </div>
+      <div class="wa-slide">
+        <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
+          <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
+          <p>CiberSeguridad Prisma</p>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="wa-nav">
+    <button class="wa-btn" type="button" data-dir="-1" aria-label="Anterior">‹</button>
+    <div class="wa-dots" id="topAdsDots"></div>
+    <button class="wa-btn" type="button" data-dir="1" aria-label="Siguiente">›</button>
+  </div>
+</section>
+
+
 <main class="wrapper">
   <div class="layout">
     <aside>
@@ -819,32 +845,7 @@ html, body { overflow-x: hidden !important; }
         </div>
       </div>
 
-      <!-- Publicidad WhatsApp (MANTENIDA) -->
-      <section class="wa-ads" aria-label="Publicidad">
-        <h3>Publicidad</h3>
-        <div class="wa-carousel-wrap">
-          <div class="wa-carousel" id="waCarousel">
-            <div class="wa-slide">
-              <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
-                <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
-                <p>Wap Tech &amp; Services</p>
-              </a>
-            </div>
-            <div class="wa-slide">
-              <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
-                <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
-                <p>CiberSeguridad Prisma</p>
-              </a>
-            </div>
-            <!-- Puedes añadir más slides conservando el formato -->
-          </div>
-        </div>
-        <div class="wa-nav">
-          <button class="wa-btn" type="button" data-dir="-1" aria-label="Anterior">‹</button>
-          <div class="wa-dots" id="waDots"></div>
-          <button class="wa-btn" type="button" data-dir="1" aria-label="Siguiente">›</button>
-        </div>
-      </section>
+      
     </section>
   </div>
 </main>
@@ -930,3 +931,426 @@ let pageSize = 20;
 let currentPage = 1;
 
 const qInput = document.getElementById('q');
+const suggBox = document.getElementById('suggBox');
+
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  document.getElementById('btnOpenCart').setAttribute('data-has-items', count>0 ? 'true' : 'false');
+}
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
+function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
+
+/* Publicidad modal (conservada) */
+function openAdsInfo(){ var m=document.getElementById('adsModal'); if(m) m.style.display='flex'; }
+function closeAdsInfo(){ var m=document.getElementById('adsModal'); if(m) m.style.display='none'; }
+
+document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+
+function categoryChipsInit(){
+  const categories = ["Todas","Servicios","Comida","Tiendas","Salud","Transporte","Tecnología"];
+  const wrap = document.getElementById('chips');
+  wrap.innerHTML = '';
+  categories.forEach(cat=>{
+    const b = document.createElement('button');
+    b.type='button'; b.className='chip'+(cat==="Todas"?' active':''); b.textContent=cat+(cat==="Comida"?' 🍔':cat==="Servicios"?' ⚡':cat==="Transporte"?' 🚗':cat==="Tecnología"?' 💻':'');
+    b.dataset.value = cat==="Todas" ? "" : cat;
+    b.addEventListener('click', ()=>{
+      [...wrap.children].forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById('category').value = b.dataset.value;
+      if (selectedBusiness) loadProducts();
+    });
+    wrap.appendChild(b);
+  });
+}
+
+function setBusiness(b){
+  selectedBusiness = b;
+  document.getElementById('bizTitle').innerHTML =
+    'Productos de ' + b.name + (b.business_type==='verified'
+      ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>'
+      : '');
+  if (cart.length && cart[0].business_id !== b.id){
+    if (confirm('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?')){
+      cart = []; saveCart();
+    }
+  }
+  currentPage = 1;
+  loadProducts();
+}
+
+async function loadBusinesses(){
+  const data = await API.get('/public/businesses');
+  const box = document.getElementById('bizList');
+  box.innerHTML = '';
+  (data.items||[]).forEach(b=>{
+    const el = document.createElement('div');
+    el.style.cssText = 'padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s ease';
+    el.onmouseenter=()=>el.style.transform='translateY(-2px)';
+    el.onmouseleave=()=>el.style.transform='translateY(0)';
+    el.innerHTML = `
+      <strong style="font-size:1.02rem">${b.name}</strong>
+      ${b.business_type==='verified' ? '<span class="verified-badge"><img src="/aset/icons8-verified-50.png" alt="Verificado"></span>' : ''}
+      <div class="small">${b.location||''}</div>`;
+    el.addEventListener('click', ()=> setBusiness(b));
+    box.appendChild(el);
+  });
+  if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
+  if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+}
+
+function renderProductsPage(){
+  const list = document.getElementById('results');
+  list.innerHTML = '';
+  const start = (currentPage-1)*pageSize;
+  const pageItems = currentProducts.slice(start, start+pageSize);
+
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'product-item';
+    el.innerHTML = `
+<img class="thumb" src="${p.image_url || 'https://placehold.co/600x400?text=WapMarket'}" alt="">
+<div class="meta">
+  <h4 style="margin:0 0 4px; font-size:1rem">${p.title}</h4>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString() + ' XAF' : ''}</span>
+    <span class="badge">${p.category || ''}</span>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:space-between;margin-top:6px">
+    <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
+    <button class="btn ghost" data-prev="${p.image_url || ''}" title="Vista">Vista</button>
+  </div>
+</div>
+`;
+    list.appendChild(el);
+  });
+
+  const nextBtn = document.getElementById('nextBtn');
+  if (currentProducts.length > pageSize){
+    const startPlus = start + pageSize;
+    nextBtn.style.display = startPlus < currentProducts.length ? 'inline-block' : 'none';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  // acción de añadir
+  list.onclick = (e)=>{
+    const addBtn = e.target.closest('button[data-id]');
+    if(addBtn){
+      const id = addBtn.dataset.id;
+      const p = currentProducts.find(x=>x.id == id);
+      if (!p) return;
+
+      if (cart.length && cart[0].business_id !== p.business_id){
+        if (!confirm('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?')) return;
+        cart = [];
+      }
+      const exists = cart.find(x=>x.id===p.id);
+      if (exists) exists.qty = Number(exists.qty||1)+1;
+      else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+      saveCart();
+
+      // microinteracción
+      addBtn.style.transform='scale(0.96)';
+      setTimeout(()=>addBtn.style.transform='',120);
+    }
+  };
+}
+
+function renderFeatured(){
+  const wrap = document.getElementById('featuredWrap');
+  const car = document.getElementById('featCarousel');
+  const dots = document.getElementById('featDots');
+  if (!currentProducts.length){ wrap.style.display='none'; return; }
+
+  const items = currentProducts.slice(0, Math.min(6, currentProducts.length));
+  car.innerHTML = items.map(p=>`
+    <div class="wa-slide">
+      <a href="javascript:void(0)">
+        <img src="${p.image_url || 'https://placehold.co/1200x480?text=WapMarket'}" alt="${p.title}">
+        <p style="font-weight:800">${p.title} ${p.price_xaf ? '• '+Number(p.price_xaf).toLocaleString()+' XAF':''}</p>
+      </a>
+    </div>`).join('');
+
+  dots.innerHTML = '';
+  items.forEach((_,i)=>{
+    const d = document.createElement('button'); d.className='wa-dot'+(i===0?' active':''); d.type='button';
+    d.addEventListener('click',()=>featGo(i));
+    dots.appendChild(d);
+  });
+
+  wrap.style.display='block';
+
+  let idx=0;
+  function featGo(i){
+    const slides = items.length;
+    idx = (i+slides)%slides;
+    car.style.transform = `translateX(-${idx*100}%)`;
+    [...dots.children].forEach((d,j)=>d.classList.toggle('active', j===idx));
+  }
+  document.querySelectorAll('.wa-btn[data-target="feat"]').forEach(b=>{
+    b.onclick=()=>featGo(idx + Number(b.dataset.dir||1));
+  });
+}
+
+async function loadProducts(){
+  if (!selectedBusiness) return;
+  const q = document.getElementById('q').value.trim();
+  const cat = document.getElementById('category').value;
+  const params = new URLSearchParams();
+  params.set('business_id', selectedBusiness.id);
+  if (q) params.set('q', q);
+  if (cat) params.set('category', cat);
+  const data = await API.get('/public/products?' + params.toString());
+  currentProducts = data.items || [];
+  currentPage = 1;
+  renderFeatured();
+  renderProductsPage();
+  renderSuggestions(); // refresca lista de sugerencias si está abierta
+}
+
+function renderCart(){
+  const box = document.getElementById('cartItems');
+  const info = document.getElementById('cartInfo');
+  if (!cart.length){
+    box.innerHTML = '<p class="small">Tu carrito está vacío.</p>';
+    info.textContent=''; document.getElementById('totals').textContent=''; return;
+  }
+  info.textContent = 'Negocio: ' + (selectedBusiness && cart[0].business_id===selectedBusiness.id ? selectedBusiness.name : ('#' + cart[0].business_id));
+  box.innerHTML = '';
+  let subtotal = 0;
+  cart.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.style.margin='8px 0';
+    div.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:12px;border:1px solid rgba(0,0,0,.08)">
+        <div style="flex:1">
+          <div><strong>${item.title}</strong></div>
+          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <button class="btn ghost" data-idx="${idx}" data-act="dec">-</button>
+            <span style="min-width:24px;text-align:center">${item.qty}</span>
+            <button class="btn ghost" data-idx="${idx}" data-act="inc">+</button>
+            <button class="btn" data-idx="${idx}" data-act="del">Quitar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+    box.appendChild(div);
+  });
+  const delivery = document.getElementById('deliveryChk').checked;
+  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+  document.getElementById('totals').textContent =
+    'Subtotal: ' + subtotal.toLocaleString() + ' XAF' + (delivery? ' + Envío: 2.000 XAF = Total: ' + total.toLocaleString() + ' XAF' : ' = Total: ' + total.toLocaleString() + ' XAF');
+  box.onclick = (e)=>{
+    const btn = e.target.closest('button.btn,button.btn.ghost'); if(!btn) return;
+    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+    if (act==='del') cart.splice(i,1);
+    saveCart(); renderCart();
+  }
+}
+
+document.getElementById('deliveryChk').addEventListener('change', (e)=>{
+  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
+  renderCart();
+});
+
+document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); qInput.focus(); } });
+
+// Paginación
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const maxPages = Math.ceil(currentProducts.length / pageSize);
+  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
+});
+
+/* ====== BUSCADOR: Búsqueda en vivo + sugerencias locales ====== */
+let typingTimer;
+qInput.addEventListener('input', ()=>{
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(()=>{ if(selectedBusiness) loadProducts(); }, 250); // debounce
+  renderSuggestions();
+});
+qInput.addEventListener('focus', ()=>renderSuggestions());
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search')) suggBox.style.display='none';
+});
+
+function renderSuggestions(){
+  const term = qInput.value.trim().toLowerCase();
+  if(!term || !currentProducts.length){ suggBox.style.display='none'; return; }
+  const matches = currentProducts
+    .filter(p => (p.title||'').toLowerCase().includes(term))
+    .slice(0,8);
+  if(!matches.length){ suggBox.style.display='none'; return; }
+  suggBox.innerHTML = matches.map(m=>`
+    <li role="option" data-id="${m.id}">
+      <img src="${m.image_url || 'https://placehold.co/80'}" alt="">
+      <div style="display:flex;flex-direction:column">
+        <strong style="line-height:1.1">${m.title}</strong>
+        <span class="small">${m.category||''} ${m.price_xaf? '• '+Number(m.price_xaf).toLocaleString()+' XAF':''}</span>
+      </div>
+    </li>`).join('');
+  suggBox.style.display='block';
+
+  suggBox.querySelectorAll('li').forEach(li=>{
+    li.onclick=()=>{
+      const id = li.dataset.id;
+      const p = currentProducts.find(x=>''+x.id === ''+id);
+      if (p){
+        qInput.value = p.title;
+        suggBox.style.display='none';
+        // scroll to item
+        const idx = currentProducts.findIndex(x=>x.id===p.id);
+        currentPage = Math.floor(idx / pageSize) + 1;
+        renderProductsPage();
+        const itemEl = [...document.querySelectorAll('.product-item')][idx % pageSize];
+        if (itemEl) itemEl.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    };
+  });
+}
+
+/* ====== CARRUSEL WHATSAPP (MANTENIDO) ====== */
+(function initWaCarousel(){
+  const carousel = document.getElementById('waCarousel');
+  const dotsBox = document.getElementById('waDots');
+  const btns = document.querySelectorAll('.wa-btn:not([data-target])');
+  if (!carousel || !dotsBox) return;
+
+  const slides = Array.from(carousel.children);
+  let idx = 0;
+
+  // Crear dots
+  slides.forEach((_,i)=>{
+    const dot=document.createElement('button');
+    dot.className='wa-dot'+(i===0?' active':'');
+    dot.type='button';
+    dot.addEventListener('click',()=>go(i));
+    dotsBox.appendChild(dot);
+  });
+
+  function go(i){
+    idx = (i+slides.length)%slides.length;
+    carousel.style.transform = `translateX(-${idx*100}%)`;
+    [...dotsBox.children].forEach((d,j)=>d.classList.toggle('active', j===idx));
+  }
+
+  btns.forEach(b=>{
+    b.addEventListener('click',()=>{
+      const dir = Number(b.dataset.dir||1);
+      go(idx+dir);
+    });
+  });
+
+  // Swipe táctil
+  let startX=0;
+  carousel.addEventListener('touchstart',e=>{ startX=e.touches[0].clientX; }, {passive:true});
+  carousel.addEventListener('touchend',e=>{
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx)>40) go(idx + (dx<0?1:-1));
+  });
+
+  // Auto-advance opcional (desactivado).
+  // setInterval(()=>go(idx+1), 6000);
+})();
+
+/* ====== INIT ====== */
+function init(){
+  categoryChipsInit();
+  updateCartCount();
+  loadBusinesses();
+}
+init();
+
+/* ====== CHECKOUT ====== */
+document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (!cart.length) return alert('Tu carrito está vacío');
+  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+  const delivery = document.getElementById('deliveryChk').checked;
+  const payload = {
+    items,
+    customer_name: document.getElementById('cname').value,
+    customer_phone: document.getElementById('cphone').value,
+    address: delivery ? document.getElementById('address').value : undefined,
+    note: document.getElementById('cnote').value,
+    delivery
+  };
+  const res = await API.post('/public/cart/checkout', payload);
+  if (res.error){ alert(res.error); return; }
+  alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
+  cart = []; saveCart(); closeCart();
+});
+</script>
+
+<!-- WAPMARKET FIXES: minimal JS to enforce dash-dots and autoplay -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    var search = document.querySelector('.search');
+    if (search) { search.style.minWidth='0'; }
+
+    // Convert existing dots to dashes (inline style fallback)
+    document.querySelectorAll('.wa-dots button, #waDots button, #featDots button, .wa-dot').forEach(function(b){
+      b.style.width='26px';
+      b.style.height='6px';
+      b.style.borderRadius='4px';
+      b.style.margin='0 6px';
+      b.style.padding='0';
+      b.style.background = b.classList.contains('active') ? '' : b.style.background;
+    });
+
+    // Autoplay helper (if carousel exists)
+    function setupAutoplay(carouselSelector, dotsSelector){
+      var carousel = document.querySelector(carouselSelector);
+      var dotsBox = document.querySelector(dotsSelector);
+      if (!carousel || !dotsBox) return;
+      var slides = carousel.children.length || 0;
+      if (slides <= 1) return;
+      var dots = dotsBox.querySelectorAll('button');
+      var idx = 0;
+      // If already has interval, clear it
+      window.__wap_autoplay = window.__wap_autoplay || {};
+      if (window.__wap_autoplay[carouselSelector]) clearInterval(window.__wap_autoplay[carouselSelector]);
+      window.__wap_autoplay[carouselSelector] = setInterval(function(){
+        idx = (idx + 1) % slides;
+        carousel.style.transform = 'translateX(-' + (idx * 100) + '%)';
+        dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+      }, 4200);
+    }
+    setupAutoplay('#featCarousel','#featDots');
+    setupAutoplay('#waCarousel','#waDots');
+  } catch(e){
+    console && console.warn && console.warn('Wap fixes failed', e);
+  }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // Filtro estilo Amazon (mostrar/ocultar)
+  const modal = document.getElementById('filterModal');
+  if (modal) {
+    window.openFilters = () => modal.style.display = 'flex';
+    window.closeFilters = () => modal.style.display = 'none';
+  }
+
+  // Reajustar grid al cambiar de negocio
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('#results.grid .product-item').forEach(el => {
+      el.style.height = 'auto';
+    });
+  });
+  const results = document.getElementById('results');
+  if (results) observer.observe(results, { childList: true, subtree: true });
+});
+</script>
+</body>
+</html>
+
