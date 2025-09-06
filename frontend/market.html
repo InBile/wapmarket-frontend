@@ -664,6 +664,88 @@ html, body { overflow-x: hidden !important; }
 
 /* Ensure grid items don't overflow */
 .product-item { min-width: 0 !important; }
+
+/* ====== NUEVAS MEJORAS ====== */
+
+/* Drawer de filtros estilo Amazon */
+.filter-modal {
+  position: fixed; inset: 0;
+  display: none;
+  z-index: 9998;
+  background: rgba(0,0,0,.45);
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.filter-panel {
+  width: min(420px, 100%);
+  height: 100%;
+  background: var(--card);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  animation: slideFromRight .25s ease both;
+}
+@keyframes slideFromRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.filter-panel h3, .filter-panel h4 { margin: 0 0 12px; }
+.filter-panel label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.filter-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Botones en los cards */
+.product-item .meta > div:last-child {
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap !important;
+}
+.product-item button.btn,
+.product-item button.btn.ghost {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Corrección de bug de scroll y altura de cards */
+html, body { overflow-x: hidden !important; }
+#results.grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)) !important;
+}
+.product-item {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+.product-item .thumb {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+}
+.product-item h4,
+.product-item .price,
+.product-item .badge {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -1246,6 +1328,26 @@ document.addEventListener('DOMContentLoaded', function(){
   } catch(e){
     console && console.warn && console.warn('Wap fixes failed', e);
   }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // Filtro estilo Amazon (mostrar/ocultar)
+  const modal = document.getElementById('filterModal');
+  if (modal) {
+    window.openFilters = () => modal.style.display = 'flex';
+    window.closeFilters = () => modal.style.display = 'none';
+  }
+
+  // Reajustar grid al cambiar de negocio
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('#results.grid .product-item').forEach(el => {
+      el.style.height = 'auto';
+    });
+  });
+  const results = document.getElementById('results');
+  if (results) observer.observe(results, { childList: true, subtree: true });
 });
 </script>
 </body>
