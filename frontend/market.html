@@ -619,6 +619,51 @@ body, input, textarea, button, select {
 .slick-dots, .glide__bullets, .swiper-pagination {
   display: none !important;
 }
+
+/* ====== FIX: minimal overrides - no other code removed ====== */
+.header {
+  width: 100% !important;
+  left: 0; right: 0;
+}
+.header > .wrapper {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+.header .row { flex-wrap: nowrap; gap: 8px; align-items:center; }
+.search { min-width: 0 !important; flex: 1 1 auto !important; max-width: 100% !important; }
+.search input { min-width: 0 !important; width: 100% !important; box-sizing: border-box !important; }
+#results.grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; }
+
+@media (max-width: 900px) {
+  #results.grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .layout { grid-template-columns: 1fr !important; }
+  aside { order: 2; }
+  section { order: 1; }
+  .logo { justify-content: flex-start; }
+}
+
+html, body { overflow-x: hidden !important; }
+
+/* Dots as dashes */
+.wa-dots .wa-dot, #waDots button, #featDots button {
+  width: 26px !important;
+  height: 6px !important;
+  border-radius: 4px !important;
+  background: #d0d0d0 !important;
+  padding: 0 !important;
+  margin: 0 6px !important;
+}
+.wa-dots .wa-dot.active, #waDots button.active, #featDots button.active {
+  background: linear-gradient(90deg,var(--brand1),var(--brand2)) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Ensure grid items don't overflow */
+.product-item { min-width: 0 !important; }
 </style>
 </head>
 <body>
@@ -1158,6 +1203,49 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   if (res.error){ alert(res.error); return; }
   alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
   cart = []; saveCart(); closeCart();
+});
+</script>
+
+<!-- WAPMARKET FIXES: minimal JS to enforce dash-dots and autoplay -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    var search = document.querySelector('.search');
+    if (search) { search.style.minWidth='0'; }
+
+    // Convert existing dots to dashes (inline style fallback)
+    document.querySelectorAll('.wa-dots button, #waDots button, #featDots button, .wa-dot').forEach(function(b){
+      b.style.width='26px';
+      b.style.height='6px';
+      b.style.borderRadius='4px';
+      b.style.margin='0 6px';
+      b.style.padding='0';
+      b.style.background = b.classList.contains('active') ? '' : b.style.background;
+    });
+
+    // Autoplay helper (if carousel exists)
+    function setupAutoplay(carouselSelector, dotsSelector){
+      var carousel = document.querySelector(carouselSelector);
+      var dotsBox = document.querySelector(dotsSelector);
+      if (!carousel || !dotsBox) return;
+      var slides = carousel.children.length || 0;
+      if (slides <= 1) return;
+      var dots = dotsBox.querySelectorAll('button');
+      var idx = 0;
+      // If already has interval, clear it
+      window.__wap_autoplay = window.__wap_autoplay || {};
+      if (window.__wap_autoplay[carouselSelector]) clearInterval(window.__wap_autoplay[carouselSelector]);
+      window.__wap_autoplay[carouselSelector] = setInterval(function(){
+        idx = (idx + 1) % slides;
+        carousel.style.transform = 'translateX(-' + (idx * 100) + '%)';
+        dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+      }, 4200);
+    }
+    setupAutoplay('#featCarousel','#featDots');
+    setupAutoplay('#waCarousel','#waDots');
+  } catch(e){
+    console && console.warn && console.warn('Wap fixes failed', e);
+  }
 });
 </script>
 </body>
