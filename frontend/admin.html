@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>WapMarket · Admin (único vendedor)</title>
+<title>WapMarket · Admin </title>
 <style>
 :root{
   --amz-dark:#131921;
@@ -119,11 +119,10 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
 
 <script>
 // Admin single-file panel
-const API_BASE = '/api';
+const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
 let adminToken = localStorage.getItem('adminToken') || '';
 let businessToken = localStorage.getItem('businessToken') || '';
 let businessId = localStorage.getItem('businessId') || null;
-
 // Elements
 const adminEmail = document.getElementById('adminEmail');
 const adminPassword = document.getElementById('adminPassword');
