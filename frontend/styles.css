@@ -168,31 +168,5 @@ img{max-width:100%; display:block}
 @media (max-width:520px){
   .search{ width:100% } .grid{ grid-template-columns: repeat(2, minmax(0,1fr)) } .feat-slide img{ height:190px }
 }
-/* ====== Ajuste de botones en cards para pantallas pequeñas ====== */
-.product-item .meta > div:last-child {
-  display: flex !important;
-  gap: 8px !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-top: 6px !important;
-  flex-wrap: wrap !important; /* permite que los botones bajen de línea */
-}
-
-.product-item button.btn,
-.product-item button.btn.ghost {
-  flex: 1 1 auto !important;   /* puede crecer y encogerse */
-  min-width: 0 !important;     /* permite encogerse más */
-  white-space: normal !important; /* texto se rompe en varias líneas si es necesario */
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  word-break: break-word !important;
-}
-button {
-  width: 200px;              /* ancho del botón, ajusta según necesites */
-  white-space: nowrap;        /* texto en una sola línea */
-  overflow: hidden;           /* corta texto que se desborde */
-  text-overflow: ellipsis;    /* opcional: añade "..." si no cabe */
-  font-size: clamp(12px, 2vw, 20px); /* ajusta tamaño entre 12px y 20px según ancho */
-}
 
 
