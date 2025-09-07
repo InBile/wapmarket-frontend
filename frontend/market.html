@@ -1,13 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WapMarket — Marketplace GE</title>
-  <link rel="stylesheet" href="/styles.css">
-
-  <!-- Fuente Futura PT -->
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>WapMarket — Marketplace GE</title>
+<link href="/styles.css" rel="stylesheet"/>
+<!-- Fuente Futura PT -->
+<style>
     @import url('https://fonts.cdnfonts.com/css/futura-pt');
 
     /* ====== TOKENS ====== */
@@ -461,217 +461,275 @@ body{ background:#eaeded !important; }
 /* 2. Filters only text (remove emojis manually with CSS hiding technique) */
 .chip::after, .chip::before{ display:none !important; }
 
-  </style>
+  
+/* ===== RESPONSIVE + PAGINATION FIXES ===== */
+.header{position:sticky;top:0;width:100%;z-index:100;background:#131921;}
+.wrapper{max-width:1200px;margin:0 auto;padding:16px;box-sizing:border-box;}
+body{display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;}
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr)) !important;gap:16px;}
+.pagination{display:flex;gap:6px;justify-content:center;margin:20px 0;flex-wrap:wrap;}
+.pagination button{min-width:32px;height:32px;border-radius:4px;border:1px solid #ddd;background:#fff;cursor:pointer;font-weight:600;}
+.pagination button.active{background:#febd69;border-color:#f0a947;color:#111;}
 
-<style>
-/* ==== Improvements for product cards and header responsiveness ==== */
 
-/* Professional Apple-like font across platform */
-body, button, input, textarea{
-  font-family:"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:#111;
+/* ===== EXTRA RESPONSIVE FIXES ===== */
+
+/* Grid always 2x2 on small screens */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
 }
 
-/* Ensure header full width, always centered */
-header, .header{width:100%!important;left:0!important;right:0!important;display:flex;justify-content:center;}
-header .row.wrapper, .header .row.wrapper{max-width:1200px;width:100%;padding:8px 12px;}
+/* Card content alignment */
+.product-card{display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:12px;}
+.product-card img{max-width:100%;height:auto;margin-bottom:8px;}
+.product-card h3,.product-card p{margin:4px 0;}
+.product-card .price{font-weight:700;margin-top:6px;}
+.product-card .actions{margin-top:auto;display:flex;gap:8px;justify-content:center;}
 
-/* Product card improvements */
-.product-item .meta h4{
-  font-size:0.95rem;
-  font-weight:600;
-  line-height:1.3;
-  max-height:2.6em; /* 2 lines */
-  overflow:hidden;
-  text-overflow:ellipsis;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-}
-.product-item .meta .desc{display:none;} /* hide long desc inside cards */
 
-/* Smaller cards on phones */
-@media(max-width:520px){
-  #results.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-  .product-item{border-radius:10px;}
-  .product-item .thumb{aspect-ratio:1/1;}
-  .product-item .meta{padding:8px;}
-  .product-item .price{font-size:0.9rem;}
-  .product-item h4{font-size:0.85rem;}
+/* ===== CONSISTENCY FIXES ===== */
+
+/* Ensure header always full width and not cut */
+.header{position:sticky;top:0;left:0;right:0;width:100%;z-index:200;}
+
+/* Wrapper should not collapse */
+.wrapper{max-width:1200px;margin:0 auto;padding:0 12px;box-sizing:border-box;width:100%;}
+
+/* Grid consistency */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;align-items:stretch;}
+
+/* Force consistent card sizing */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;padding:12px;background:#fff;border:1px solid #ddd;box-sizing:border-box;}
+
+/* Prevent oversized cards */
+.product-card img{max-width:100%;height:auto;object-fit:contain;}
+
+/* Responsive 2x2 layout on phones */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
 }
+
+/* Ensure body takes full width and no overflow */
+body{margin:0;width:100%;overflow-x:hidden;}
+
+
+/* ===== STYLE BUG FIXES ===== */
+
+/* Ensure body background consistent */
+body{background:#eaeded!important;color:#111;}
+
+/* Reset section backgrounds to transparent */
+section, .section, .content, .container{background:transparent!important;}
+
+/* Business containers consistent look */
+.business-card{background:#fff!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;}
+
+/* Fix results container background */
+#results{background:transparent!important;}
+
+
+/* ===== FINAL STYLE CONSISTENCY FIXES ===== */
+
+/* Business list container */
+#businessList, .business-card{
+  background:#fff!important;
+  color:#111!important;
+  border:1px solid #ddd!important;
+  padding:10px;
+  border-radius:4px;
+  margin-bottom:8px;
+}
+
+/* Business list text */
+#businessList h3, #businessList p, .business-card h3, .business-card p{
+  color:#111!important;
+}
+
+/* Publicidad section background */
+#ads, .ads-section, .publicidad, .ad-card{
+  background:#eaeded!important;
+  color:#111!important;
+  border:none!important;
+}
+
+/* Ensure footer consistent */
+footer{
+  background:#eaeded!important;
+  color:#111!important;
+}
+
+
+/* ===== v13 RESPONSIVE & CONSISTENCY FIXES ===== */
+
+/* Topbar fixes */
+.header{position:sticky;top:0;left:0;right:0;width:100%!important;z-index:200;background:#131921!important;}
+.header .row{display:flex;align-items:center;flex-wrap:nowrap!important;gap:8px;}
+.search{flex:1!important;min-width:0;}
+.search input{width:100%!important;}
+#btnOpenCart{flex-shrink:0;}
+
+/* Body background uniform */
+body{background:#eaeded!important;color:#111;overflow-x:hidden;margin:0;}
+
+/* Product grid */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:16px;align-items:stretch;}
+
+/* Always 2x2 on very small screens */
+@media(max-width:600px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Product cards */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;background:#fff;border:1px solid #ddd;box-sizing:border-box;padding:12px;}
+.product-card img{max-width:100%;height:auto;object-fit:contain;margin-bottom:8px;}
+.product-card h3,.product-card p,.product-card .price{margin:4px 0;}
+
+/* Business list cards */
+.business-card{background:#fff!important;color:#111!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;margin-bottom:10px;text-align:center;}
+.business-card h3,.business-card p{color:#111!important;}
+
+/* Ads / Publicidad */
+#ads,.ads-section,.publicidad,.ad-card{background:#eaeded!important;color:#111!important;border:none!important;}
+.wa-carousel-wrap{background:#eaeded!important;border:none!important;}
+
+/* Footer */
+footer{background:#eaeded!important;color:#111!important;}
+
+
+/* ===== v14 STRUCTURE & RESPONSIVE FIXES ===== */
+
+/* Ensure full height layout */
+html, body {min-height:100%!important;width:100%!important;margin:0;padding:0;}
+body{display:flex;flex-direction:column;min-height:100vh!important;background:#eaeded!important;color:#111;overflow-x:hidden;}
+
+/* Wrapper fills width */
+.wrapper{max-width:1200px;margin:0 auto;padding:0 12px;box-sizing:border-box;width:100%!important;}
+
+/* Grid consistency */
+#results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:16px;align-items:stretch;width:100%;}
+
+/* Force 2x2 on small screens */
+@media(max-width:768px){
+  #results.grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+
+/* Product cards */
+.product-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;background:#fff;border:1px solid #ddd;box-sizing:border-box;padding:12px;}
+.product-card img{max-width:100%;height:auto;object-fit:contain;margin-bottom:8px;}
+.product-card h3,.product-card p,.product-card .price{margin:4px 0;}
+
+/* Business cards */
+.business-card{background:#fff!important;color:#111!important;border:1px solid #ddd!important;padding:12px;box-sizing:border-box;border-radius:4px;margin-bottom:10px;text-align:center;}
+.business-card h3,.business-card p{color:#111!important;}
+
+/* Ads consistency */
+#ads,.ads-section,.publicidad,.ad-card{background:#eaeded!important;color:#111!important;border:none!important;}
+.wa-carousel-wrap{background:#eaeded!important;border:none!important;}
+
+/* Footer anchored */
+footer{background:#eaeded!important;color:#111!important;margin-top:auto!important;width:100%!important;}
+
 </style>
-
 </head>
 <body>
-
 <header class="header">
-  <div class="row wrapper" style="padding-block:10px">
-    <div class="logo">WapMarket</div>
-    <form id="searchForm" class="search" onsubmit="return false;">
-      <input id="q" placeholder="Buscar productos o servicios..." autocomplete="off" />
-      <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
-      <ul id="suggBox" class="sugg" role="listbox"></ul>
-    </form>
-    <a href="#" class="btn ghost" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false">
-      <img src="/aset/icons8-buy-64.png" alt="Carrito">
-    </a>
-  </div>
+<div class="row wrapper" style="padding-block:10px">
+<div class="logo"><span style="color:#febd69;font-weight:800">Wap</span><span style="color:#fff;font-weight:800">Market</span></div>
+<form class="search" id="searchForm" onsubmit="return false;">
+<input autocomplete="off" id="q" placeholder="Buscar productos o servicios..."/>
+<button aria-label="Buscar" class="btn" id="btnBuscar">Buscar</button>
+<ul class="sugg" id="suggBox" role="listbox"></ul>
+</form>
+<a aria-label="Abrir carrito" class="btn ghost" data-has-items="false" href="#" id="btnOpenCart" title="Carrito">
+<img alt="Carrito" src="/aset/icons8-buy-64.png"/>
+</a>
+</div>
 </header>
-
 <main class="wrapper">
-  <div class="layout">
-    <aside>
-      <div class="card">
-        <div class="body">
-          <h3 style="margin:4px 0 10px">Negocios disponibles</h3>
-          <div id="bizList"></div>
-        </div>
-      </div>
-
-      <!-- Filtros: chips -->
-      <div class="card" style="margin-top:16px">
-        <div class="body">
-          <h3 style="margin:4px 0 10px">Filtros</h3>
-          <div class="chips" id="chips"></div>
-          <!-- Select oculto para mantener compatibilidad JS si se necesita -->
-          <select id="category" style="display:none">
-            <option value="">Todas</option>
-            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
-            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- CONTENEDOR PUBLICITARIO (oculto pero conservado) -->
-      <div class="ads-container">
-        <button class="ads-info-btn" onclick="openAdsInfo()">i</button>
-        <img src="/aset/Fachada.jpg" alt="Publicidad">
-      </div>
-    </aside>
-
-    <section>
-      <div class="card" style="background:transparent;box-shadow:none;border:none">
-        <div class="body" style="padding:0">
-          <h3 id="bizTitle" style="margin:6px 0 14px">Selecciona un negocio</h3>
-
-          <!-- Carrusel de destacados (simple): se rellena con primeros productos -->
-          <div id="featuredWrap" style="display:none;margin-bottom:14px">
-            <div class="wa-carousel-wrap">
-              <div class="wa-carousel" id="featCarousel"></div>
-            </div>
-            <div class="wa-nav">
-              <button class="wa-btn" type="button" data-dir="-1" data-target="feat">‹</button>
-              <div class="wa-dots" id="featDots"></div>
-              <button class="wa-btn" type="button" data-dir="1" data-target="feat">›</button>
-            </div>
-          </div>
-
-          <div id="results" class="grid"></div>
-          <div style="display:flex;justify-content:center;margin-top:12px">
-            <button id="nextBtn" class="btn" style="display:none">Ver más</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Publicidad WhatsApp (MANTENIDA) -->
-      <section class="wa-ads" aria-label="Publicidad">
-        <h3>Publicidad</h3>
-        <div class="wa-carousel-wrap">
-          <div class="wa-carousel" id="waCarousel">
-            <div class="wa-slide">
-              <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
-                <img src="/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png" alt="Wap Tech & Services">
-                <p>Wap Tech &amp; Services</p>
-              </a>
-            </div>
-            <div class="wa-slide">
-              <a href="https://wa.me/240555218661" target="_blank" rel="noopener">
-                <img src="/aset/app-check-hero_2x.png" alt="CiberSeguridad Prisma">
-                <p>CiberSeguridad Prisma</p>
-              </a>
-            </div>
-            <!-- Puedes añadir más slides conservando el formato -->
-          </div>
-        </div>
-        <div class="wa-nav">
-          <button class="wa-btn" type="button" data-dir="-1" aria-label="Anterior">‹</button>
-          <div class="wa-dots" id="waDots"></div>
-          <button class="wa-btn" type="button" data-dir="1" aria-label="Siguiente">›</button>
-        </div>
-      </section>
-    </section>
-  </div>
+<div class="layout">
+<aside>
+<!-- Filtros: chips -->
+<div class="card" style="margin-top:16px">
+<div class="body">
+<h3 style="margin:4px 0 10px">Filtros</h3>
+<div class="chips" id="chips"></div>
+<!-- Select oculto para mantener compatibilidad JS si se necesita -->
+<select id="category" style="display:none">
+<option value="">Todas</option>
+<option>Servicios</option><option>Comida</option><option>Tiendas</option>
+<option>Salud</option><option>Transporte</option><option>Tecnología</option>
+</select>
+</div>
+</div>
+<!-- CONTENEDOR PUBLICITARIO (oculto pero conservado) -->
+</aside>
+<section>
+<div class="card" style="background:transparent;box-shadow:none;border:none">
+<div class="body" style="padding:0">
+<h3 id="bizTitle" style="margin:6px 0 14px">Selecciona un negocio</h3>
+<!-- Carrusel de destacados (simple): se rellena con primeros productos -->
+<div class="grid" id="results"></div>
+<div class="pagination" id="paginationBox"></div>
+<div style="display:flex;justify-content:center;margin-top:12px">
+<button class="btn" id="nextBtn" style="display:none">Ver más</button>
+</div>
+</div>
+</div>
+<!-- Publicidad WhatsApp (MANTENIDA) -->
+</section>
+</div>
 </main>
-
 <!-- Drawer Carrito (manteniendo IDs y lógica original) -->
 <div class="modal" id="cartModal">
-  <div class="dialog">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <h3 style="margin:6px 0">Tu carrito</h3>
-      <button class="btn ghost" type="button" onclick="closeCart()">✕</button>
-    </div>
-    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
-    <div id="cartItems"></div>
-    <div style="margin:12px 0">
-      <label style="display:flex;gap:8px;align-items:center">
-        <input type="checkbox" id="deliveryChk"> <span>Envío a domicilio (+2000 XAF)</span>
-      </label>
-    </div>
-    <div id="addressBox" style="display:none">
-      <label style="display:block;margin-bottom:10px">Dirección exacta
-        <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)">
-      </label>
-    </div>
-    <div id="totals" style="margin:12px 0;font-weight:900"></div>
-    <form id="checkoutForm" style="display:grid;gap:10px">
-      <label>Tu nombre (opcional)
-        <input id="cname" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)">
-      </label>
-      <label>Teléfono (WhatsApp) <input id="cphone" required style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"></label>
-      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"></textarea></label>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
-        <button class="btn" type="submit">Confirmar pedido</button>
-        <button class="btn ghost" type="button" onclick="closeCart()">Cerrar</button>
-      </div>
-    </form>
-  </div>
+<div class="dialog">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<h3 style="margin:6px 0">Tu carrito</h3>
+<button class="btn ghost" onclick="closeCart()" type="button">✕</button>
 </div>
-
+<div class="small" id="cartInfo" style="margin-bottom:8px"></div>
+<div id="cartItems"></div>
+<div style="margin:12px 0">
+<label style="display:flex;gap:8px;align-items:center">
+<input id="deliveryChk" type="checkbox"/> <span>Envío a domicilio (+2000 XAF)</span>
+</label>
+</div>
+<div id="addressBox" style="display:none">
+<label style="display:block;margin-bottom:10px">Dirección exacta
+        <input id="address" placeholder="Ej: Malabo, Semu, casa azul" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"/>
+</label>
+</div>
+<div id="totals" style="margin:12px 0;font-weight:900"></div>
+<form id="checkoutForm" style="display:grid;gap:10px">
+<label>Tu nombre (opcional)
+        <input id="cname" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"/>
+</label>
+<label>Teléfono (WhatsApp) <input id="cphone" required="" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"/></label>
+<label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,.12)"></textarea></label>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+<button class="btn" type="submit">Confirmar pedido</button>
+<button class="btn ghost" onclick="closeCart()" type="button">Cerrar</button>
+</div>
+</form>
+</div>
+</div>
 <!-- Modal info publicidad (conservada) -->
-<div class="modal" id="adsModal">
-  <div class="dialog">
-    <h3>Promociona tu negocio</h3>
-    <p>Puedes promocionar tus productos o servicios en WapMarket con banners publicitarios.</p>
-    <ul>
-      <li><a href="#">Más información</a></li>
-      <li><a href="#">Contactar soporte</a></li>
-      <li><a href="#">Enviar tu publicidad</a></li>
-    </ul>
-    <div style="text-align:right;margin-top:10px">
-      <button class="btn" onclick="closeAdsInfo()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
 <footer class="footer">
-  <span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
-  <a href="#">comprar</a>
-  <a href="#">reserva hotel</a>
-  <a href="#">restaurantes</a>
-  <a href="#">negocios</a>
-  <a href="#">comprar billetes</a>
-  <a href="#">empleos</a>
+<span>© WapMarket — Pulsa <span class="kbd">/</span> para buscar</span>
+<a href="#">comprar</a>
+<a href="#">reserva hotel</a>
+<a href="#">restaurantes</a>
+<a href="#">negocios</a>
+<a href="#">comprar billetes</a>
+<a href="#">empleos</a>
 </footer>
-
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EEQZSC4X3"></script>
+<!-- Google tag (gtag.js) -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-9EEQZSC4X3"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-9EEQZSC4X3');
 </script>
-
 <script src="/api.js"></script>
 <script>
 /* ====== JS PRINCIPAL (mejorado, manteniendo endpoints y lógica) ====== */
@@ -859,6 +917,7 @@ async function loadProducts(){
   currentPage = 1;
   renderFeatured();
   renderProductsPage();
+  renderPagination();
   renderSuggestions(); // refresca lista de sugerencias si está abierta
 }
 
@@ -1038,6 +1097,58 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   if (res.error){ alert(res.error); return; }
   alert('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
   cart = []; saveCart(); closeCart();
+});
+</script>
+<style>
+/* Limit pagination dots to max 4 visible */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  max-width: 160px; /* enough for 4 dots */
+  overflow: hidden;
+  margin: 10px auto;
+}
+.carousel-dots button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #999;
+  background: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.carousel-dots button:hover {
+  background: #bbb;
+}
+.carousel-dots button.active {
+  background: #333;
+  border-color: #333;
+  transform: scale(1.2);
+}
+</style>
+<script>
+// JS logic: keep only 4 dots visible centered around the active one
+document.addEventListener("DOMContentLoaded", () => {
+  const dotsContainer = document.querySelector(".carousel-dots");
+  if (!dotsContainer) return;
+  const dots = Array.from(dotsContainer.querySelectorAll("button"));
+  function updateDots(activeIndex) {
+    dots.forEach((dot, i) => {
+      if (Math.abs(i - activeIndex) <= 2) {
+        dot.style.display = "inline-block";
+      } else {
+        dot.style.display = "none";
+      }
+    });
+    dots[activeIndex].style.display = "inline-block";
+  }
+  dots.forEach((dot, i) => {
+    dot.addEventListener("click", () => {
+      updateDots(i);
+    });
+  });
+  updateDots(0);
 });
 </script>
 </body>
