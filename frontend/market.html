@@ -1,62 +1,336 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WapMarket — Productos</title>
-  <link rel="stylesheet" href="amazon-theme.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WapMarket - Productos</title>
+  <style>
+    :root {
+      --amz-dark: #131921;
+      --amz-yellow: #febd69;
+      --amz-orange: #ff9900;
+      --amz-red: #b12704;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+    }
+    header {
+      background: var(--amz-dark);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    header .search-bar {
+      flex: 1;
+      display: flex;
+      margin: 0 20px;
+    }
+    header .search-bar input {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 4px 0 0 4px;
+    }
+    header .search-bar button {
+      background: var(--amz-yellow);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+    header .cart-btn {
+      background: var(--amz-yellow);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    main {
+      padding: 20px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+    }
+    .product {
+      background: white;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow 0.2s ease;
+    }
+    .product:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .product img {
+      max-width: 100%;
+      max-height: 150px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+    .product h3 {
+      font-size: 1em;
+      margin: 5px 0;
+      flex: 1;
+    }
+    .price {
+      color: var(--amz-red);
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    .product button {
+      background: var(--amz-yellow);
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .close {
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+    .cart-item span {
+      flex: 1;
+    }
+    .cart-actions {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cart-actions input, .cart-actions textarea, .cart-actions select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .cart-actions button {
+      background: var(--amz-yellow);
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <div class="logo">Wap<span class="logo-highlight">Market</span></div>
+  <header>
+    <div class="logo">Wap<span style="color:var(--amz-yellow)">Market</span></div>
     <div class="search-bar">
-      <input type="search" id="searchInput" placeholder="Buscar productos..." />
+      <input type="text" id="searchInput" placeholder="Buscar productos..." />
       <button id="searchBtn">Buscar</button>
     </div>
-    <div class="cart-button">
-      <button id="cartBtn">🛒 Carrito (<span id="cartCount">0</span>)</button>
-    </div>
+    <button class="cart-btn" id="cartBtn">🛒 Carrito</button>
   </header>
 
   <main>
-    <div id="productsGrid" class="products-grid"></div>
+    <div class="product-grid" id="productGrid"></div>
   </main>
 
-  <!-- Modal Carrito -->
-  <div id="cartModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-      <button id="closeCart" class="close" aria-label="Cerrar carrito">&times;</button>
-      <h2 id="cartTitle">Tu carrito</h2>
-
+  <!-- Modal carrito -->
+  <div class="modal" id="cartModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tu Carrito</h2>
+        <span class="close" id="closeCart">&times;</span>
+      </div>
       <div id="cartItems"></div>
-
-      <div style="margin-top:12px">
-        <label><input type="checkbox" id="deliveryChk"> Envío a domicilio (+2000 XAF)</label>
+      <div class="cart-actions">
+        <div><strong>Total: $<span id="cartTotal">0.00</span></strong></div>
+        <input type="text" id="customerName" placeholder="Nombre" required />
+        <input type="text" id="customerPhone" placeholder="Teléfono" required />
+        <input type="text" id="customerAddress" placeholder="Dirección" />
+        <textarea id="customerNote" placeholder="Nota"></textarea>
+        <select id="deliveryOption">
+          <option value="pickup">Recoger en tienda</option>
+          <option value="delivery">Entrega a domicilio</option>
+        </select>
+        <button id="checkoutBtn">Proceder al pago</button>
       </div>
-
-      <div style="margin-top:12px">
-        <label>Tu nombre (opcional)<br/><input id="cname" /></label>
-      </div>
-      <div style="margin-top:8px">
-        <label>Teléfono (WhatsApp) *<br/><input id="cphone" required /></label>
-      </div>
-      <div style="margin-top:8px;display:none" id="addressBox">
-        <label>Dirección exacta<br/><input id="address" placeholder="Ej: Malabo, Semu, casa azul" /></label>
-      </div>
-      <div style="margin-top:8px">
-        <label>Nota<br/><textarea id="cnote"></textarea></label>
-      </div>
-
-      <div class="cart-total" style="margin-top:12px">Total: <strong id="cartTotal">0 XAF</strong></div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button id="checkoutBtn" class="checkout-btn">Confirmar pedido</button>
-        <button id="clearBtn" class="checkout-btn" style="background:#ddd;color:#111">Vaciar carrito</button>
-      </div>
-
-      <div id="checkoutResult" style="margin-top:12px;color:green"></div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    const API_URL = "https://wapmarket-backend-production.up.railway.app/api/public";
+    const productGrid = document.getElementById("productGrid");
+    const cartBtn = document.getElementById("cartBtn");
+    const cartModal = document.getElementById("cartModal");
+    const closeCart = document.getElementById("closeCart");
+    const cartItemsDiv = document.getElementById("cartItems");
+    const cartTotalSpan = document.getElementById("cartTotal");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+
+    let products = [];
+    let cart = [];
+
+    // Cargar productos
+    async function loadProducts() {
+      try {
+        const res = await fetch(\`\${API_URL}/products\`);
+        const data = await res.json();
+        products = data.items || [];
+        renderProducts(products);
+      } catch (err) {
+        console.error("Error cargando productos:", err);
+      }
+    }
+
+    function renderProducts(list) {
+      productGrid.innerHTML = "";
+      if (!list.length) {
+        productGrid.innerHTML = "<p>No hay productos disponibles.</p>";
+        return;
+      }
+      list.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product";
+        card.innerHTML = \`
+          <img src="\${p.image_url || 'https://via.placeholder.com/150'}" alt="\${p.name}" />
+          <h3>\${p.name}</h3>
+          <div class="price">$\${p.price}</div>
+          <button data-id="\${p.id}">Agregar al carrito</button>
+        \`;
+        card.querySelector("button").addEventListener("click", () => addToCart(p));
+        productGrid.appendChild(card);
+      });
+    }
+
+    function addToCart(product) {
+      const item = cart.find(i => i.id === product.id);
+      if (item) {
+        item.qty++;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItemsDiv.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        total += item.price * item.qty;
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML = \`
+          <span>\${item.name} (x\${item.qty})</span>
+          <span>$\${(item.price * item.qty).toFixed(2)}</span>
+          <button onclick="removeFromCart(\${item.id})">❌</button>
+        \`;
+        cartItemsDiv.appendChild(div);
+      });
+      cartTotalSpan.textContent = total.toFixed(2);
+    }
+
+    window.removeFromCart = function(id) {
+      cart = cart.filter(i => i.id !== id);
+      renderCart();
+    };
+
+    // Checkout
+    checkoutBtn.addEventListener("click", async () => {
+      const name = document.getElementById("customerName").value.trim();
+      const phone = document.getElementById("customerPhone").value.trim();
+      const address = document.getElementById("customerAddress").value.trim();
+      const note = document.getElementById("customerNote").value.trim();
+      const delivery = document.getElementById("deliveryOption").value;
+
+      if (!phone) {
+        alert("El teléfono es obligatorio");
+        return;
+      }
+
+      const payload = {
+        items: cart.map(i => ({ product_id: i.id, qty: i.qty })),
+        customer_name: name || null,
+        customer_phone: phone,
+        address: address || null,
+        note: note || null,
+        delivery
+      };
+
+      try {
+        const res = await fetch(\`\${API_URL}/cart/checkout\`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error en checkout");
+        alert("Pedido confirmado ✅ ID: " + data.group_id);
+        cart = [];
+        renderCart();
+        cartModal.style.display = "none";
+      } catch (err) {
+        console.error("Error en checkout:", err);
+        alert("Error: " + err.message);
+      }
+    });
+
+    // Abrir/cerrar carrito
+    cartBtn.addEventListener("click", () => { cartModal.style.display = "flex"; });
+    closeCart.addEventListener("click", () => { cartModal.style.display = "none"; });
+
+    // Buscar
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const term = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
+      renderProducts(filtered);
+    });
+
+    loadProducts();
+  </script>
 </body>
 </html>
