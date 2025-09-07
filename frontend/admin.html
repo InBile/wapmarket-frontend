@@ -1,250 +1,172 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Panel Admin</title>
-  <style>
-    body { font-family: sans-serif; padding:20px; }
-    .card { border:1px solid #ddd; border-radius:8px; padding:15px; margin:10px 0; }
-    .badge { background:#333; color:#fff; padding:2px 6px; border-radius:4px; font-size:12px; }
-    #panel { display:none; }
-    form input, form select { display:block; margin:8px 0; padding:6px; width:100%; }
-    form button { padding:8px 12px; }
-    #bizList { display:grid; gap:10px; }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WapMarket · Admin</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">W</div>
+        <div class="brand-name">WapMarket</div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-section="dashboard">Dashboard</button>
+        <button class="nav-item" data-section="products">Productos</button>
+        <button class="nav-item" data-section="orders">Pedidos</button>
+        <button class="nav-item" data-section="settings">Configuración</button>
+      </nav>
+      <div class="sidebar-footer">
+        <small class="muted">Admin</small>
+        <button id="logoutBtn" class="btn-logout">Salir</button>
+      </div>
+    </aside>
 
-  <!-- LOGIN -->
-  <div id="loginCard" class="card">
-    <h2>Login Administrador</h2>
-    <form id="loginForm">
-      <input id="email" type="email" placeholder="Email admin" required>
-      <input id="password" type="password" placeholder="Contraseña" required>
-      <button type="submit">Entrar</button>
-    </form>
-  </div>
+    <main class="main">
+      <header class="topbar">
+        <div class="search">
+          <input id="globalSearch" placeholder="Buscar producto por nombre, SKU o ID..." />
+        </div>
+        <div class="top-actions">
+          <button id="createToggle" class="btn primary">Crear producto</button>
+        </div>
+      </header>
 
-  <!-- PANEL -->
-  <div id="panel">
-    <h2>Crear Negocio</h2>
-    <form id="bizForm" class="card">
-      <input id="name" placeholder="Nombre del negocio" required>
-      <input id="biz_email" type="email" placeholder="Email de contacto">
-      <input id="phone" placeholder="Teléfono">
-      <input id="location" placeholder="Ubicación">
-      <select id="business_type">
-        <option value="unverified">Unverified</option>
-        <option value="verified">Verified</option>
-      </select>
-      <input id="login_email" type="email" placeholder="Email de login (dueño)" required>
-      <input id="biz_password" type="password" placeholder="Contraseña dueño" required>
-      <button type="submit">Crear negocio</button>
-    </form>
-
-    <h2>Negocios existentes</h2>
-    <div id="bizList"></div>
-  </div>
-
-  <!-- SCRIPT -->
-  <!-- 👇 Aquí pegas el script corregido que te pasé -->
-  <script>
-  (function () {
-    const API_URL = "https://wapmarket-backend-production.up.railway.app/api";
-    let adminToken = localStorage.getItem("adminToken") || null;
-
-  // Helpers
-  const $ = (id) => document.getElementById(id);
-  function setView(loggedIn) {
-    if ($("loginCard")) $("loginCard").style.display = loggedIn ? "none" : "block";
-    if ($("panel")) $("panel").style.display = loggedIn ? "block" : "none";
-  }
-  function logout() {
-    adminToken = null;
-    localStorage.removeItem("adminToken");
-    setView(false);
-  }
-  async function fetchJSON(url, opts = {}) {
-    try {
-      const res = await fetch(url, opts);
-      const ct = res.headers.get("content-type") || "";
-      const isJSON = ct.includes("application/json");
-      const body = isJSON ? await res.json().catch(() => null) : await res.text();
-
-      if (!res.ok) {
-        const msg = (isJSON && body && body.error) ? body.error
-                  : (typeof body === "string" ? body.slice(0, 400) : "Error desconocido");
-        const err = new Error(msg);
-        err.status = res.status;
-        err.body = body;
-        throw err;
-      }
-      return body;
-    } catch (e) {
-      // fallbacks de red
-      if (!e.status) {
-        console.error("Network/Parse error:", e);
-        throw new Error("No se pudo conectar con el servidor.");
-      }
-      throw e;
-    }
-  }
-
-  async function loadBusinesses() {
-    const grid = $("bizList");
-    if (!grid) return;
-    grid.innerHTML = "<div class='card'><div class='body'>Cargando negocios...</div></div>";
-    try {
-      const data = await fetchJSON(`${API_URL}/admin/businesses`, {
-        headers: { "Authorization": "Bearer " + adminToken }
-      });
-
-      grid.innerHTML = "";
-      (data.items || []).forEach(b => {
-        const el = document.createElement("div");
-        el.className = "card";
-        el.innerHTML = `
-          <div class="body">
-            <div class="badge">${b.business_type}</div>
-            <h4>${b.name}</h4>
-            <div>${b.login_email || ""}</div>
-            <div>${b.email || ""} ${b.phone ? "• " + b.phone : ""} ${b.location ? "• " + b.location : ""}</div>
+      <section id="dashboard" class="section active">
+        <div class="hero">
+          <h1>Panel</h1>
+          <p class="muted">Vista rápida de tus productos.</p>
+        </div>
+        <div class="cards">
+          <div class="card stat">
+            <div class="stat-number" id="statCount">-</div>
+            <div class="stat-label">Productos</div>
           </div>
-        `;
-        grid.appendChild(el);
-      });
+          <div class="card stat">
+            <div class="stat-number" id="statStock">-</div>
+            <div class="stat-label">Stock total</div>
+          </div>
+          <div class="card stat">
+            <div class="stat-number" id="statImages">-</div>
+            <div class="stat-label">Imágenes subidas</div>
+          </div>
+        </div>
+      </section>
 
-      if (!(data.items || []).length) {
-        grid.innerHTML = "<div class='card'><div class='body'>No hay negocios todavía.</div></div>";
-      }
-    } catch (e) {
-      console.error("Error listando negocios:", e);
-      if (e.status === 401) {
-        alert("Sesión expirada. Inicia sesión de nuevo.");
-        logout();
-      } else {
-        alert("Error listando negocios: " + e.message);
-      }
-    }
-  }
+      <section id="products" class="section">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Productos</h2>
+            <div class="panel-actions">
+              <button id="reloadBtn" class="btn secondary">Recargar</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="table-wrap">
+              <table id="productsTable" class="products-table">
+                <thead>
+                  <tr>
+                    <th>Img</th>
+                    <th>Nombre</th>
+                    <th>SKU / ID</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Estado inicial de la vista
-    setView(!!adminToken);
+            <div id="emptyProducts" class="empty muted hidden">No hay productos aún.</div>
+          </div>
+        </div>
+      </section>
 
-    // --- LOGIN ---
-    const loginForm = $("loginForm");
-    if (loginForm) {
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = loginForm.querySelector("button[type='submit']");
-        btn && (btn.disabled = true);
+      <section id="orders" class="section">
+        <div class="card">
+          <h2>Pedidos</h2>
+          <p class="muted">Aquí podrías integrar la vista de pedidos si tu API la expone.</p>
+        </div>
+      </section>
 
-        const email = $("email")?.value?.trim();
-        const password = $("password")?.value || "";
+      <section id="settings" class="section">
+        <div class="card">
+          <h2>Configuración</h2>
+          <p class="muted">Opciones del panel.</p>
+        </div>
+      </section>
 
-        if (!email || !password) {
-          alert("Completa email y contraseña");
-          btn && (btn.disabled = false);
-          return;
-        }
+      <!-- Crear producto modal/panel -->
+      <div id="createPanel" class="create-panel hidden">
+        <div class="create-card">
+          <div class="create-head">
+            <h3>Crear producto</h3>
+            <button id="closeCreate" class="icon-btn">✕</button>
+          </div>
+          <form id="productForm" class="create-form">
+            <div class="row">
+              <label>Nombre</label>
+              <input id="p_name" required placeholder="Nombre del producto" />
+            </div>
+            <div class="row three">
+              <div>
+                <label>Precio</label>
+                <input id="p_price" type="number" step="0.01" min="0" required />
+              </div>
+              <div>
+                <label>Stock</label>
+                <input id="p_stock" type="number" min="0" />
+              </div>
+              <div>
+                <label>SKU</label>
+                <input id="p_sku" />
+              </div>
+            </div>
+            <div class="row">
+              <label>Categoría</label>
+              <input id="p_category" placeholder="Categoría" />
+            </div>
+            <div class="row">
+              <label>Descripción</label>
+              <textarea id="p_description" placeholder="Descripción"></textarea>
+            </div>
+            <div class="row">
+              <label>Imágenes (hasta 5)</label>
+              <input id="p_images" type="file" accept="image/*" multiple />
+              <div id="preview" class="thumbs"></div>
+            </div>
+            <div class="row actions">
+              <button type="submit" class="btn primary wide">Guardar producto</button>
+              <button type="button" id="resetBtn" class="btn secondary">Limpiar</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-        try {
-          const data = await fetchJSON(`${API_URL}/admin/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-          });
+      <!-- Login card (modal-like) -->
+      <div id="loginCard" class="login-card">
+        <div class="login-inner">
+          <h2>Ingresar Administrador</h2>
+          <form id="loginForm" class="login-form">
+            <input id="email" type="email" placeholder="Email administrador" required />
+            <input id="password" type="password" placeholder="Contraseña" required />
+            <div class="row actions">
+              <button type="submit" class="btn primary wide">Entrar</button>
+            </div>
+          </form>
+          <div class="muted">Conéctate con la cuenta admin existente.</div>
+        </div>
+      </div>
 
-          adminToken = data.token;
-          localStorage.setItem("adminToken", adminToken);
-          setView(true);
-          await loadBusinesses();
-        } catch (e) {
-          console.error("Error login:", e);
-          alert(e.message || "Error en login");
-        } finally {
-          btn && (btn.disabled = false);
-        }
-      });
-    }
+      <footer class="footer muted">© 2025 WapMarket</footer>
+    </main>
+  </div>
 
-    // Si ya había token, intentamos cargar de una
-    if (adminToken) {
-      loadBusinesses().catch(err => {
-        console.error("Init load error:", err);
-        // si falla por 401, logout
-        if (err.status === 401) logout();
-      });
-    }
-
-    // --- CREAR NEGOCIO ---
-    const bizForm = $("bizForm");
-    if (bizForm) {
-      bizForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = bizForm.querySelector("button[type='submit']");
-        btn && (btn.disabled = true);
-
-        const payload = {
-          name: $("name")?.value?.trim(),
-          email: $("biz_email")?.value?.trim() || null,
-          phone: $("phone")?.value?.trim() || null,
-          location: $("location")?.value?.trim() || null,
-          business_type: $("business_type")?.value || "unverified",
-          login_email: $("login_email")?.value?.trim(),
-          password: $("biz_password")?.value || ""
-        };
-
-        // Validaciones mínimas
-        if (!payload.name) {
-          alert("El nombre es obligatorio.");
-          btn && (btn.disabled = false);
-          return;
-        }
-        if (!payload.login_email) {
-          alert("El email de login del vendedor es obligatorio.");
-          btn && (btn.disabled = false);
-          return;
-        }
-        if (!payload.password) {
-          alert("La contraseña del vendedor es obligatoria.");
-          btn && (btn.disabled = false);
-          return;
-        }
-
-        try {
-          await fetchJSON(`${API_URL}/admin/businesses`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + adminToken
-            },
-            body: JSON.stringify(payload)
-          });
-
-          alert("Negocio creado ✅");
-          // limpiamos campos críticos
-          bizForm.reset();
-          $("business_type").value = payload.business_type; // conserva selección si quieres
-          await loadBusinesses();
-        } catch (e) {
-          console.error("Error creando negocio:", e);
-          if (e.status === 401) {
-            alert("Sesión expirada. Inicia sesión otra vez.");
-            logout();
-          } else {
-            alert(e.message || "Error creando negocio");
-          }
-        } finally {
-          btn && (btn.disabled = false);
-        }
-      });
-    }
-  });
-})();
-</script>
-
-
+  <script src="app.js"></script>
 </body>
 </html>
