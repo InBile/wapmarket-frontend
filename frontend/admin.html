@@ -8,7 +8,7 @@
 :root{
   --amz-dark:#131921;
   --amz-yellow:#FF9900;
-  --bg:#f4f4f5;
+  --bg:#f6f7f9;
   --card:#fff;
   --muted:#6b7280;
 }
@@ -17,14 +17,19 @@ body{background:var(--bg);color:#111}
 .header{background:var(--amz-dark);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-weight:800;font-size:20px}
 .container{max-width:1200px;margin:20px auto;padding:0 16px}
-.card{background:var(--card);border-radius:8px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:16px}
+.sidebar .card{margin-bottom:16px}
+.card{background:var(--card);border-radius:8px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
 .input,textarea,select{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;margin-top:6px;margin-bottom:12px}
 .btn{background:var(--amz-yellow);border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:700}
 .btn.ghost{background:transparent;border:1px solid #ccc;color:#111}
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.products-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .product-card{background:#fff;padding:12px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:8px}
 .product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.table{width:100%;border-collapse:collapse;margin-top:12px}
+.table th, .table td{border:1px solid #ddd;padding:8px;text-align:left}
+.table th{background:var(--amz-dark);color:#fff}
 .footer{text-align:center;color:var(--muted);margin-top:20px;font-size:13px}
 </style>
 </head>
@@ -36,40 +41,61 @@ body{background:var(--bg);color:#111}
 </header>
 
 <div class="container">
-  <!-- Login -->
-  <div id="loginCard" class="card">
-    <h2>Iniciar sesión administrador</h2>
-    <input id="adminEmail" type="email" placeholder="Email admin">
-    <input id="adminPassword" type="password" placeholder="Contraseña">
-    <button id="adminLoginBtn" class="btn">Entrar</button>
-  </div>
-
-  <!-- Dashboard -->
-  <div id="dashboard" style="display:none">
-    <div class="topbar">
-      <h2>Gestión de productos</h2>
-    </div>
-
-    <!-- Crear producto -->
-    <div class="card">
-      <h3>Crear / Subir producto</h3>
-      <input id="p_title" placeholder="Título del producto">
-      <textarea id="p_description" placeholder="Descripción"></textarea>
-      <input id="p_category" placeholder="Categoría">
-      <input id="p_price" type="number" placeholder="Precio (XAF)">
-      <input id="p_image" type="file" accept="image/*">
-      <div style="display:flex;gap:8px">
-        <button id="uploadImageBtn" class="btn ghost">Subir imagen</button>
-        <button id="createProductBtn" class="btn">Crear producto</button>
+  <div class="grid">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="card">
+        <h3>Gestión de productos</h3>
+        <button id="showProductsBtn" class="btn">Productos</button>
       </div>
-      <div id="uploadedPreview"></div>
-    </div>
+      <div class="card">
+        <h3>Pedidos de clientes</h3>
+        <button id="showOrdersBtn" class="btn">Ver pedidos</button>
+      </div>
+    </aside>
 
-    <!-- Lista de productos -->
-    <div class="card">
-      <h3>Productos actuales</h3>
-      <div id="productsContainer" class="products-grid"></div>
-    </div>
+    <!-- Main -->
+    <main class="main">
+      <!-- Crear producto -->
+      <div id="productSection" class="card">
+        <h3>Crear / Subir producto</h3>
+        <input id="p_title" placeholder="Título">
+        <textarea id="p_description" placeholder="Descripción"></textarea>
+        <input id="p_category" placeholder="Categoría">
+        <input id="p_price" type="number" placeholder="Precio (XAF)">
+        <input id="p_image" type="file" accept="image/*">
+        <div style="display:flex;gap:8px">
+          <button id="uploadImageBtn" class="btn ghost">Subir imagen</button>
+          <button id="createProductBtn" class="btn">Crear producto</button>
+        </div>
+        <div id="uploadedPreview"></div>
+      </div>
+
+      <!-- Lista de productos -->
+      <div id="productsContainerCard" class="card" style="margin-top:12px">
+        <h3>Productos actuales</h3>
+        <div id="productsContainer" class="products-list"></div>
+      </div>
+
+      <!-- Pedidos -->
+      <div id="ordersSection" class="card" style="display:none">
+        <h3>Pedidos de clientes</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID Pedido</th>
+              <th>Cliente</th>
+              <th>Teléfono</th>
+              <th>Dirección</th>
+              <th>Productos</th>
+              <th>Total XAF</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="ordersContainer"></tbody>
+        </table>
+      </div>
+    </main>
   </div>
 </div>
 
@@ -84,28 +110,30 @@ let uploadedImageUrl = null;
 let products = [];
 
 // Elements
-const loginCard = document.getElementById('loginCard');
-const dashboard = document.getElementById('dashboard');
-const logoutBtn = document.getElementById('logoutBtn');
-const adminEmail = document.getElementById('adminEmail');
-const adminPassword = document.getElementById('adminPassword');
-const adminLoginBtn = document.getElementById('adminLoginBtn');
-const p_title = document.getElementById('p_title');
-const p_description = document.getElementById('p_description');
-const p_category = document.getElementById('p_category');
-const p_price = document.getElementById('p_price');
-const p_image = document.getElementById('p_image');
-const uploadImageBtn = document.getElementById('uploadImageBtn');
-const createProductBtn = document.getElementById('createProductBtn');
-const uploadedPreview = document.getElementById('uploadedPreview');
-const productsContainer = document.getElementById('productsContainer');
+const logoutBtn=document.getElementById('logoutBtn');
+const productSection=document.getElementById('productSection');
+const productsContainerCard=document.getElementById('productsContainerCard');
+const productsContainer=document.getElementById('productsContainer');
+const ordersSection=document.getElementById('ordersSection');
+const ordersContainer=document.getElementById('ordersContainer');
+const showProductsBtn=document.getElementById('showProductsBtn');
+const showOrdersBtn=document.getElementById('showOrdersBtn');
 
-// Helper fetch
-async function fetchJSON(url, opts={}){
-  const headers = opts.headers||{};
+const p_title=document.getElementById('p_title');
+const p_description=document.getElementById('p_description');
+const p_category=document.getElementById('p_category');
+const p_price=document.getElementById('p_price');
+const p_image=document.getElementById('p_image');
+const uploadImageBtn=document.getElementById('uploadImageBtn');
+const createProductBtn=document.getElementById('createProductBtn');
+const uploadedPreview=document.getElementById('uploadedPreview');
+
+// Simple helper fetch
+async function fetchJSON(url,opts={}){ 
+  const headers=opts.headers||{};
   if(adminToken && url.includes('/admin')) headers['Authorization']='Bearer '+adminToken;
   if(businessToken && url.includes('/business')) headers['Authorization']='Bearer '+businessToken;
-  const res = await fetch(url,{...opts,headers});
+  const res=await fetch(url,{...opts,headers});
   const ct=res.headers.get('content-type')||'';
   const isJSON=ct.includes('application/json');
   const body=isJSON?await res.json().catch(()=>null):await res.text();
@@ -113,57 +141,46 @@ async function fetchJSON(url, opts={}){
   return body;
 }
 
-// Admin login
-adminLoginBtn.addEventListener('click',async()=>{
-  const email=adminEmail.value.trim();
-  const password=adminPassword.value;
-  if(!email||!password) return alert('Completa las credenciales');
+// Login prompt
+(async()=>{
+  const email=prompt('Email admin:');
+  const password=prompt('Contraseña admin:');
   try{
     const data=await fetchJSON(API_BASE+'/admin/login',{
       method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})
     });
     adminToken=data.token;
-    loginCard.style.display='none';
-    dashboard.style.display='block';
     logoutBtn.style.display='inline-block';
     loadBusinessProducts();
-  }catch(e){ console.error(e); alert('Error login: '+(e.message||e)); }
-});
+    loadOrders();
+  }catch(e){ alert('Error login: '+(e.message||e)); }
+})();
 
 // Logout
-logoutBtn.addEventListener('click',()=>{
-  adminToken=''; businessToken=''; businessId=null;
-  loginCard.style.display='block';
-  dashboard.style.display='none';
-  logoutBtn.style.display='none';
-});
+logoutBtn.addEventListener('click',()=>{ adminToken=''; businessToken=''; businessId=null; location.reload(); });
 
 // Upload image
 uploadImageBtn.addEventListener('click',async()=>{
   if(!businessToken) return alert('Inicia sesión primero');
-  const file=p_image.files[0];
-  if(!file) return alert('Selecciona una imagen');
+  const file=p_image.files[0]; if(!file) return alert('Selecciona una imagen');
   const fd=new FormData(); fd.append('image',file);
   try{
     const res=await fetch(API_BASE+'/business/upload-image',{method:'POST',headers:{'Authorization':'Bearer '+businessToken},body:fd});
-    const data=await res.json();
-    if(!data.url) throw new Error('No se recibió URL');
-    uploadedImageUrl=data.url;
-    uploadedPreview.innerHTML='<img src="'+uploadedImageUrl+'" style="max-width:160px;border-radius:6px;margin-top:6px">';
-  }catch(e){ console.error(e); alert('Error subiendo imagen: '+(e.message||e)); }
+    const data=await res.json(); if(!data.url) throw new Error('No se recibió URL');
+    uploadedImageUrl=data.url; uploadedPreview.innerHTML='<img src="'+uploadedImageUrl+'" style="max-width:160px;border-radius:6px;margin-top:6px">';
+  }catch(e){ alert('Error subiendo imagen: '+(e.message||e)); }
 });
 
 // Create product
 createProductBtn.addEventListener('click',async()=>{
   if(!businessToken) return alert('Necesitas iniciar sesión como negocio');
-  const title=p_title.value.trim();
-  if(!title) return alert('Título obligatorio');
+  const title=p_title.value.trim(); if(!title) return alert('Título obligatorio');
   try{
     const payload={title,description:p_description.value,category:p_category.value,price_xaf:Number(p_price.value||0),image_url:uploadedImageUrl||null};
     await fetchJSON(API_BASE+'/business/products',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+businessToken},body:JSON.stringify(payload)});
     p_title.value=''; p_description.value=''; p_category.value=''; p_price.value=''; p_image.value=''; uploadedImageUrl=null; uploadedPreview.innerHTML='';
     loadBusinessProducts();
-  }catch(e){ console.error(e); alert('Error creando producto: '+(e.message||e)); }
+  }catch(e){ alert('Error creando producto: '+(e.message||e)); }
 });
 
 // Load products
@@ -171,8 +188,7 @@ async function loadBusinessProducts(){
   if(!businessToken) return;
   try{
     const res=await fetchJSON(API_BASE+'/business/products',{method:'GET',headers:{'Authorization':'Bearer '+businessToken}});
-    products=res.items||[];
-    renderProducts();
+    products=res.items||[]; renderProducts();
   }catch(e){ console.error('Error cargando productos',e); }
 }
 
@@ -181,43 +197,50 @@ function renderProducts(){
   productsContainer.innerHTML='';
   if(!products.length){ productsContainer.innerHTML='<p>No hay productos.</p>'; return; }
   products.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='product-card';
-    div.innerHTML=`
-      <img src="${p.image_url||'https://placehold.co/600x400?text=No+image'}" alt="${p.title}">
-      <strong>${p.title}</strong>
-      <div>${p.category||''}</div>
+    const div=document.createElement('div'); div.className='product-card';
+    div.innerHTML=`<img src="${p.image_url||'https://placehold.co/600x400?text=No+image'}">
+      <strong>${p.title}</strong><div>${p.category||''}</div>
       <div style="font-weight:700">${Number(p.price_xaf||0).toLocaleString()} XAF</div>
       <div style="display:flex;gap:8px;margin-top:6px">
         <button class="btn ghost" data-act="toggle" data-id="${p.id}">${p.active?'Desactivar':'Activar'}</button>
         <button class="btn ghost" data-act="delete" data-id="${p.id}">Eliminar</button>
-      </div>
-    `;
+      </div>`;
     productsContainer.appendChild(div);
   });
 }
 
-// Delegación acciones
+// Actions toggle/delete
 productsContainer.addEventListener('click',async(e)=>{
-  const btn=e.target.closest('button[data-act]');
-  if(!btn) return;
-  const act=btn.dataset.act; const id=btn.dataset.id;
+  const btn=e.target.closest('button[data-act]'); if(!btn) return;
+  const act=btn.dataset.act,id=btn.dataset.id;
   try{
-    if(act==='toggle'){
-      const makeActive=btn.textContent==='Activar';
+    if(act==='toggle'){ const makeActive=btn.textContent==='Activar';
       await fetchJSON(API_BASE+'/business/products/'+encodeURIComponent(id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+businessToken},body:JSON.stringify({active:makeActive})});
-    } else if(act==='delete'){
-      if(confirm('Eliminar producto permanentemente?')){
-        await fetchJSON(API_BASE+'/business/products/'+encodeURIComponent(id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+businessToken},body:JSON.stringify({active:false})});
-      }
-    }
+    } else if(act==='delete'){ if(confirm('Eliminar producto?')) await fetchJSON(API_BASE+'/business/products/'+encodeURIComponent(id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+businessToken},body:JSON.stringify({active:false})}); }
     loadBusinessProducts();
-  }catch(e){ console.error(e); alert('Error: '+(e.message||e)); }
+  }catch(e){ alert('Error: '+(e.message||e)); }
 });
 
-// Init: auto-login si ya hay token
-if(adminToken) loginCard.style.display='none';
-</script>
+// Show/hide sections
+showProductsBtn.addEventListener('click',()=>{ productSection.style.display='block'; productsContainerCard.style.display='block'; ordersSection.style.display='none'; });
+showOrdersBtn.addEventListener('click',()=>{ productSection.style.display='none'; productsContainerCard.style.display='none'; ordersSection.style.display='block'; });
 
+// Load orders
+async function loadOrders(){
+  try{
+    const res=await fetchJSON(API_BASE+'/admin/orders',{method:'GET',headers:{'Authorization':'Bearer '+adminToken}});
+    const orders=res.items||[];
+    ordersContainer.innerHTML='';
+    orders.forEach(o=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${o.id}</td><td>${o.customer?.name||''}</td><td>${o.customer?.phone||''}</td><td>${o.customer?.address||''}</td>
+        <td>${o.items.map(i=>i.product_id+' x'+i.qty).join(', ')}</td>
+        <td>${o.total_xaf?.toLocaleString()||0}</td>
+        <td>${o.status||''}</td>`;
+      ordersContainer.appendChild(tr);
+    });
+  }catch(e){ console.error('Error cargando pedidos',e); }
+}
+</script>
 </body>
 </html>
