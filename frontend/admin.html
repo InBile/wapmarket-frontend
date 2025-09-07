@@ -1,172 +1,340 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WapMarket · Admin</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WapMarket · Admin (único vendedor)</title>
+<style>
+:root{
+  --amz-dark:#131921;
+  --amz-yellow:#FF9900;
+  --bg:#f6f7f9;
+  --card:#fff;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#111}
+.header{background:var(--amz-dark);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px}
+.brand{font-weight:800;font-size:18px}
+.container{max-width:1100px;margin:20px auto;padding:0 16px}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:16px}
+.card{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.04)}
+.small{font-size:13px;color:var(--muted)}
+
+/* Sidebar */
+.sidebar .section{margin-bottom:12px}
+.btn{background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid #ddd;color:#111}
+
+/* Main */
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.input, textarea, select{padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
+.products-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.product-card{border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
+
+.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+
+/* responsive */
+@media (max-width:900px){ .grid{grid-template-columns:1fr} .sidebar{order:2} .main{order:1} }
+</style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">W</div>
-        <div class="brand-name">WapMarket</div>
-      </div>
-      <nav class="nav">
-        <button class="nav-item active" data-section="dashboard">Dashboard</button>
-        <button class="nav-item" data-section="products">Productos</button>
-        <button class="nav-item" data-section="orders">Pedidos</button>
-        <button class="nav-item" data-section="settings">Configuración</button>
-      </nav>
-      <div class="sidebar-footer">
-        <small class="muted">Admin</small>
-        <button id="logoutBtn" class="btn-logout">Salir</button>
-      </div>
-    </aside>
+  <header class="header">
+    <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span> · Admin</div>
+    <div class="small">Panel de administración — único vendedor</div>
+  </header>
 
-    <main class="main">
-      <header class="topbar">
-        <div class="search">
-          <input id="globalSearch" placeholder="Buscar producto por nombre, SKU o ID..." />
-        </div>
-        <div class="top-actions">
-          <button id="createToggle" class="btn primary">Crear producto</button>
-        </div>
-      </header>
-
-      <section id="dashboard" class="section active">
-        <div class="hero">
-          <h1>Panel</h1>
-          <p class="muted">Vista rápida de tus productos.</p>
-        </div>
-        <div class="cards">
-          <div class="card stat">
-            <div class="stat-number" id="statCount">-</div>
-            <div class="stat-label">Productos</div>
-          </div>
-          <div class="card stat">
-            <div class="stat-number" id="statStock">-</div>
-            <div class="stat-label">Stock total</div>
-          </div>
-          <div class="card stat">
-            <div class="stat-number" id="statImages">-</div>
-            <div class="stat-label">Imágenes subidas</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="products" class="section">
-        <div class="panel">
-          <div class="panel-head">
-            <h2>Productos</h2>
-            <div class="panel-actions">
-              <button id="reloadBtn" class="btn secondary">Recargar</button>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="table-wrap">
-              <table id="productsTable" class="products-table">
-                <thead>
-                  <tr>
-                    <th>Img</th>
-                    <th>Nombre</th>
-                    <th>SKU / ID</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-            <div id="emptyProducts" class="empty muted hidden">No hay productos aún.</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="orders" class="section">
+  <div class="container">
+    <div class="grid">
+      <aside class="sidebar">
         <div class="card">
-          <h2>Pedidos</h2>
-          <p class="muted">Aquí podrías integrar la vista de pedidos si tu API la expone.</p>
-        </div>
-      </section>
-
-      <section id="settings" class="section">
-        <div class="card">
-          <h2>Configuración</h2>
-          <p class="muted">Opciones del panel.</p>
-        </div>
-      </section>
-
-      <!-- Crear producto modal/panel -->
-      <div id="createPanel" class="create-panel hidden">
-        <div class="create-card">
-          <div class="create-head">
-            <h3>Crear producto</h3>
-            <button id="closeCreate" class="icon-btn">✕</button>
+          <h3>Acceso administrador</h3>
+          <p class="small">Inicia sesión con la cuenta admin para administrar el panel.</p>
+          <div class="form-row">
+            <input id="adminEmail" class="input" placeholder="Email admin" value="" />
+            <input id="adminPassword" class="input" placeholder="Contraseña admin" type="password" value="" />
+            <button id="adminLoginBtn" class="btn">Entrar como admin</button>
           </div>
-          <form id="productForm" class="create-form">
-            <div class="row">
-              <label>Nombre</label>
-              <input id="p_name" required placeholder="Nombre del producto" />
-            </div>
-            <div class="row three">
-              <div>
-                <label>Precio</label>
-                <input id="p_price" type="number" step="0.01" min="0" required />
-              </div>
-              <div>
-                <label>Stock</label>
-                <input id="p_stock" type="number" min="0" />
-              </div>
-              <div>
-                <label>SKU</label>
-                <input id="p_sku" />
-              </div>
-            </div>
-            <div class="row">
-              <label>Categoría</label>
-              <input id="p_category" placeholder="Categoría" />
-            </div>
-            <div class="row">
-              <label>Descripción</label>
-              <textarea id="p_description" placeholder="Descripción"></textarea>
-            </div>
-            <div class="row">
-              <label>Imágenes (hasta 5)</label>
-              <input id="p_images" type="file" accept="image/*" multiple />
-              <div id="preview" class="thumbs"></div>
-            </div>
-            <div class="row actions">
-              <button type="submit" class="btn primary wide">Guardar producto</button>
-              <button type="button" id="resetBtn" class="btn secondary">Limpiar</button>
-            </div>
-          </form>
+          <hr/>
+          <h4>Cuenta vendedor (admin)</h4>
+          <p class="small">Crear o usar una cuenta de negocio que represente al administrador. El flujo crea el negocio (requiere token admin) y luego te loguea como negocio para gestionar productos.</p>
+          <div class="form-row">
+            <input id="bizName" class="input" placeholder="Nombre del negocio (ej: WapMarket Admin)" />
+            <input id="bizLogin" class="input" placeholder="Email login (dueño)" />
+            <input id="bizPass" class="input" placeholder="Contraseña" type="password" />
+            <button id="createBizBtn" class="btn">Crear cuenta vendedor</button>
+            <button id="bizLoginBtn" class="btn ghost">Entrar como vendedor</button>
+          </div>
+          <hr/>
+          <div class="small">Tokens:</div>
+          <textarea id="debugTokens" style="width:100%;height:80px;border:1px solid #eee;padding:8px;border-radius:6px" readonly></textarea>
         </div>
-      </div>
+      </aside>
 
-      <!-- Login card (modal-like) -->
-      <div id="loginCard" class="login-card">
-        <div class="login-inner">
-          <h2>Ingresar Administrador</h2>
-          <form id="loginForm" class="login-form">
-            <input id="email" type="email" placeholder="Email administrador" required />
-            <input id="password" type="password" placeholder="Contraseña" required />
-            <div class="row actions">
-              <button type="submit" class="btn primary wide">Entrar</button>
-            </div>
-          </form>
-          <div class="muted">Conéctate con la cuenta admin existente.</div>
+      <main class="main">
+        <div class="topbar">
+          <div style="display:flex;flex-direction:column">
+            <strong>Gestión de productos</strong>
+            <span class="small">Crea, lista y desactiva productos — todo desde la cuenta vendedor (admin).</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="logoutAdmin" class="btn ghost">Cerrar admin</button>
+            <button id="logoutBiz" class="btn ghost">Cerrar vendedor</button>
+          </div>
         </div>
-      </div>
 
-      <footer class="footer muted">© 2025 WapMarket</footer>
-    </main>
+        <div class="card">
+          <h3>Crear / Subir producto</h3>
+          <div class="form-row">
+            <input id="p_title" class="input" placeholder="Título" />
+            <textarea id="p_description" class="input" placeholder="Descripción"></textarea>
+            <div style="display:flex;gap:8px">
+              <input id="p_category" class="input" placeholder="Categoría" />
+              <input id="p_price" class="input" placeholder="Precio (XAF)" type="number" />
+            </div>
+            <label class="small">Imagen (opcional)</label>
+            <input id="p_image" type="file" accept="image/*" />
+            <div style="display:flex;gap:8px">
+              <button id="uploadImageBtn" class="btn ghost">Subir imagen</button>
+              <button id="createProductBtn" class="btn">Crear producto</button>
+            </div>
+            <div id="uploadedPreview" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3>Productos del vendedor</h3>
+            <div class="small">Lista actualizada desde <code>/api/business/products</code></div>
+          </div>
+          <div id="productsContainer" style="margin-top:12px" class="products-list"></div>
+        </div>
+
+        <div class="footer">© 2025 WapMarket - Admin panel</div>
+      </main>
+    </div>
   </div>
 
-  <script src="app.js"></script>
+<script>
+// Admin single-file panel
+const API_BASE = '/api';
+let adminToken = localStorage.getItem('adminToken') || '';
+let businessToken = localStorage.getItem('businessToken') || '';
+let businessId = localStorage.getItem('businessId') || null;
+
+// Elements
+const adminEmail = document.getElementById('adminEmail');
+const adminPassword = document.getElementById('adminPassword');
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const createBizBtn = document.getElementById('createBizBtn');
+const bizLoginBtn = document.getElementById('bizLoginBtn');
+const bizName = document.getElementById('bizName');
+const bizLogin = document.getElementById('bizLogin');
+const bizPass = document.getElementById('bizPass');
+const debugTokens = document.getElementById('debugTokens');
+
+const p_title = document.getElementById('p_title');
+const p_description = document.getElementById('p_description');
+const p_category = document.getElementById('p_category');
+const p_price = document.getElementById('p_price');
+const p_image = document.getElementById('p_image');
+const uploadImageBtn = document.getElementById('uploadImageBtn');
+const createProductBtn = document.getElementById('createProductBtn');
+const uploadedPreview = document.getElementById('uploadedPreview');
+const productsContainer = document.getElementById('productsContainer');
+const logoutAdmin = document.getElementById('logoutAdmin');
+const logoutBiz = document.getElementById('logoutBiz');
+
+function setDebug(){ debugTokens.value = JSON.stringify({ adminToken: adminToken||null, businessToken: businessToken||null, businessId: businessId||null }, null, 2); }
+
+setDebug();
+
+// Helper fetch
+async function fetchJSON(url, opts = {}){
+  const headers = opts.headers || {};
+  if (adminToken && url.startsWith(API_BASE + '/admin')) headers['Authorization'] = 'Bearer ' + adminToken;
+  if (businessToken && url.startsWith(API_BASE + '/business')) headers['Authorization'] = 'Bearer ' + businessToken;
+  try {
+    const res = await fetch(url, { ...opts, headers });
+    const ct = res.headers.get('content-type') || '';
+    const isJSON = ct.includes('application/json');
+    const body = isJSON ? await res.json().catch(() => null) : await res.text();
+    if (!res.ok) throw Object.assign(new Error(body && body.error ? body.error : (typeof body === 'string' ? body : res.statusText)), { status: res.status, body });
+    return body;
+  } catch (e) {
+    throw e;
+  }
+}
+
+// Admin login
+adminLoginBtn.addEventListener('click', async ()=>{
+  const email = adminEmail.value.trim();
+  const password = adminPassword.value;
+  if (!email || !password) return alert('Completa credenciales admin');
+  try {
+    const data = await fetchJSON(API_BASE + '/admin/login', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email, password }) });
+    adminToken = data.token;
+    localStorage.setItem('adminToken', adminToken);
+    setDebug();
+    alert('Admin: login OK');
+  } catch (e){
+    console.error(e);
+    alert('Error admin login: ' + (e.message || e));
+  }
+});
+
+// Create business (admin)
+createBizBtn.addEventListener('click', async ()=>{
+  if (!adminToken) return alert('Inicia sesión como admin primero');
+  const name = bizName.value.trim();
+  const login = bizLogin.value.trim();
+  const pass = bizPass.value;
+  if (!name || !login || !pass) return alert('Completa los datos del negocio');
+  try {
+    const payload = { name, login_email: login, password: pass, business_type: 'verified' };
+    const res = await fetchJSON(API_BASE + '/admin/businesses', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+    alert('Negocio creado: ' + (res.business && res.business.id ? res.business.id : 'OK'));
+    // Optionally auto-fill businessId
+    businessId = res.business && res.business.id;
+    localStorage.setItem('businessId', businessId);
+    setDebug();
+  } catch (e){
+    console.error(e);
+    alert('Error creando negocio: ' + (e.message || e));
+  }
+});
+
+// Business login (to manage products)
+bizLoginBtn.addEventListener('click', async ()=>{
+  const login = bizLogin.value.trim();
+  const pass = bizPass.value;
+  if (!login || !pass) return alert('Completa login y contraseña del negocio');
+  try {
+    const res = await fetchJSON(API_BASE + '/business/login', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email: login, password: pass }) });
+    businessToken = res.token;
+    localStorage.setItem('businessToken', businessToken);
+    if (res.business_id) { businessId = res.business_id; localStorage.setItem('businessId', businessId); }
+    setDebug();
+    alert('Sesion negocio iniciada');
+    loadBusinessProducts();
+  } catch (e){
+    console.error(e);
+    alert('Error login negocio: ' + (e.message || e));
+  }
+});
+
+// Upload image to /api/business/upload-image (requires business token)
+let uploadedImageUrl = null;
+uploadImageBtn.addEventListener('click', async ()=>{
+  if (!businessToken) return alert('Inicia sesión como vendedor (business) primero');
+  const file = p_image.files[0];
+  if (!file) return alert('Selecciona una imagen primero');
+  const fd = new FormData();
+  fd.append('image', file);
+  try {
+    const res = await fetch(API_BASE + '/business/upload-image', { method:'POST', headers:{ 'Authorization':'Bearer ' + businessToken }, body: fd });
+    const data = await res.json();
+    if (!data || !data.url) throw new Error('No se recibió URL');
+    uploadedImageUrl = data.url;
+    uploadedPreview.innerHTML = '<img src="'+uploadedImageUrl+'" style="max-width:160px;border-radius:6px;margin-top:6px" />';
+    alert('Imagen subida OK');
+  } catch (e){
+    console.error(e);
+    alert('Error subiendo imagen: ' + (e.message || e));
+  }
+});
+
+// Create product (business)
+createProductBtn.addEventListener('click', async ()=>{
+  if (!businessToken) return alert('Necesitas iniciar sesión como negocio (business)');
+  const title = p_title.value.trim();
+  const description = p_description.value.trim();
+  const category = p_category.value.trim();
+  const price = Number(p_price.value || 0);
+  if (!title) return alert('Título obligatorio');
+  try {
+    const payload = { title, description, category, price_xaf: price, image_url: uploadedImageUrl || null };
+    const res = await fetchJSON(API_BASE + '/business/products', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + businessToken }, body: JSON.stringify(payload) });
+    alert('Producto creado: ' + (res.product && res.product.id ? res.product.id : 'OK'));
+    // reset form
+    p_title.value = ''; p_description.value=''; p_category.value=''; p_price.value=''; p_image.value=''; uploadedImageUrl = null; uploadedPreview.innerHTML='';
+    loadBusinessProducts();
+  } catch (e){
+    console.error(e);
+    alert('Error creando producto: ' + (e.message || e));
+  }
+});
+
+// Load products for authenticated business
+async function loadBusinessProducts(){
+  if (!businessToken) return;
+  try {
+    const res = await fetchJSON(API_BASE + '/business/products', { method:'GET', headers: { 'Authorization':'Bearer ' + businessToken } });
+    const items = res.items || [];
+    renderBusinessProducts(items);
+  } catch (e){
+    console.error(e);
+    alert('Error cargando productos negocio: ' + (e.message || e));
+  }
+}
+
+function renderBusinessProducts(items){
+  productsContainer.innerHTML = '';
+  if (!items.length) { productsContainer.innerHTML = '<div class="small">No hay productos.</div>'; return; }
+  items.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'product-card';
+    el.innerHTML = `
+      <img src="${p.image_url||'https://placehold.co/600x400?text=No+image'}" alt="${escapeHtml(p.title)}" />
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <strong>${escapeHtml(p.title)}</strong>
+        <div class="small">${escapeHtml(p.category||'')}</div>
+        <div style="font-weight:800">${Number(p.price_xaf||0).toLocaleString()} XAF</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn ghost" data-act="disable" data-id="${p.id}">${p.active ? 'Desactivar' : 'Activar'}</button>
+          <button class="btn ghost" data-act="delete" data-id="${p.id}">Eliminar</button>
+        </div>
+      </div>
+    `;
+    productsContainer.appendChild(el);
+  });
+}
+
+// Delegación actions (disable/delete)
+productsContainer.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const act = btn.dataset.act;
+  const id = btn.dataset.id;
+  if (act === 'disable'){
+    const makeActive = btn.textContent.trim() === 'Activar';
+    try {
+      await fetchJSON(API_BASE + '/business/products/' + encodeURIComponent(id), { method:'PUT', headers:{ 'Content-Type':'application/json','Authorization':'Bearer ' + businessToken }, body: JSON.stringify({ active: makeActive }) });
+      alert('Estado actualizado');
+      loadBusinessProducts();
+    } catch (e){ console.error(e); alert('Error actualizando: ' + (e.message||e)); }
+  } else if (act === 'delete'){
+    if (!confirm('Eliminar producto permanentemente?')) return;
+    try {
+      // No hay endpoint DELETE en backend; intentamos marcar inactive via PUT active=false OR delete via DB if supported.
+      await fetchJSON(API_BASE + '/business/products/' + encodeURIComponent(id), { method:'PUT', headers:{ 'Content-Type':'application/json','Authorization':'Bearer ' + businessToken }, body: JSON.stringify({ active: false }) });
+      alert('Producto desactivado (activo=false)');
+      loadBusinessProducts();
+    } catch (e){ console.error(e); alert('Error eliminando: ' + (e.message||e)); }
+  }
+});
+
+// Utilities
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+// Logout buttons
+logoutAdmin.addEventListener('click', ()=>{ adminToken=''; localStorage.removeItem('adminToken'); setDebug(); alert('Sesión admin cerrada'); });
+logoutBiz.addEventListener('click', ()=>{ businessToken=''; businessId=null; localStorage.removeItem('businessToken'); localStorage.removeItem('businessId'); setDebug(); alert('Sesión vendedor cerrada'); productsContainer.innerHTML=''; });
+
+// Init: if businessToken present, load products
+if (businessToken) loadBusinessProducts();
+</script>
 </body>
 </html>
