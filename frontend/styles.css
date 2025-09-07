@@ -187,4 +187,12 @@ img{max-width:100%; display:block}
   text-overflow: ellipsis !important;
   word-break: break-word !important;
 }
+button {
+  width: 200px;              /* ancho del botón, ajusta según necesites */
+  white-space: nowrap;        /* texto en una sola línea */
+  overflow: hidden;           /* corta texto que se desborde */
+  text-overflow: ellipsis;    /* opcional: añade "..." si no cabe */
+  font-size: clamp(12px, 2vw, 20px); /* ajusta tamaño entre 12px y 20px según ancho */
+}
+
 
