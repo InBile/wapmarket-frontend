@@ -16,6 +16,8 @@
 body{background:var(--bg);color:#111;}
 .header{background:var(--amz-dark);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
 .brand{font-weight:800;font-size:20px}
+.controls{display:flex;gap:8px;margin:16px;}
+.controls input, .controls select{padding:6px;border-radius:4px;border:1px solid #ccc;}
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:16px;}
 .product-card{background:var(--card);border-radius:8px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:8px}
 .product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
@@ -31,6 +33,9 @@ body{background:var(--bg);color:#111;}
 .cart-item-qty input{width:40px;padding:2px 4px;border:1px solid #ccc;border-radius:4px;text-align:center}
 .summary{margin-top:12px;font-weight:700}
 .checkout-btn{margin-top:12px;width:100%;padding:10px;background:var(--amz-dark);color:#fff;border-radius:6px;cursor:pointer;font-weight:700}
+.delivery-option{margin-top:8px;display:flex;align-items:center;gap:4px;font-size:14px}
+.customer-info{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.customer-info input, .customer-info textarea{padding:6px;border-radius:4px;border:1px solid #ccc;width:100%}
 .footer{text-align:center;color:var(--muted);margin:20px 0;font-size:13px}
 </style>
 </head>
@@ -39,6 +44,13 @@ body{background:var(--bg);color:#111;}
     <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
     <button id="openCartBtn" class="btn">Carrito (<span id="cartCount">0</span>)</button>
   </header>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Buscar productos..." />
+    <select id="categoryFilter">
+      <option value="">Todas las categorías</option>
+    </select>
+  </div>
 
   <main>
     <div id="productsContainer" class="products-grid"></div>
@@ -49,11 +61,23 @@ body{background:var(--bg);color:#111;}
       <span id="closeCartBtn" class="close-modal">&times;</span>
       <h3>Carrito de compras</h3>
       <div id="cartItems"></div>
+
+      <div class="delivery-option">
+        <input type="checkbox" id="deliveryCheckbox" /> Envío a domicilio (+2000 XAF)
+      </div>
+
+      <div class="customer-info">
+        <input type="text" id="customerName" placeholder="Nombre completo" />
+        <input type="text" id="customerPhone" placeholder="Teléfono" />
+        <textarea id="customerAddress" placeholder="Dirección (si es envío a domicilio)"></textarea>
+      </div>
+
       <div class="summary">
         <div>Subtotal: <span id="subtotal">0</span> XAF</div>
         <div>Delivery: <span id="delivery">0</span> XAF</div>
         <div>Total: <span id="total">0</span> XAF</div>
       </div>
+
       <button id="checkoutBtn" class="checkout-btn">Pagar</button>
     </div>
   </div>
@@ -61,23 +85,35 @@ body{background:var(--bg);color:#111;}
 <script>
 const API_BASE = 'https://wapmarket-backend-production.up.railway.app/api';
 let products = [];
+let filteredProducts = [];
 let cart = [];
 
-// Fetch products (solo admin)
+// Load products
 async function loadProducts(){
   try{
     const res = await fetch(API_BASE+'/business/products');
     const data = await res.json();
     products = data.items || [];
+    populateCategoryFilter();
+    filteredProducts = [...products];
     renderProducts();
   }catch(e){ console.error('Error cargando productos',e); }
 }
 
+// Populate category filter
+function populateCategoryFilter(){
+  const select = document.getElementById('categoryFilter');
+  const cats = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
+  select.innerHTML='<option value="">Todas las categorías</option>';
+  cats.forEach(c=>{ const opt=document.createElement('option'); opt.value=c; opt.textContent=c; select.appendChild(opt); });
+}
+
+// Render products
 function renderProducts(){
   const container = document.getElementById('productsContainer');
   container.innerHTML='';
-  if(!products.length){ container.innerHTML='<p style="padding:16px;color:#555">No hay productos disponibles.</p>'; return; }
-  products.forEach(p=>{
+  if(!filteredProducts.length){ container.innerHTML='<p style="padding:16px;color:#555">No hay productos disponibles.</p>'; return; }
+  filteredProducts.forEach(p=>{
     const div=document.createElement('div');
     div.className='product-card';
     div.innerHTML=`
@@ -91,12 +127,26 @@ function renderProducts(){
   });
 }
 
-// Carrito
+// Search and filter
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const term=e.target.value.toLowerCase();
+  const cat=document.getElementById('categoryFilter').value;
+  filteredProducts = products.filter(p=>{
+    const matchesSearch=p.title.toLowerCase().includes(term) || (p.category||'').toLowerCase().includes(term);
+    const matchesCat = cat? p.category===cat:true;
+    return matchesSearch && matchesCat;
+  });
+  renderProducts();
+});
+document.getElementById('categoryFilter').addEventListener('change',()=>{ document.getElementById('searchInput').dispatchEvent(new Event('input')); });
+
+// Cart
 const cartModal=document.getElementById('cartModal');
 const cartItems=document.getElementById('cartItems');
 const subtotalEl=document.getElementById('subtotal');
 const deliveryEl=document.getElementById('delivery');
 const totalEl=document.getElementById('total');
+const deliveryCheckbox=document.getElementById('deliveryCheckbox');
 
 function updateCartCount(){ document.getElementById('cartCount').textContent = cart.reduce((a,c)=>a+c.qty,0); }
 
@@ -124,7 +174,7 @@ function renderCart(){
 
 function updateSummary(){
   let subtotal=cart.reduce((sum,i)=>sum+i.price*i.qty,0);
-  let delivery = subtotal>0? 2000:0; // ejemplo delivery fijo
+  let delivery = deliveryCheckbox.checked? 2000:0;
   subtotalEl.textContent=subtotal.toLocaleString();
   deliveryEl.textContent=delivery.toLocaleString();
   totalEl.textContent=(subtotal+delivery).toLocaleString();
@@ -147,7 +197,7 @@ document.getElementById('openCartBtn').addEventListener('click',()=>{ cartModal.
 document.getElementById('closeCartBtn').addEventListener('click',()=>{ cartModal.style.display='none'; });
 window.addEventListener('click',e=>{ if(e.target==cartModal) cartModal.style.display='none'; });
 
-// Update qty and remove items
+// Update qty and remove
 cartItems.addEventListener('input',e=>{
   const input=e.target.closest('input[type="number"]');
   if(!input) return;
@@ -165,12 +215,24 @@ cartItems.addEventListener('click',e=>{
   renderCart(); updateCartCount();
 });
 
+// Delivery checkbox
+deliveryCheckbox.addEventListener('change',()=>updateSummary());
+
 // Checkout
 document.getElementById('checkoutBtn').addEventListener('click',async ()=>{
   if(!cart.length) return alert('Carrito vacío');
+  const name=document.getElementById('customerName').value.trim();
+  const phone=document.getElementById('customerPhone').value.trim();
+  const address=document.getElementById('customerAddress').value.trim();
+  if(!name||!phone) return alert('Proporciona nombre y teléfono');
+  if(deliveryCheckbox.checked && !address) return alert('Proporciona dirección para envío');
   try{
-    const payload = cart.map(i=>({product_id:i.id, qty:i.qty}));
-    const res = await fetch(API_BASE+'/public/cart/checkout',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({items:payload}) });
+    const payload = {
+      customer:{name,phone,address:deliveryCheckbox.checked?address:null},
+      delivery_fee: deliveryCheckbox.checked?2000:0,
+      items: cart.map(i=>({product_id:i.id, qty:i.qty}))
+    };
+    const res = await fetch(API_BASE+'/public/cart/checkout',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
     const data = await res.json();
     alert('Checkout OK: '+JSON.stringify(data));
     cart=[]; renderCart(); updateCartCount(); cartModal.style.display='none';
