@@ -795,6 +795,7 @@ async function loadBusinesses(){
   const data = await API.get('/public/businesses');
   const box = document.getElementById('bizList');
   box.innerHTML = '';
+
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div');
     el.style.cssText = 'padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:12px;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s ease';
@@ -807,14 +808,18 @@ async function loadBusinesses(){
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
   });
+
   if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
-  if (!selectedBusiness && (data.items||[]).length) {
-  // Buscar el negocio "WapMarket"
-  const wap = (data.items || []).find(b => b.name.toLowerCase() === 'wapmarket');
-  setBusiness(wap || data.items[0]); // si no se encuentra, seleccionar el primero
+
+  // Buscar WapMarket y seleccionarlo
+  const wap = (data.items||[]).find(b => b.name.toLowerCase() === 'wapmarket');
+  if (wap) {
+    setBusiness(wap);
+  } else if ((data.items||[]).length) {
+    setBusiness(data.items[0]); // fallback
+  }
 }
 
-}
 
 function renderProductsPage(){
   const list = document.getElementById('results');
