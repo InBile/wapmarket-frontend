@@ -889,10 +889,10 @@ function renderProductsPage(){
     <span class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString() + ' XAF' : ''}</span>
     <span class="badge">${p.category || ''}</span>
   </div>
-  <div style="display:flex;gap:8px;justify-content:space-between;margin-top:6px">
-    <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
-    <button class="btn ghost" data-prev="${p.image_url || ''}" title="Vista">Vista</button>
-  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:6px">
+  <button class="btn" data-id="${p.id}" title="Añadir al carrito">Añadir</button>
+</div>
+
 </div>
 `;
     list.appendChild(el);
