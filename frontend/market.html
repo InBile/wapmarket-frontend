@@ -808,7 +808,12 @@ async function loadBusinesses(){
     box.appendChild(el);
   });
   if ((data.items||[]).length > 10){ box.classList.add('scrolling'); }
-  if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+  if (!selectedBusiness && (data.items||[]).length) {
+  // Buscar el negocio "WapMarket"
+  const wap = (data.items || []).find(b => b.name.toLowerCase() === 'wapmarket');
+  setBusiness(wap || data.items[0]); // si no se encuentra, seleccionar el primero
+}
+
 }
 
 function renderProductsPage(){
