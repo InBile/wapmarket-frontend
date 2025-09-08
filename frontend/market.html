@@ -286,23 +286,121 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   border-color: var(--amz-yellow);
 }
 
+/* AI Assistant styles - NEW */
+.chat-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.chat-dialog {
+  background: var(--card);
+  border-radius: 8px 8px 0 0;
+  width: min(400px, 100%);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-shadow: 0 -8px 20px rgba(17, 24, 39, 0.1);
+  animation: slideUp 0.3s ease both;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+}
+.message-bubble {
+  padding: 10px;
+  border-radius: 18px;
+  max-width: 85%;
+}
+.message-bubble.user {
+  background: var(--amz-yellow);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.message-bubble.ai {
+  background: #f0f0f0;
+  color: #111;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.chat-input-area input {
+  flex-grow: 1;
+}
+.mic-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.mic-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #111;
+  transition: fill 0.2s;
+}
+.mic-btn.active svg {
+  fill: red;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* End of AI Assistant styles */
 </style>
 </head>
 <body>
 <header class="header">
-  <div class="header-content">
+  <div class="header-content" style="gap:24px">
     <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
     <form id="searchForm" class="search" onsubmit="return false;">
       <input id="q" placeholder="Buscar productos..." autocomplete="off" />
       <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
       <ul id="suggBox" class="sugg" role="listbox" style="display:none"></ul>
     </form>
-    <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
-      <!-- Icono profesional de carrito de compras -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
-      </svg>
-    </button>
+    <div style="display:flex; gap: 12px; align-items: center;">
+      <button class="cart-btn-icon" id="btnOpenChat" aria-label="Abrir asistente de IA" title="Asistente de IA">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-zap">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </button>
+      <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 <div class="container">
@@ -338,7 +436,6 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   <span>© 2025 WapMarket</span>
 </footer>
 
-<!-- Modales de confirmación y alerta personalizados -->
 <div id="customModal" class="modal">
   <div class="dialog">
     <p id="modalMessage"></p>
@@ -349,7 +446,6 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   </div>
 </div>
 
-<!-- Drawer Carrito -->
 <div class="modal right" id="cartModal">
   <div class="dialog">
     <div style="display:flex;align-items:center;justify-content:space-between">
@@ -380,6 +476,30 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
         <button class="btn ghost" type="button" onclick="closeCart()">Cerrar</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div id="chatModal" class="chat-modal">
+  <div class="chat-dialog">
+    <div class="chat-header">
+      <strong style="margin:0">Asistente de WapMarket</strong>
+      <button class="btn ghost" type="button" onclick="closeChat()">✕</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+      <div class="message-bubble ai">Hola, soy tu asistente de compras. ¿Cómo puedo ayudarte hoy?</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." class="input">
+      <button class="mic-btn" id="micBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="18" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+      </button>
+      <button class="btn" id="sendChatBtn">Enviar</button>
+    </div>
   </div>
 </div>
 
@@ -719,6 +839,114 @@ document.querySelector('.footer-links').addEventListener('click', e => {
     window.open(href, '_blank');
   });
 });
+
+// AI ASSISTANT LOGIC - NEW
+const chatModal = document.getElementById('chatModal');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const micBtn = document.getElementById('micBtn');
+const sendChatBtn = document.getElementById('sendChatBtn');
+
+function openChat() { chatModal.style.display = 'flex'; }
+function closeChat() { chatModal.style.display = 'none'; }
+document.getElementById('btnOpenChat').addEventListener('click', openChat);
+
+// Agrega un mensaje al chat
+function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message-bubble ${sender}`;
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+}
+
+// Lógica para enviar el mensaje a la IA
+async function sendToAI(query) {
+    addMessage(query, 'user');
+    chatInput.value = ''; // Limpiar el input
+
+    // **¡IMPORTANTE!**
+    // Aquí es donde deberías integrar tu llamada a una API de IA real,
+    // como la API de Gemini, Dialogflow, etc.
+    // La API debe recibir el texto de 'query' y devolver una respuesta.
+    // El código a continuación es solo un ejemplo de cómo se vería.
+
+    // const aiResponse = await fetch('URL_DE_TU_API_DE_IA', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ message: query })
+    // }).then(res => res.json()).then(data => data.response);
+
+    // Placeholder de respuesta de la IA
+    const aiResponse = `Gracias por tu pregunta. Aunque soy un asistente de IA, mi función principal es ayudarte a encontrar productos. Intenta buscar por "zapatos" o "camiseta".`;
+    
+    // Simular un retraso para que parezca que la IA está pensando
+    setTimeout(() => {
+        addMessage(aiResponse, 'ai');
+    }, 1000);
+}
+
+sendChatBtn.addEventListener('click', () => {
+    const text = chatInput.value.trim();
+    if (text) {
+        sendToAI(text);
+    }
+});
+
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const text = chatInput.value.trim();
+        if (text) {
+            sendToAI(text);
+        }
+    }
+});
+
+// Lógica de reconocimiento de voz
+let recognition = null;
+const isSpeechRecognitionAvailable = 'webkitSpeechRecognition' in window;
+
+if (isSpeechRecognitionAvailable) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-ES'; // Establecer idioma
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        micBtn.classList.add('active');
+        chatInput.placeholder = 'Hablando...';
+        chatInput.value = '';
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+        sendToAI(transcript); // Enviar la transcripción a la IA
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Error de reconocimiento de voz:', event.error);
+        showModal('Error al iniciar el reconocimiento de voz. Asegúrate de que tu navegador lo soporte y de haber dado permiso.');
+        micBtn.classList.remove('active');
+        chatInput.placeholder = 'Escribe tu mensaje...';
+    };
+
+    recognition.onend = () => {
+        micBtn.classList.remove('active');
+        chatInput.placeholder = 'Escribe tu mensaje...';
+    };
+
+    micBtn.addEventListener('click', () => {
+        if (micBtn.classList.contains('active')) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+} else {
+    micBtn.style.display = 'none'; // Ocultar el botón si la API no está disponible
+    console.warn('Web Speech API no está disponible en este navegador.');
+}
 
 </script>
 </body>
