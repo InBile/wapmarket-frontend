@@ -865,8 +865,8 @@ async function sendToAI(query) {
     addMessage(query, 'user');
     chatInput.value = '';
 
-    const API_KEY = 'AIzaSyDWP1AIDDWaieN3jrsrewOF1AOVp_1SJD4'; 
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const API_KEY = 'AIzaSyDF8Xz892k1Og6VQCQGJlgi8dMEGYWTM90'; 
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
     
     // Aquí puedes definir el "prompt del sistema" para guiar a la IA
     const systemPrompt = "Eres un asistente de compras para WapMarket. Tu principal objetivo es ayudar a los usuarios a encontrar productos disponibles en el sitio y responder preguntas relacionadas con el carrito de compras. Si el usuario pregunta por un producto, puedes sugerir que use la barra de búsqueda o que explore las categorías. Responde de forma amigable y concisa.";
@@ -874,7 +874,10 @@ async function sendToAI(query) {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': API_KEY // ¡LA CLAVE DEBE IR AQUÍ!
+            },
             body: JSON.stringify({
                 contents: [
                     {
