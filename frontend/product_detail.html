@@ -303,6 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!productId || !businessId) {
     document.getElementById('productTitle').textContent = 'Producto no encontrado';
     document.getElementById('productDescription').textContent = 'No se encontraron los datos del producto.';
+    document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Producto+No+Encontrado';
     return;
   }
 
@@ -313,6 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!product) {
       document.getElementById('productTitle').textContent = 'Producto no encontrado';
       document.getElementById('productDescription').textContent = 'El producto que buscas no existe o fue eliminado.';
+      document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Producto+No+Encontrado';
       return;
     }
 
@@ -407,25 +409,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Error fetching product details:', error);
     document.getElementById('productTitle').textContent = 'Error';
     document.getElementById('productDescription').textContent = 'Hubo un error al cargar los detalles del producto.';
+    document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Error';
   }
 });
 
 async function loadRelatedProducts(currentProduct) {
-  const params = new URLSearchParams();
-  params.set('business_id', currentProduct.business_id);
-  const data = await API.get('/public/products?' + params.toString());
-  const allProducts = data.items || [];
-  
-  const relatedProducts = allProducts.filter(p => 
-    p.id !== currentProduct.id && p.category === currentProduct.category
-  ).slice(0, 8); // Tomar un máximo de 8
-  
-  if (relatedProducts.length === 0) {
-    // Si no hay por categoría, mostrar otros del mismo negocio
-    const otherProducts = allProducts.filter(p => p.id !== currentProduct.id).slice(0, 8);
-    renderRelatedProducts(otherProducts);
-  } else {
+  try {
+    const params = new URLSearchParams();
+    params.set('business_id', currentProduct.business_id);
+    const data = await API.get('/public/products?' + params.toString());
+    const allProducts = data.items || [];
+    
+    // Primero, busca productos de la misma categoría.
+    let relatedProducts = allProducts.filter(p => 
+      p.id !== currentProduct.id && p.category === currentProduct.category
+    ).slice(0, 8); // Toma un máximo de 8.
+    
+    // Si no hay productos de la misma categoría, busca otros productos del mismo negocio.
+    if (relatedProducts.length === 0) {
+      relatedProducts = allProducts.filter(p => p.id !== currentProduct.id).slice(0, 8);
+    }
+    
     renderRelatedProducts(relatedProducts);
+  } catch (error) {
+    console.error("Error cargando productos relacionados:", error);
+    document.getElementById('relatedProductsSection').style.display = 'none';
   }
 }
 
