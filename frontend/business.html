@@ -4,120 +4,74 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Vendedor — WapMarket</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* Estilos basados en la identidad visual de WapMarket */
     :root{
-      --bg:#f7f8fb;
-      --panel:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --brand:#ff7a00;
-      --brand-2:#ffb43a;
-      --brand-ink:#2b1600;
-      --ok:#00b894;
-      --warn:#ffb300;
-      --ring: 0 10px 30px rgba(0,0,0,.05);
-      --ring-2: 0 20px 60px rgba(0,0,0,.12);
+      --amz-dark:#131921;
+      --amz-light:#232f3e;
+      --amz-yellow:#febd69;
+      --amz-border:#e6e6e6;
+      --link:#007185;
+      --bg-color: #eaeded;
+      --panel-bg: #fff;
+      --text-color: #111;
+      --heading-color: #000;
+      --button-bg: #ff7a00;
+      --button-text: #fff;
+      --button-hover: #e06a00;
+      --accent-color: #ffb43a;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:Inter, sans-serif;color:var(--ink); line-height: 1.6;}
+    body{margin:0;background:var(--bg-color);font-family:Inter, sans-serif;color:var(--text-color); line-height: 1.6;}
     .container{max-width:1200px;margin:0 auto;padding:0 16px}
-    .header{position:sticky;top:0;z-index:50;background:var(--ink);padding:10px 0}
+    .header{position:sticky;top:0;z-index:50;background:var(--amz-dark);padding:10px 0}
     .header .wrapper{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
     .logo{color:#fff;font-weight:800;letter-spacing:.2px;font-size:1.5rem;}
-    .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;transition:background 0.3s;}
+    .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;}
     .logout-btn:hover{background:rgba(255,255,255,.08)}
     .business-info{display:flex;align-items:center;gap:1rem;color:#fff;}
     .business-info img{width:40px;height:40px;border-radius:50%;}
     .content-area{padding:2rem 0;}
-    .panel{background:var(--panel);padding:2rem;border-radius:8px;box-shadow:var(--ring);margin-bottom:2rem;}
-    h1, h2{color:var(--ink);margin-top:0;font-weight:600;}
+    .panel{background:var(--panel-bg);padding:2rem;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.05);margin-bottom:2rem;}
+    h1, h2{color:var(--heading-color);margin-top:0;font-weight:600;}
     h1{font-size:2rem;margin-bottom:1rem;}
     h2{font-size:1.5rem;margin-bottom:1.5rem;}
     .tabs{display:flex;gap:1rem;margin-bottom:2rem;}
-    .tab-btn{padding:10px 20px;background:none;border:none;cursor:pointer;font-weight:600;color:var(--muted);transition:color 0.3s, border-bottom 0.3s;}
-    .tab-btn.active{border-bottom:3px solid var(--brand);color:var(--ink);}
+    .tab-btn{padding:10px 20px;background:none;border:none;cursor:pointer;font-weight:600;color:var(--muted);}
+    .tab-btn.active{border-bottom:3px solid var(--accent-color);color:var(--heading-color);}
     .tab-content{display:none;}
     .tab-content.active{display:block;}
-    .search-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem; flex-wrap: wrap;}
-    .search-bar input{flex-grow:1;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;transition:border-color 0.3s;}
-    .search-bar input:focus{outline:none;border-color:var(--brand);}
+    .search-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+    .search-bar input{flex-grow:1;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;}
     .search-bar select{padding:10px;border:1px solid #ccc;border-radius:6px;}
-    .orders-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:1.5rem;}
-    .order-card{
-      background:var(--panel);
-      padding:1.5rem;
-      border-radius:8px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05);
-      position:relative;
-      overflow:hidden;
-      transition:transform 0.2s;
-    }
-    .order-card:hover{transform:translateY(-5px);}
-    .order-card.new{border-left:4px solid var(--brand);}
-    .order-card.pending{border-left:4px solid var(--warn);}
-    .order-card.completed{border-left:4px solid var(--ok);}
-    .order-card h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;font-size:1.2rem;color:var(--ink);}
+    .orders-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:1rem;}
+    .order-card{background:#fafafa;padding:1.5rem;border-radius:8px;border:1px solid #e0e0e0;box-shadow:0 2px 5px rgba(0,0,0,0.03);position:relative;overflow:hidden;}
+    .order-card.new::before{content:'';position:absolute;top:0;left:0;width:10px;height:100%;background:var(--accent-color);}
+    .order-card.pending::before{content:'';position:absolute;top:0;left:0;width:10px;height:100%;background:#ffb300;}
+    .order-card h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;font-size:1.2rem;color:var(--heading-color);}
     .order-card .status{font-size:0.85rem;padding:4px 8px;border-radius:4px;color:#fff;font-weight:600;text-transform:uppercase;}
-    .status-new{background:var(--brand);}
-    .status-pending{background:var(--warn);}
-    .status-completed{background:var(--ok);}
+    .status-new{background:#ff7a00;}
+    .status-pending{background:#ffb300;}
+    .status-completed{background:#00b894;}
     .order-details{font-size:0.9rem;color:var(--muted);margin-top:0.5rem;}
     .order-details ul{list-style:none;padding:0;margin:0;}
-    .order-details li{margin-bottom:0.5rem;display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:0.5rem;}
-    .order-details li:last-child{border-bottom:none;}
-    .order-details li span:last-child{font-weight:600;color:var(--ink);}
+    .order-details li{margin-bottom:0.5rem;display:flex;justify-content:space-between;}
+    .order-details li span:last-child{font-weight:600;}
     .order-actions{display:flex;gap:0.5rem;margin-top:1rem;justify-content:flex-end;}
-    .btn{padding:10px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.9rem;transition:background 0.3s;}
-    .btn-primary{background:var(--brand);color:#fff;}
-    .btn-primary:hover{background:#d86900;}
-    .btn-secondary{background:#e0e0e0;color:var(--ink);}
+    .btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.9rem;}
+    .btn-primary{background:var(--button-bg);color:var(--button-text);}
+    .btn-primary:hover{background:var(--button-hover);}
+    .btn-secondary{background:#e0e0e0;color:var(--text-color);}
     .btn-secondary:hover{background:#d0d0d0;}
-    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:1.5rem;border-radius:8px;overflow:hidden;box-shadow:var(--ring);}
-    table th, table td{padding:12px;border-bottom:1px solid #f0f0f0;text-align:left;}
-    table th{background:#fafafa;font-weight:600;color:var(--muted);}
-    table tbody tr:hover{background:#f6f6f6;}
+    table{width:100%;border-collapse:collapse;margin-top:1.5rem;}
+    table th, table td{padding:12px;border-bottom:1px solid #e0e0e0;text-align:left;}
+    table th{background:#fafafa;font-weight:600;}
     table img{max-height:50px;border-radius:4px;}
     .table-responsive{overflow-x:auto;}
-    
-    .login-container{
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        min-height:100vh;
-        background:var(--bg);
-    }
-    .login-box{
-        background:var(--panel);
-        padding:2rem;
-        border-radius:8px;
-        box-shadow:var(--ring);
-        text-align:center;
-        width:90%;
-        max-width:400px;
-    }
-    .login-box h1{margin-bottom:1.5rem;font-size:1.5rem;color:var(--ink);}
-    .login-box input{
-        width:100%;
-        padding:12px;
-        margin-bottom:1rem;
-        border:1px solid #ccc;
-        border-radius:6px;
-        font-size:1rem;
-    }
-    .login-box .btn{
-        width:100%;
-        padding:12px;
-    }
 
     /* Modal styles */
     .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity 0.3s ease;}
     .modal-overlay.active{opacity:1;visibility:visible;}
-    .modal-content{background:var(--panel);padding:2rem;border-radius:8px;max-width:600px;width:90%;transform:translateY(-50px);transition:transform 0.3s ease;box-shadow:0 10px 25px rgba(0,0,0,0.2);}
+    .modal-content{background:var(--panel-bg);padding:2rem;border-radius:8px;max-width:600px;width:90%;transform:translateY(-50px);transition:transform 0.3s ease;box-shadow:0 10px 25px rgba(0,0,0,0.2);}
     .modal-overlay.active .modal-content{transform:translateY(0);}
     .modal-close{position:absolute;top:1rem;right:1rem;font-size:1.5rem;cursor:pointer;color:#888;}
     .modal-content h2{margin-top:0;}
@@ -137,7 +91,6 @@
         padding: 2rem;
         background: #fff;
         color: #000;
-        font-family: Arial, sans-serif;
       }
       .no-print {
         display: none !important;
@@ -150,89 +103,69 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-  <!-- Pantalla de inicio de sesión -->
-  <div id="loginScreen" class="login-container">
-    <div class="login-box">
-      <img src="https://placehold.co/100x100/FF7A00/FFFFFF?text=W" alt="WapMarket Logo" style="margin-bottom:1.5rem;border-radius:10px;">
-      <h1>Acceder a tu Panel de Control</h1>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
-        <input type="password" id="loginPassword" placeholder="Contraseña" required>
-        <button type="submit" class="btn btn-primary">Acceder</button>
-      </form>
+  <div class="header">
+    <div class="wrapper">
+      <div class="row">
+        <div class="logo">WapMarket</div>
+        <div class="business-info" id="businessInfo">
+          <img src="https://placehold.co/40x40/FF7A00/FFFFFF?text=B" alt="Negocio">
+          <span id="businessName">Nombre del Negocio</span>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
   </div>
 
-  <!-- Panel de control (oculto por defecto) -->
-  <div id="dashboard" style="display:none;">
-    <div class="header">
-      <div class="wrapper">
-        <div class="row">
-          <div class="logo">WapMarket</div>
-          <div class="business-info" id="businessInfo">
-            <img src="https://placehold.co/40x40/FF7A00/FFFFFF?text=B" alt="Negocio">
-            <span id="businessName"></span>
-          </div>
-        </div>
-        <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+  <div class="container content-area">
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="orders">Pedidos</button>
+        <button class="tab-btn" data-tab="products">Productos</button>
       </div>
-    </div>
 
-    <div class="container content-area">
-      <div class="panel">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="orders">Pedidos</button>
-          <button class="tab-btn" data-tab="products">Productos</button>
+      <div id="orders" class="tab-content active">
+        <h1>Pedidos del Negocio</h1>
+        
+        <div class="search-bar">
+          <input type="text" id="orderSearch" placeholder="Buscar por código, cliente, teléfono, estado...">
+          <select id="orderSort">
+            <option value="createdAt-desc">Fecha (Más recientes)</option>
+            <option value="createdAt-asc">Fecha (Más antiguos)</option>
+            <option value="status-desc">Estado (Nuevos primero)</option>
+            <option value="status-asc">Estado (Completados primero)</option>
+          </select>
         </div>
 
-        <!-- Pestaña de Pedidos -->
-        <div id="orders" class="tab-content active">
-          <h1>Pedidos del Negocio</h1>
-          
-          <div class="search-bar">
-            <input type="text" id="orderSearch" placeholder="Buscar por código, cliente, teléfono...">
-            <select id="orderSort">
-              <option value="createdAt-desc">Fecha (Más recientes)</option>
-              <option value="createdAt-asc">Fecha (Más antiguos)</option>
-              <option value="status-desc">Estado (Nuevos primero)</option>
-              <option value="status-asc">Estado (Completados primero)</option>
-            </select>
-          </div>
-
-          <div id="ordersGrid" class="orders-grid">
-            <!-- Order cards will be injected here -->
-          </div>
+        <div id="ordersGrid" class="orders-grid">
+          <!-- Order cards will be injected here -->
         </div>
+      </div>
 
-        <!-- Pestaña de Productos -->
-        <div id="products" class="tab-content">
-          <h1>Productos del Negocio</h1>
-          <div class="table-responsive">
-            <table id="productsTable">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Imagen</th>
-                  <th>Fecha de Creación</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Product data will be injected here -->
-              </tbody>
-            </table>
-          </div>
+      <div id="products" class="tab-content">
+        <h1>Productos del Negocio</h1>
+        <div class="table-responsive">
+          <table id="productsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Imagen</th>
+                <th>Fecha de Creación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Product data will be injected here -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- Contenedor para la factura (para impresión) -->
   <div class="invoice-container" id="invoiceContainer"></div>
 
-  <!-- Modal para mensajes y alertas -->
   <div id="modalOverlay" class="modal-overlay">
     <div class="modal-content">
       <span class="modal-close" id="modalClose">&times;</span>
@@ -243,52 +176,59 @@
   </div>
 
   <script type="module">
-    // La lógica de conexión con el backend se mantiene intacta
-    let token = localStorage.getItem('bizToken');
-    let businessId = localStorage.getItem('bizId');
-    const API_BASE = 'https://wap-market-backend.web.app';
+    // Firebase and Firestore imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, query, onSnapshot, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Global variables for Firebase configuration, provided by the environment.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let token = localStorage.getItem('bizToken');
+    let userId = null;
+    let businessId = localStorage.getItem('bizId');
     let ordersMap = {};
 
-    // ================== UTILIDADES Y API ==================
-    function authHeaders() {
-      return { 'X-Auth-Token': token };
+    // API class for interacting with the backend
+    class API {
+        static async request(path, options) {
+            const url = `https://wap-market-backend.web.app${path}`;
+            const response = await fetch(url, options);
+            return response.json();
+        }
+        static get(path, options = {}) {
+            return this.request(path, { ...options, method: 'GET' });
+        }
+        static put(path, body, options = {}) {
+            return this.request(path, {
+                ...options,
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...options.headers },
+                body: JSON.stringify(body)
+            });
+        }
+        static post(path, body, options = {}) {
+            return this.request(path, {
+                ...options,
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...options.headers },
+                body: JSON.stringify(body)
+            });
+        }
     }
 
-    class API {
-      static async request(path, options = {}) {
-        const url = `${API_BASE}${path}`;
-        try {
-          const response = await fetch(url, options);
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || `Error HTTP! status: ${response.status}`);
-          }
-          return response.json();
-        } catch (error) {
-          console.error("API Request Error:", error);
-          throw error;
-        }
-      }
-      static get(path) {
-        return this.request(path, { headers: authHeaders() });
-      }
-      static post(path, body) {
-        return this.request(path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(body)
-        });
-      }
-      static put(path, body) {
-        return this.request(path, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(body)
-        });
-      }
+    // Authentication headers for API calls
+    function authHeaders() {
+        return { 'Authorization': `Bearer ${token}` };
     }
-    
+
+    // Show a custom modal dialog
     function showModal(title, message, actions = []) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalMessage').textContent = message;
@@ -307,38 +247,25 @@
       document.getElementById('modalOverlay').classList.add('active');
     }
 
+    // Hide the modal dialog
     function hideModal() {
       document.getElementById('modalOverlay').classList.remove('active');
     }
     document.getElementById('modalClose').addEventListener('click', hideModal);
 
     // ================== GESTIÓN DE AUTENTICACIÓN ==================
-    async function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      try {
-        const data = await API.post('/business/login', { email, password });
-        token = data.token;
-        businessId = data.business_info.id;
-        localStorage.setItem('bizToken', token);
-        localStorage.setItem('bizId', businessId);
-        showDashboard();
-        initDashboard();
-      } catch (error) {
-        console.error("Error de autenticación:", error);
-        showModal('Error de Acceso', 'Credenciales no válidas. Por favor, inténtalo de nuevo.');
-      }
-    }
-
-    function showDashboard() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-    }
-
-    function showLogin() {
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('dashboard').style.display = 'none';
+    async function initAuth() {
+        try {
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+            userId = auth.currentUser.uid;
+            console.log("Autenticación exitosa. User ID:", userId);
+        } catch (error) {
+            console.error("Error de autenticación:", error);
+        }
     }
 
     // ================== GESTIÓN DE PESTAÑAS ==================
@@ -357,18 +284,24 @@
     const orderSort = document.getElementById('orderSort');
 
     async function loadOrders() {
-      if (!token) return;
-      try {
-        const data = await API.get('/business/orders');
-        ordersMap = (data.items || []).reduce((acc, order) => {
-          acc[order.id] = order;
-          return acc;
-        }, {});
-        renderOrders(Object.values(ordersMap));
-      } catch (e) {
-        console.error("Error al cargar pedidos:", e);
-        showModal('Error', 'No se pudieron cargar los pedidos. Por favor, inténtalo de nuevo.');
-      }
+      if (!userId) return;
+
+      const ordersCollection = collection(db, `artifacts/${appId}/public/data/orders`);
+      let ordersQuery = query(ordersCollection, where("business_id", "==", businessId));
+
+      const unsubscribe = onSnapshot(ordersQuery, (querySnapshot) => {
+        let orders = [];
+        querySnapshot.forEach((doc) => {
+          const order = { id: doc.id, ...doc.data() };
+          orders.push(order);
+          ordersMap[order.id] = order;
+        });
+        renderOrders(orders);
+      }, (error) => {
+        console.error("Error al escuchar cambios en los pedidos:", error);
+      });
+
+      return unsubscribe;
     }
 
     function renderOrders(orders) {
@@ -376,7 +309,7 @@
       const sortBy = orderSort.value;
       
       const filteredOrders = orders.filter(order => {
-        const orderText = `${order.id.slice(0, 8)} ${order.customer_name || ''} ${order.customer_phone || ''} ${order.status || ''}`.toLowerCase();
+        const orderText = JSON.stringify(order).toLowerCase();
         return orderText.includes(searchTerm);
       });
 
@@ -415,7 +348,7 @@
           cardClass = 'pending';
         } else {
           statusClass = 'status-completed';
-          cardClass = 'completed';
+          cardClass = '';
         }
         
         card.className = `order-card ${cardClass}`;
@@ -459,9 +392,14 @@
           const status = btn.getAttribute('data-status');
           
           try {
-            await API.put(`/business/orders/${id}`, { status: status });
-            showModal('Pedido Actualizado', `El pedido #${id.slice(0, 8)} ha sido actualizado a "${status}".`);
-            loadOrders();
+            const orderRef = doc(db, `artifacts/${appId}/public/data/orders`, id);
+            await setDoc(orderRef, { status: status, updated_at: new Date().toISOString() }, { merge: true });
+            
+            showModal('Pedido Actualizado', `El pedido #${id.slice(0, 8)} ha sido actualizado a "${status}".`, [{
+              label: 'OK',
+              class: 'btn-primary',
+              handler: () => {}
+            }]);
           } catch (e) {
             console.error("Error al actualizar el estado del pedido:", e);
             showModal('Error', 'No se pudo actualizar el estado del pedido. Por favor, inténtalo de nuevo.');
@@ -485,10 +423,10 @@
     function generateInvoice(order) {
         const invoiceContainer = document.getElementById('invoiceContainer');
         invoiceContainer.innerHTML = `
-          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
+          <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 600px; margin: auto;">
             <h2 style="text-align: center; margin-bottom: 20px;">Factura</h2>
             <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
-              <p><strong>Código de Pedido:</strong> <span style="font-weight: bold; font-size: 1.2rem; color: #ff7a00;">${order.id.slice(0, 8)}</span></p>
+              <p><strong>Pedido ID:</strong> ${order.id}</p>
               <p><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleString()}</p>
               <p><strong>Cliente:</strong> ${order.customer_name || 'N/A'}</p>
               <p><strong>Teléfono:</strong> ${order.customer_phone || 'N/A'}</p>
@@ -499,6 +437,7 @@
                 <tr style="background-color: #f2f2f2;">
                   <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Producto</th>
                   <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Cantidad</th>
+                  <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Precio Unitario</th>
                   <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Total</th>
                 </tr>
               </thead>
@@ -507,6 +446,7 @@
                   <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;">${item.title || 'Producto desconocido'}</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${item.qty}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${Number(item.price_xaf || 0).toLocaleString()} XAF</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">${Number(item.total_price || 0).toLocaleString()} XAF</td>
                   </tr>
                 `).join('')}
@@ -525,12 +465,15 @@
 
     // ================== CARGAR PRODUCTOS ==================
     async function loadProducts() {
-      if (!token) return;
-      try {
-        const data = await API.get('/business/products');
+      if (!userId) return;
+      const productsCollection = collection(db, `artifacts/${appId}/public/data/products`);
+      const productsQuery = query(productsCollection, where("business_id", "==", businessId));
+
+      const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
         const tb = document.querySelector('#productsTable tbody');
         tb.innerHTML = '';
-        (data.items || []).forEach(p => {
+        querySnapshot.forEach((doc) => {
+          const p = { id: doc.id, ...doc.data() };
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${p.id.slice(0, 8)}</td>
@@ -542,10 +485,11 @@
           `;
           tb.appendChild(tr);
         });
-      } catch (e) {
-        console.error("Error al cargar productos:", e);
-        showModal('Error', 'No se pudieron cargar los productos.');
-      }
+      }, (error) => {
+        console.error("Error al escuchar cambios en los productos:", error);
+      });
+
+      return unsubscribe;
     }
 
     // ================== CERRAR SESIÓN ==================
@@ -554,30 +498,21 @@
       localStorage.removeItem('bizId');
       token = null;
       businessId = null;
-      showLogin();
+      window.location.reload();
     });
 
     // ================== INICIALIZACIÓN ==================
-    function init() {
-      const loginForm = document.getElementById('loginForm');
-      if (loginForm) {
-          loginForm.addEventListener('submit', handleLogin);
-      }
-      
-      if (token) {
-        showDashboard();
-        initDashboard();
-      } else {
-        showLogin();
-      }
-    }
-
-    function initDashboard() {
+    async function init() {
+      await initAuth();
+      if (businessId) {
         document.getElementById('businessName').textContent = businessId.slice(0, 8);
         loadOrders();
         loadProducts();
+      } else {
+        showModal('Acceso denegado', 'No se encontró un ID de negocio. Por favor, asegúrate de haber iniciado sesión.');
+        document.getElementById('logoutBtn').textContent = 'Ir a la página de inicio';
+      }
     }
-
     init();
   </script>
 </body>
