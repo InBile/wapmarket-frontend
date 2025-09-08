@@ -200,6 +200,70 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   background:transparent;
 }
 
+/* New Cart Icon */
+.cart-btn-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--amz-yellow);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  border: none;
+}
+.cart-btn-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cart-btn-icon[data-has-items="true"]::after {
+  content: attr(data-item-count);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Responsive grid for the main layout */
+@media (max-width: 768px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+    padding-right: 0;
+  }
+}
+
+/* Mobile-first header layout */
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  .header-content .search {
+    width: 100%;
+  }
+}
+
 /* New pagination styles */
 .pagination {
   display: flex;
@@ -234,6 +298,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
       <ul id="suggBox" class="sugg" role="listbox" style="display:none"></ul>
     </form>
     <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
+      <!-- Icono profesional de carrito de compras -->
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
       </svg>
@@ -273,6 +338,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   <span>© 2025 WapMarket</span>
 </footer>
 
+<!-- Modales de confirmación y alerta personalizados -->
 <div id="customModal" class="modal">
   <div class="dialog">
     <p id="modalMessage"></p>
@@ -283,17 +349,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   </div>
 </div>
 
-<div class="modal" id="productModal">
-  <div class="dialog">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <h3 style="margin:0">Detalles del producto</h3>
-      <button class="btn ghost" type="button" onclick="closeProductModal()">✕</button>
-    </div>
-    <div id="productModalContent">
-      </div>
-  </div>
-</div>
-
+<!-- Drawer Carrito -->
 <div class="modal right" id="cartModal">
   <div class="dialog">
     <div style="display:flex;align-items:center;justify-content:space-between">
@@ -384,7 +440,6 @@ function updateCartCount(){
   btn.setAttribute('data-has-items', count > 0 ? 'true' : 'false');
   btn.setAttribute('data-item-count', count);
 }
-function closeProductModal() { document.getElementById('productModal').style.display='none'; }
 function closeCart(){ document.getElementById('cartModal').style.display='none'; }
 function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
 
@@ -421,19 +476,6 @@ async function loadBusinesses(){
     box.appendChild(el);
   });
   if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
-}
-
-function openProductModal(product) {
-  const modal = document.getElementById('productModal');
-  const content = document.getElementById('productModalContent');
-  content.innerHTML = `
-    <img src="${product.image_url || 'https://placehold.co/400x300?text=Sin+imagen'}" style="width:100%;height:auto;border-radius:8px;margin-bottom:1rem">
-    <h4>${product.title}</h4>
-    <p><strong>Precio:</strong> ${product.price_xaf ? Number(product.price_xaf).toLocaleString() + ' XAF' : 'No disponible'}</p>
-    <p><strong>Categoría:</strong> <span class="badge">${product.category || 'N/A'}</span></p>
-    <p class="small" style="margin-top:1rem">${product.description || 'No hay descripción disponible para este producto.'}</p>
-  `;
-  modal.style.display = 'flex';
 }
 
 function renderProductsPage(){
@@ -506,7 +548,8 @@ function renderProductsPage(){
     if (!p) return;
 
     if (action === 'view') {
-      openProductModal(p);
+      // Redirigir a la página de detalles del producto
+      window.location.href = `product_detail.html?product_id=${p.id}&business_id=${p.business_id}`;
       return;
     }
     
