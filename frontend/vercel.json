@@ -1,23 +1,30 @@
 {
-  "version": 2,
-  "name": "wapmarket-frontend",
-  "public": true,
   "rewrites": [
     {
       "source": "/",
-      "destination": "/landing.html"
+      "destination": "/frontend/landing.html"
     },
     {
       "source": "/index",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     },
     {
       "source": "/admin",
-      "destination": "/admin.html"
+      "destination": "/frontend/admin.html"
     },
     {
-      "source": "/business",
-      "destination": "/business.html"
+      "source": "/market",
+      "destination": "/frontend/market.html"
+    },
+    {
+      "source": "/frontend/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     }
   ]
 }
