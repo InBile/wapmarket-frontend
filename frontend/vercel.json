@@ -1,0 +1,24 @@
+
+{
+  "version": 2,
+  "name": "wapmarket-frontend",
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/index",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/business",
+      "destination": "/business.html"
+    }
+  ]
+}
