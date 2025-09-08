@@ -861,40 +861,48 @@ function addMessage(text, sender) {
 }
 
 // **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO CON TU CLAVE**
-async function sendToAI(query) {
-    addMessage(query, 'user');
-    chatInput.value = '';
+<script>
+async function sendToAI() {
+  try {
+    const input = document.getElementById('chatInput'); // tu input real
+    const message = input.value.trim();
+    if (!message) return;
 
-    try {
-        // Llamamos a tu endpoint backend
-        const res = await fetch('/api/public/ai/ask', {
+    // Mostrar mensaje del usuario en el chat
+    const chatContainer = document.getElementById('chatMessages'); // tu contenedor real
+    addMessage(message, 'user');
+
+    input.value = ''; // limpiar input
+
+    // Llamada al backend
+    const res = await fetch('/api/public/ai/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: userMessage })
+      body: JSON.stringify({ query: message })
     });
-        const data = await res.json();
-        addMessage(data.message, 'ai');
-    } catch (error) {
-        console.error('Error al comunicarse con el asistente:', error);
-        addMessage("Lo siento, no puedo conectarme con el asistente en este momento.", 'ai');
+
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Error comunicándose con el asistente');
     }
+
+    // Mostrar respuesta del asistente
+    addMessage(data.text, 'ai');
+
+  } catch (err) {
+    console.error('Error al comunicarse con el asistente:', err);
+    showModal('Error al comunicarse con el asistente: ' + err.message);
+  }
 }
 
-sendChatBtn.addEventListener('click', () => {
-    const text = chatInput.value.trim();
-    if (text) {
-        sendToAI(text);
-    }
+// Conectar la función al botón de enviar y al Enter
+document.getElementById('sendChatBtn').addEventListener('click', sendToAI);
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendToAI();
 });
+</script>
 
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const text = chatInput.value.trim();
-        if (text) {
-            sendToAI(text);
-        }
-    }
-});
 
 // Lógica de reconocimiento de voz
 let recognition = null;
