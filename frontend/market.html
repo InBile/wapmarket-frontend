@@ -867,11 +867,11 @@ async function sendToAI(query) {
 
     try {
         // Llamamos a tu endpoint backend
-        const res = await fetch('/api/ai', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query })
-        });
+        const res = await fetch('/api/public/ai/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: userMessage })
+    });
         const data = await res.json();
         addMessage(data.message, 'ai');
     } catch (error) {
