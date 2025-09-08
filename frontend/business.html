@@ -4,581 +4,291 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Vendedor — WapMarket</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    /* Estilos basados en la identidad visual de WapMarket */
-    :root{
-      --bg:#f7f8fb;
-      --panel:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --brand:#ff7a00;
-      --brand-2:#ffb43a;
-      --brand-ink:#2b1600;
-      --ok:#00b894;
-      --warn:#ffb300;
-      --ring: 0 10px 30px rgba(0,0,0,.05);
-      --ring-2: 0 20px 60px rgba(0,0,0,.12);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:Inter, sans-serif;color:var(--ink); line-height: 1.6;}
-    .container{max-width:1200px;margin:0 auto;padding:0 16px}
-    .header{position:sticky;top:0;z-index:50;background:var(--ink);padding:10px 0}
-    .header .wrapper{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-    .logo{color:#fff;font-weight:800;letter-spacing:.2px;font-size:1.5rem;}
-    .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;transition:background 0.3s;}
-    .logout-btn:hover{background:rgba(255,255,255,.08)}
-    .business-info{display:flex;align-items:center;gap:1rem;color:#fff;}
-    .business-info img{width:40px;height:40px;border-radius:50%;}
-    .content-area{padding:2rem 0;}
-    .panel{background:var(--panel);padding:2rem;border-radius:8px;box-shadow:var(--ring);margin-bottom:2rem;}
-    h1, h2{color:var(--ink);margin-top:0;font-weight:600;}
-    h1{font-size:2rem;margin-bottom:1rem;}
-    h2{font-size:1.5rem;margin-bottom:1.5rem;}
-    .tabs{display:flex;gap:1rem;margin-bottom:2rem;}
-    .tab-btn{padding:10px 20px;background:none;border:none;cursor:pointer;font-weight:600;color:var(--muted);transition:color 0.3s, border-bottom 0.3s;}
-    .tab-btn.active{border-bottom:3px solid var(--brand);color:var(--ink);}
-    .tab-content{display:none;}
-    .tab-content.active{display:block;}
-    .search-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem; flex-wrap: wrap;}
-    .search-bar input{flex-grow:1;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;transition:border-color 0.3s;}
-    .search-bar input:focus{outline:none;border-color:var(--brand);}
-    .search-bar select{padding:10px;border:1px solid #ccc;border-radius:6px;}
-    .orders-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:1.5rem;}
-    .order-card{
-      background:var(--panel);
-      padding:1.5rem;
-      border-radius:8px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05);
-      position:relative;
-      overflow:hidden;
-      transition:transform 0.2s;
-    }
-    .order-card:hover{transform:translateY(-5px);}
-    .order-card.new{border-left:4px solid var(--brand);}
-    .order-card.pending{border-left:4px solid var(--warn);}
-    .order-card.completed{border-left:4px solid var(--ok);}
-    .order-card h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;font-size:1.2rem;color:var(--ink);}
-    .order-card .status{font-size:0.85rem;padding:4px 8px;border-radius:4px;color:#fff;font-weight:600;text-transform:uppercase;}
-    .status-new{background:var(--brand);}
-    .status-pending{background:var(--warn);}
-    .status-completed{background:var(--ok);}
-    .order-details{font-size:0.9rem;color:var(--muted);margin-top:0.5rem;}
-    .order-details ul{list-style:none;padding:0;margin:0;}
-    .order-details li{margin-bottom:0.5rem;display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:0.5rem;}
-    .order-details li:last-child{border-bottom:none;}
-    .order-details li span:last-child{font-weight:600;color:var(--ink);}
-    .order-actions{display:flex;gap:0.5rem;margin-top:1rem;justify-content:flex-end;}
-    .btn{padding:10px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.9rem;transition:background 0.3s;}
-    .btn-primary{background:var(--brand);color:#fff;}
-    .btn-primary:hover{background:#d86900;}
-    .btn-secondary{background:#e0e0e0;color:var(--ink);}
-    .btn-secondary:hover{background:#d0d0d0;}
-    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:1.5rem;border-radius:8px;overflow:hidden;box-shadow:var(--ring);}
-    table th, table td{padding:12px;border-bottom:1px solid #f0f0f0;text-align:left;}
-    table th{background:#fafafa;font-weight:600;color:var(--muted);}
-    table tbody tr:hover{background:#f6f6f6;}
-    table img{max-height:50px;border-radius:4px;}
-    .table-responsive{overflow-x:auto;}
-    
-    .login-container{
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        min-height:100vh;
-        background:var(--bg);
-    }
-    .login-box{
-        background:var(--panel);
-        padding:2rem;
-        border-radius:8px;
-        box-shadow:var(--ring);
-        text-align:center;
-        width:90%;
-        max-width:400px;
-    }
-    .login-box h1{margin-bottom:1.5rem;font-size:1.5rem;color:var(--ink);}
-    .login-box input{
-        width:100%;
-        padding:12px;
-        margin-bottom:1rem;
-        border:1px solid #ccc;
-        border-radius:6px;
-        font-size:1rem;
-    }
-    .login-box .btn{
-        width:100%;
-        padding:12px;
-    }
+  <link rel="stylesheet" href="/styles.css">
 
-    /* Modal styles */
-    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity 0.3s ease;}
-    .modal-overlay.active{opacity:1;visibility:visible;}
-    .modal-content{background:var(--panel);padding:2rem;border-radius:8px;max-width:600px;width:90%;transform:translateY(-50px);transition:transform 0.3s ease;box-shadow:0 10px 25px rgba(0,0,0,0.2);}
-    .modal-overlay.active .modal-content{transform:translateY(0);}
-    .modal-close{position:absolute;top:1rem;right:1rem;font-size:1.5rem;cursor:pointer;color:#888;}
-    .modal-content h2{margin-top:0;}
-    
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      .invoice-container, .invoice-container * {
-        visibility: visible;
-      }
-      .invoice-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        padding: 2rem;
-        background: #fff;
-        color: #000;
-        font-family: Arial, sans-serif;
-      }
-      .no-print {
-        display: none !important;
-      }
-    }
-    .invoice-container{
-      display:none;
-    }
-  </style>
-  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --amz-dark:#131921;
+  --amz-light:#232f3e;
+  --amz-yellow:#febd69;
+  --amz-border:#e6e6e6;
+  --link:#007185;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eaeded;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111}
+.header{position:sticky;top:0;z-index:50;background:var(--amz-dark);padding:10px 0}
+.wrapper{max-width:1200px;margin:0 auto;padding:0 16px}
+.row{display:flex;align-items:center;gap:12px}
+.logo{color:#fff;font-weight:800;letter-spacing:.2px}
+.logout-btn{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff}
+.logout-btn:hover{background:rgba(255,255,255,.08)}
+/* Business identity */
+.biz-head{color:#fff;margin-left:auto;display:flex;align-items:center;gap:8px}
+.biz-badge{display:inline-flex;align-items:center;gap:6px;color:#fff;font-weight:700}
+.biz-badge .v{width:18px;height:18px;border-radius:50%;background:#12b886;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--amz-border);border-radius:0;box-shadow:none;margin:16px 0}
+h3{margin:0 0 12px}
+label{display:block;margin:10px 0;font-weight:600}
+input,select,textarea{width:100%;height:40px;padding:8px;border:1px solid var(--amz-border);border-radius:4px;background:#fff}
+textarea{height:88px;resize:vertical}
+.btn{height:38px;border-radius:20px;padding:0 16px;border:1px solid #d5d9d9;background:var(--amz-yellow);font-weight:700;color:#111;cursor:pointer}
+.btn.ghost{background:#fff;border:1px solid var(--amz-border);}
+.btn.danger{background:#fff;border:1px solid #b12704;color:#b12704}
+.btn.small{height:30px;border-radius:14px;padding:0 10px;font-size:.9rem}
+
+/* Tables */
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid var(--amz-border);padding:10px;vertical-align:middle;text-align:left;background:#fff}
+.table th{background:#f8f8f8}
+.table img{border-radius:4px}
+.table-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Responsive: make tables scroll on small screens */
+.table-wrap{overflow:auto}
+@media (max-width: 900px){
+  .row.wrap{flex-wrap:wrap}
+  .biz-head{order:3;width:100%;justify-content:flex-start;margin:6px 0 0}
+}
+@media (max-width: 640px){
+  .wrapper{padding:0 10px}
+  .table th,.table td{padding:8px}
+}
+</style>
+
 </head>
 <body>
-  <!-- Pantalla de inicio de sesión -->
-  <div id="loginScreen" class="login-container">
-    <div class="login-box">
-      <img src="https://placehold.co/100x100/FF7A00/FFFFFF?text=W" alt="WapMarket Logo" style="margin-bottom:1.5rem;border-radius:10px;">
-      <h1>Acceder a tu Panel de Control</h1>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
-        <input type="password" id="loginPassword" placeholder="Contraseña" required>
-        <button type="submit" class="btn btn-primary">Acceder</button>
+<header class="header">
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div><div class="biz-head"><span id="bizName">Mi negocio</span><span id="bizVerified" class="biz-badge" style="display:none"><span class="v">✓</span> Verificado</span></div><button id="logoutBtn" class="btn logout-btn">Cerrar sesión</button>
+  </div>
+</header>
+
+<main class="wrapper">
+  <!-- Login -->
+  <div class="card" style="padding:16px;max-width:800px" id="loginBox">
+    <h3>Login de Negocio</h3>
+    <form onsubmit="return false;">
+      <label>Email <input id="lemail" type="email" required></label>
+      <label>Contraseña <input id="lpass" type="password" required></label>
+      <button class="btn" id="btnLogin">Entrar</button>
+    </form>
+  </div>
+
+  <!-- Panel negocio -->
+  <div id="panel" style="display:none">
+    <!-- Publicar producto -->
+    <div class="card" style="padding:16px;max-width:800px">
+      <h3>Publicar producto</h3>
+      <form id="prodForm" onsubmit="return false;">
+        <label>Título <input id="title" required></label>
+        <label>Descripción <textarea id="description"></textarea></label>
+        <label>Categoría
+          <select id="category">
+            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
+            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
+          </select>
+        </label>
+        <label>Precio (XAF) <input id="price" type="number" min="0"></label>
+        <label>Imagen (archivo) <input id="image" type="file" accept="image/*"></label>
+        <button class="btn" id="btnPublicar">Publicar</button>
       </form>
     </div>
-  </div>
 
-  <!-- Panel de control (oculto por defecto) -->
-  <div id="dashboard" style="display:none;">
-    <div class="header">
-      <div class="wrapper">
-        <div class="row">
-          <div class="logo">WapMarket</div>
-          <div class="business-info" id="businessInfo">
-            <img src="https://placehold.co/40x40/FF7A00/FFFFFF?text=B" alt="Negocio">
-            <span id="businessName"></span>
-          </div>
-        </div>
-        <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
-      </div>
+    <!-- Pedidos -->
+    <div class="card" style="padding:16px;max-width:1100px">
+      <h3>Pedidos</h3>
+      <div class="table-wrap"><table class="table" id="ordersTable">
+        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
+        <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
     </div>
 
-    <div class="container content-area">
-      <div class="panel">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="orders">Pedidos</button>
-          <button class="tab-btn" data-tab="products">Productos</button>
-        </div>
-
-        <!-- Pestaña de Pedidos -->
-        <div id="orders" class="tab-content active">
-          <h1>Pedidos del Negocio</h1>
-          
-          <div class="search-bar">
-            <input type="text" id="orderSearch" placeholder="Buscar por código, cliente, teléfono...">
-            <select id="orderSort">
-              <option value="createdAt-desc">Fecha (Más recientes)</option>
-              <option value="createdAt-asc">Fecha (Más antiguos)</option>
-              <option value="status-desc">Estado (Nuevos primero)</option>
-              <option value="status-asc">Estado (Completados primero)</option>
-            </select>
-          </div>
-
-          <div id="ordersGrid" class="orders-grid">
-            <!-- Order cards will be injected here -->
-          </div>
-        </div>
-
-        <!-- Pestaña de Productos -->
-        <div id="products" class="tab-content">
-          <h1>Productos del Negocio</h1>
-          <div class="table-responsive">
-            <table id="productsTable">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Imagen</th>
-                  <th>Fecha de Creación</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Product data will be injected here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    <!-- Productos -->
+    <div class="card" style="padding:16px;max-width:1100px">
+      <h3>Mis Productos</h3>
+      <div class="table-wrap"><table class="table" id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Título</th><th>Categoría</th><th>Precio</th><th>Imagen</th><th>Creado</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table></div>
     </div>
   </div>
+</main>
+
+<script src="/api.js"></script>
+<script>
+
+// API DELETE polyfill si no existe
+if (!API.delete){
+  API.delete = function(url, opts){ opts = opts||{}; opts.method='DELETE'; return API.request(url, null, opts); };
+}
+
+let token = null; 
+let business_id = null;
+function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
+
+
+// ============= PERFIL DEL NEGOCIO (nombre e insignia) =============
+async function loadProfile(){
+  try{
+    let me = await API.get('/business/me', { headers: authHeaders() });
+    if (me && me.name){ document.getElementById('bizName').textContent = me.name; }
+    if (me && (me.verified || me.is_verified)){ document.getElementById('bizVerified').style.display='inline-flex'; }
+    if (me && me.info){ document.getElementById('bizName').title = me.info; }
+  }catch(e){
+    // fallback silencioso si el endpoint no existe
+    console.warn('No se pudo cargar el perfil del negocio', e);
+  }
+}
+
+// ============= UTIL: mapa de pedidos para acciones rápidas =============
+const ordersMap = {};
+
+// ============= ENVIAR WHATSAPP AL CLIENTE =============
+function sendWhatsAppForOrder(order, newStatus){
+  try{
+    if(!order) return;
+    const phone = String(order.customer_phone||'').replace(/[^0-9]/g,'');
+    if(!phone) return;
+    const delivery = order.delivery ? `Sí (+${Number(order.delivery_fee_xaf||0).toLocaleString()} XAF)` : 'No';
+    const total = (Number(order.price_xaf||0) * Number(order.qty||1)) + Number(order.delivery ? (order.delivery_fee_xaf||0):0);
+    const text = [
+      'WapMarket — Confirmación de pedido',
+      `Negocio: ${document.getElementById('bizName').textContent}`,
+      `Pedido #${order.id} (grupo ${order.group_id||'-'})`,
+      `Producto: ${order.title}`,
+      `Cantidad: ${order.qty}`,
+      `Envío: ${delivery}`,
+      `Total: ${total.toLocaleString()} XAF`,
+      `Estado: ${newStatus}`,
+      '',
+      'Gracias por su compra.'
+    ].join('\n');
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }catch(err){ console.warn('WhatsApp falló', err); }
+}
+
+// ================== LOGIN ==================
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const res = await API.post('/business/login', { email: lemail.value, password: lpass.value });
+  if (res.error){ alert(res.error); return; }
+  token = res.token; business_id = res.business_id;
+  localStorage.setItem('bizToken', token);
+  localStorage.setItem('bizId', String(business_id));
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('panel').style.display='block';
+  loadOrders();
+  loadProducts(); // ✅ cargar productos al entrar
+  loadProfile();
+});
+
+// Autologin si ya hay token guardado
+token = localStorage.getItem('bizToken'); 
+business_id = Number(localStorage.getItem('bizId')||0);
+if (token && business_id){ 
+  document.getElementById('loginBox').style.display='none'; 
+  document.getElementById('panel').style.display='block'; 
+  loadOrders(); 
+  loadProducts(); // ✅ también aquí
+  loadProfile();
+}
+
+// ================== PUBLICAR PRODUCTO ==================
+document.getElementById('btnPublicar').addEventListener('click', async ()=>{
+  if (!token) return alert('Primero inicia sesión');
+  let imageUrl = '';
+  const file = document.getElementById('image').files[0];
+  if (file){
+    const fd = new FormData(); 
+    fd.append('image', file);
+    const up = await API.upload('/business/upload-image', fd, { headers: authHeaders() });
+    if (up.error) return alert(up.error);
+    imageUrl = up.url;
+  }
+  const payload = {
+    title: title.value, 
+    description: description.value, 
+    category: category.value,
+    price_xaf: Number(price.value || 0), 
+    image_url: imageUrl
+  };
+  const res = await API.post('/business/products', payload, { headers: authHeaders() });
+  if (res.error){ alert(res.error); return; }
+  alert('Producto publicado');
+  document.getElementById('prodForm').reset();
+  loadProducts(); // ✅ refrescar lista tras publicar
+});
+
+// ================== CARGAR PEDIDOS ==================
+async function loadOrders(){
+  if (!token) return;
+  const data = await API.get('/business/orders', { headers: authHeaders() });
+  const tb = document.querySelector('#ordersTable tbody'); 
+  tb.innerHTML='';
   
-  <!-- Contenedor para la factura (para impresión) -->
-  <div class="invoice-container" id="invoiceContainer"></div>
+(data.items||[]).forEach(o=>{
+  const tr = document.createElement('tr');
+  const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
+  tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
+                  <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
+                  <td><span class="small">${o.status}</span></td>
+                  <td class="table-actions">
+                    <button class="btn small" data-id="${o.id}" data-s="accepted">Aceptar</button>
+                    <button class="btn small ghost" data-id="${o.id}" data-s="rejected">Rechazar</button>
+                    <button class="btn small" data-id="${o.id}" data-s="fulfilled">Entregado</button>
+                  </td>`;
+  tb.appendChild(tr);
+  ordersMap[o.id] = o;
+});
 
-  <!-- Modal para mensajes y alertas -->
-  <div id="modalOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <span class="modal-close" id="modalClose">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p id="modalMessage"></p>
-      <div class="modal-actions" id="modalActions"></div>
-    </div>
-  </div>
+  tb.onclick = async (e)=>{
+    const btn = e.target.closest('button.btn'); if (!btn) return;
+    const id = btn.getAttribute('data-id'); 
+    const s = btn.getAttribute('data-s');
+    const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
+    if (r.error) return alert(r.error);
+    try{ sendWhatsAppForOrder(ordersMap[id], s); }catch(_){}
+    loadOrders();
+  };
+}
 
-  <script type="module">
-    // La lógica de conexión con el backend se mantiene intacta
-    let token = localStorage.getItem('bizToken');
-    let businessId = localStorage.getItem('bizId');
-    const API_BASE = 'https://wap-market-backend.web.app';
-
-    let ordersMap = {};
-
-    // ================== UTILIDADES Y API ==================
-    function authHeaders() {
-      return { 'X-Auth-Token': token };
-    }
-
-    class API {
-      static async request(path, options = {}) {
-        const url = `${API_BASE}${path}`;
-        try {
-          const response = await fetch(url, options);
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || `Error HTTP! status: ${response.status}`);
-          }
-          return response.json();
-        } catch (error) {
-          console.error("API Request Error:", error);
-          throw error;
-        }
-      }
-      static get(path) {
-        return this.request(path, { headers: authHeaders() });
-      }
-      static post(path, body) {
-        return this.request(path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(body)
-        });
-      }
-      static put(path, body) {
-        return this.request(path, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify(body)
-        });
-      }
-    }
-    
-    function showModal(title, message, actions = []) {
-      document.getElementById('modalTitle').textContent = title;
-      document.getElementById('modalMessage').textContent = message;
-      const modalActions = document.getElementById('modalActions');
-      modalActions.innerHTML = '';
-      actions.forEach(action => {
-        const btn = document.createElement('button');
-        btn.textContent = action.label;
-        btn.className = `btn ${action.class}`;
-        btn.onclick = () => {
-          action.handler();
-          hideModal();
-        };
-        modalActions.appendChild(btn);
-      });
-      document.getElementById('modalOverlay').classList.add('active');
-    }
-
-    function hideModal() {
-      document.getElementById('modalOverlay').classList.remove('active');
-    }
-    document.getElementById('modalClose').addEventListener('click', hideModal);
-
-    // ================== GESTIÓN DE AUTENTICACIÓN ==================
-    async function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      try {
-        const data = await API.post('/business/login', { email, password });
-        token = data.token;
-        businessId = data.business_info.id;
-        localStorage.setItem('bizToken', token);
-        localStorage.setItem('bizId', businessId);
-        showDashboard();
-        initDashboard();
-      } catch (error) {
-        console.error("Error de autenticación:", error);
-        showModal('Error de Acceso', 'Credenciales no válidas. Por favor, inténtalo de nuevo.');
-      }
-    }
-
-    function showDashboard() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-    }
-
-    function showLogin() {
-        document.getElementById('loginScreen').style.display = 'flex';
-        document.getElementById('dashboard').style.display = 'none';
-    }
-
-    // ================== GESTIÓN DE PESTAÑAS ==================
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        e.target.classList.add('active');
-        document.getElementById(e.target.dataset.tab).classList.add('active');
-      });
-    });
-
-    // ================== GESTIÓN DE PEDIDOS ==================
-    const ordersGrid = document.getElementById('ordersGrid');
-    const orderSearch = document.getElementById('orderSearch');
-    const orderSort = document.getElementById('orderSort');
-
-    async function loadOrders() {
-      if (!token) return;
-      try {
-        const data = await API.get('/business/orders');
-        ordersMap = (data.items || []).reduce((acc, order) => {
-          acc[order.id] = order;
-          return acc;
-        }, {});
-        renderOrders(Object.values(ordersMap));
-      } catch (e) {
-        console.error("Error al cargar pedidos:", e);
-        showModal('Error', 'No se pudieron cargar los pedidos. Por favor, inténtalo de nuevo.');
-      }
-    }
-
-    function renderOrders(orders) {
-      const searchTerm = orderSearch.value.toLowerCase();
-      const sortBy = orderSort.value;
-      
-      const filteredOrders = orders.filter(order => {
-        const orderText = `${order.id.slice(0, 8)} ${order.customer_name || ''} ${order.customer_phone || ''} ${order.status || ''}`.toLowerCase();
-        return orderText.includes(searchTerm);
-      });
-
-      filteredOrders.sort((a, b) => {
-        const [field, direction] = sortBy.split('-');
-        let valA, valB;
-        if (field === 'createdAt') {
-          valA = new Date(a.created_at || a.createdAt);
-          valB = new Date(b.created_at || b.createdAt);
-        } else if (field === 'status') {
-          const statusOrder = { 'new': 3, 'pending': 2, 'completed': 1, 'canceled': 0 };
-          valA = statusOrder[a.status] || 0;
-          valB = statusOrder[b.status] || 0;
-        }
-        
-        if (valA < valB) return direction === 'asc' ? -1 : 1;
-        if (valA > valB) return direction === 'asc' ? 1 : -1;
-        return 0;
-      });
-
-      ordersGrid.innerHTML = '';
-      if (filteredOrders.length === 0) {
-        ordersGrid.innerHTML = '<p class="text-center text-gray-500">No se encontraron pedidos.</p>';
-        return;
-      }
-
-      filteredOrders.forEach(order => {
-        const card = document.createElement('div');
-        let statusClass;
-        let cardClass;
-        if (order.status === 'new') {
-          statusClass = 'status-new';
-          cardClass = 'new';
-        } else if (order.status === 'pending') {
-          statusClass = 'status-pending';
-          cardClass = 'pending';
-        } else {
-          statusClass = 'status-completed';
-          cardClass = 'completed';
-        }
-        
-        card.className = `order-card ${cardClass}`;
-        card.innerHTML = `
-          <h3>
-            Pedido #${order.id.slice(0, 8)}
-            <span class="status ${statusClass}">${order.status}</span>
-          </h3>
-          <div class="order-details">
-            <p><strong>Cliente:</strong> ${order.customer_name || 'N/A'}</p>
-            <p><strong>Total:</strong> ${Number(order.total_xaf || 0).toLocaleString()} XAF</p>
-            <p><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleString()}</p>
-            <p><strong>Entrega:</strong> ${order.delivery ? 'Sí' : 'No'}</p>
-            <ul>
-              ${(order.items || []).map(item => `
-                <li>
-                  <span>${item.qty} x ${item.title || 'Producto desconocido'}</span>
-                  <span>${Number(item.price_xaf || 0).toLocaleString()} XAF</span>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-          <div class="order-actions no-print">
-            <button class="btn btn-secondary print-invoice-btn" data-id="${order.id}">Factura</button>
-            ${order.status === 'new' ? `<button class="btn btn-primary action-btn" data-id="${order.id}" data-status="pending">Preparar</button>` : ''}
-            ${order.status === 'pending' ? `<button class="btn btn-primary action-btn" data-id="${order.id}" data-status="completed">Entregado</button>` : ''}
-          </div>
-        `;
-        ordersGrid.appendChild(card);
-      });
-      addOrderListeners();
-    }
-    
-    orderSearch.addEventListener('input', () => renderOrders(Object.values(ordersMap)));
-    orderSort.addEventListener('change', () => renderOrders(Object.values(ordersMap)));
-
-    function addOrderListeners() {
-      document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.getAttribute('data-id'); 
-          const status = btn.getAttribute('data-status');
-          
-          try {
-            await API.put(`/business/orders/${id}`, { status: status });
-            showModal('Pedido Actualizado', `El pedido #${id.slice(0, 8)} ha sido actualizado a "${status}".`);
-            loadOrders();
-          } catch (e) {
-            console.error("Error al actualizar el estado del pedido:", e);
-            showModal('Error', 'No se pudo actualizar el estado del pedido. Por favor, inténtalo de nuevo.');
-          }
-        };
-      });
-
-      document.querySelectorAll('.print-invoice-btn').forEach(btn => {
-        btn.onclick = () => {
-          const id = btn.getAttribute('data-id');
-          const order = ordersMap[id];
-          if (order) {
-            generateInvoice(order);
-          } else {
-            showModal('Error', 'No se encontró la información del pedido para generar la factura.');
-          }
-        };
-      });
-    }
-
-    function generateInvoice(order) {
-        const invoiceContainer = document.getElementById('invoiceContainer');
-        invoiceContainer.innerHTML = `
-          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
-            <h2 style="text-align: center; margin-bottom: 20px;">Factura</h2>
-            <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
-              <p><strong>Código de Pedido:</strong> <span style="font-weight: bold; font-size: 1.2rem; color: #ff7a00;">${order.id.slice(0, 8)}</span></p>
-              <p><strong>Fecha:</strong> ${new Date(order.created_at).toLocaleString()}</p>
-              <p><strong>Cliente:</strong> ${order.customer_name || 'N/A'}</p>
-              <p><strong>Teléfono:</strong> ${order.customer_phone || 'N/A'}</p>
-              ${order.address ? `<p><strong>Dirección:</strong> ${order.address}</p>` : ''}
-            </div>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-              <thead>
-                <tr style="background-color: #f2f2f2;">
-                  <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Producto</th>
-                  <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Cantidad</th>
-                  <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${(order.items || []).map(item => `
-                  <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${item.title || 'Producto desconocido'}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${item.qty}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${Number(item.total_price || 0).toLocaleString()} XAF</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            <div style="text-align: right; margin-top: 20px;">
-              <h3>Total: ${Number(order.total_xaf || 0).toLocaleString()} XAF</h3>
-            </div>
-            <p style="text-align: center; font-size: 12px; margin-top: 40px;">Gracias por su compra.</p>
-          </div>
-        `;
-        invoiceContainer.style.display = 'block';
-        window.print();
-        invoiceContainer.style.display = 'none';
-    }
-
-    // ================== CARGAR PRODUCTOS ==================
-    async function loadProducts() {
-      if (!token) return;
-      try {
-        const data = await API.get('/business/products');
-        const tb = document.querySelector('#productsTable tbody');
-        tb.innerHTML = '';
-        (data.items || []).forEach(p => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${p.id.slice(0, 8)}</td>
-            <td>${p.title}</td>
-            <td>${p.category || ''}</td>
-            <td>${Number(p.price_xaf || 0).toLocaleString()} XAF</td>
-            <td>${p.image_url ? `<img src="${p.image_url}" style="max-height:50px">` : ''}</td>
-            <td>${new Date(p.created_at).toLocaleString()}</td>
-          `;
-          tb.appendChild(tr);
-        });
-      } catch (e) {
-        console.error("Error al cargar productos:", e);
-        showModal('Error', 'No se pudieron cargar los productos.');
-      }
-    }
-
-    // ================== CERRAR SESIÓN ==================
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('bizToken');
-      localStorage.removeItem('bizId');
-      token = null;
-      businessId = null;
-      showLogin();
-    });
-
-    // ================== INICIALIZACIÓN ==================
-    function init() {
-      const loginForm = document.getElementById('loginForm');
-      if (loginForm) {
-          loginForm.addEventListener('submit', handleLogin);
-      }
-      
-      if (token) {
-        showDashboard();
-        initDashboard();
-      } else {
-        showLogin();
-      }
-    }
-
-    function initDashboard() {
-        document.getElementById('businessName').textContent = businessId.slice(0, 8);
-        loadOrders();
-        loadProducts();
-    }
-
-    init();
-  </script>
+// ================== CARGAR PRODUCTOS ==================
+async function loadProducts(){
+  if (!token) return;
+  const data = await API.get('/business/products', { headers: authHeaders() });
+  console.log("Productos del negocio:", data); // 🔎 debug
+  const tb = document.querySelector('#productsTable tbody');
+  tb.innerHTML='';
+  (data.items||[]).forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.id}</td>
+      <td>${p.title}</td>
+      <td>${p.category||''}</td>
+      <td>${Number(p.price_xaf||0).toLocaleString()} XAF</td>
+      <td>${p.image_url ? `<img src="${p.image_url}" style="max-height:50px">` : ''}</td>
+      <td>${new Date(p.created_at).toLocaleString()}</td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+  // ================== CERRAR SESIÓN ==================
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('bizToken');
+  localStorage.removeItem('bizId');
+  token = null;
+  business_id = null;
+  // Mostrar login otra vez y ocultar el panel
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('panel').style.display = 'none';
+  });
+</script>
 </body>
 </html>
