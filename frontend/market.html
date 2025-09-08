@@ -860,12 +860,12 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
 }
 
-// **NUEVO CÓDIGO DE INTEGRACIÓN CON GEMINI**
+// **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO CON TU CLAVE**
 async function sendToAI(query) {
     addMessage(query, 'user');
     chatInput.value = '';
 
-    const API_KEY = 'AIzaSyDF8Xz892k1Og6VQCQGJlgi8dMEGYWTM90'; // ¡REEMPLAZA ESTO CON TU CLAVE REAL!
+    const API_KEY = 'AIzaSyDF8Xz892k1Og6VQCQGJlgi8dMEGYWTM90'; 
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
     
     // Aquí puedes definir el "prompt del sistema" para guiar a la IA
