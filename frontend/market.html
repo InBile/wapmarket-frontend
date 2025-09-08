@@ -794,7 +794,8 @@ function renderSuggestions(){
         currentPage = Math.floor(idx / pageSize) + 1;
         renderProductsPage();
         const itemEl = [...document.querySelectorAll('.product-item')][idx % pageSize];
-        if (itemEl) itemEl.scrollIntoView({behavior:'smooth', block:'center'});
+        if (itemEl) itemEl.scroll
+        View({behavior:'smooth', block:'center'});
       }
     };
   });
@@ -860,41 +861,49 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
 }
 
-// **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO CON TU CLAVE**
-async function sendToAI(message) {
-  try {
-    // Usar el mensaje pasado o el contenido del input
-    const msg = message || chatInput.value.trim();
-    if (!msg) return;
+// **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO PARA VERCEL**
+async function sendToAI(query) {
+    addMessage(query, 'user');
+    chatInput.value = '';
 
-    // Mostrar mensaje del usuario en el chat
-    addMessage(msg, 'user');
+    try {
+        // Haremos la llamada a una función proxy local, no a la API de Google directamente
+        const response = await fetch('/api/gemini-proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query })
+        });
 
-    // Limpiar el input solo si no viene de la voz
-    if (!message) chatInput.value = '';
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error de la API de Gemini');
+        }
 
-    // Llamada al backend
-    const res = await fetch('/api/public/ai/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: msg })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || data.error) {
-      throw new Error(data.error || 'Error comunicándose con el asistente');
+        const data = await response.json();
+        const aiResponse = data.text;
+        
+        addMessage(aiResponse, 'ai');
+    } catch (error) {
+        console.error('Error al comunicarse con la API:', error);
+        addMessage("Lo siento, no puedo conectarme con el asistente en este momento. Por favor, inténtalo de nuevo más tarde.", 'ai');
     }
-
-    // Mostrar respuesta del asistente
-    addMessage(data.text, 'ai');
-
-  } catch (err) {
-    console.error('Error al comunicarse con el asistente:', err);
-    showModal('Error al comunicarse con el asistente: ' + err.message);
-  }
 }
 
+sendChatBtn.addEventListener('click', () => {
+    const text = chatInput.value.trim();
+    if (text) {
+        sendToAI(text);
+    }
+});
+
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const text = chatInput.value.trim();
+        if (text) {
+            sendToAI(text);
+        }
+    }
+});
 
 // Lógica de reconocimiento de voz
 let recognition = null;
@@ -913,11 +922,9 @@ if (isSpeechRecognitionAvailable) {
     };
 
     recognition.onresult = (event) => {
-  const transcript = event.results[0][0].transcript;
-  chatInput.value = transcript;
-  sendToAI(transcript); // <-- ahora pasa la transcripción
-};
-
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+        sendToAI(transcript); // Enviar la transcripción a la IA
     };
 
     recognition.onerror = (event) => {
