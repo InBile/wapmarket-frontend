@@ -1,363 +1,96 @@
 <!doctype html>
-<html lang='es'>
+<html lang="es">
 <head>
-<meta charset='utf-8' />
-<meta name='viewport' content='width=device-width,initial-scale=1' />
-<title>WapMarket — Profesional</title>
-<style>
-/* Preserved admin styles (extracted) */
-
-:root{
-  --amz-dark:#131921;
-  --amz-yellow:#FF9900;
-  --bg:#f6f7f9;
-  --card:#fff;
-  --muted:#6b7280;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#111}
-.header{background:var(--amz-dark);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px}
-.brand{font-weight:800;font-size:18px}
-.container{max-width:1100px;margin:20px auto;padding:0 16px}
-.grid{display:grid;grid-template-columns:320px 1fr;gap:16px}
-.card{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.04)}
-.small{font-size:13px;color:var(--muted)}
-
-/* Sidebar */
-.sidebar .section{margin-bottom:12px}
-.btn{background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700}
-.btn.ghost{background:transparent;border:1px solid #ddd;color:#111}
-
-/* Main */
-.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-.form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.input, textarea, select{padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
-.products-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.product-card{border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
-.product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
-
-.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-
-/* responsive */
-@media (max-width:900px){ .grid{grid-template-columns:1fr} .sidebar{order:2} .main{order:1} }
-
-</style>
-<style>
-:root{--amz-dark:#131921;--amz-yellow:#FF9900;--bg:#f4f6f8;--card:#fff;--muted:#6b7280;--border:#e6e6e6}
-body{background:var(--bg)}
-.header .brand{font-weight:800; font-size:20px; letter-spacing:0.4px}
-.header .brand .mark{color:var(--amz-yellow)}
-
-.app{max-width:1200px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:280px 1fr;gap:18px}
-@media (max-width:920px){ .app{grid-template-columns:1fr; padding:12px} .aside{order:2} .main{order:1} }
-
-.aside{position:sticky;top:84px}
-.business-card{display:flex;gap:10px;align-items:center;padding:12px;border-radius:10px;background:var(--card);border:1px solid var(--border);cursor:pointer}
-.business-card img{width:48px;height:48px;border-radius:8px;object-fit:cover}
-.business-card.active{box-shadow:0 6px 20px rgba(17,24,39,0.06);border-color:rgba(0,0,0,.08)}
-
-.products-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-.products-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.product-item{background:var(--card);border-radius:12px;padding:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.product-item img{width:100%;height:150px;object-fit:cover;border-radius:8px}
-.product-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.price{font-weight:800;color:#B12704}
-
-.cart-btn{position:fixed;right:18px;bottom:18px;z-index:1200;border-radius:999px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.12);background:var(--amz-yellow);color:#111;font-weight:800;display:flex;gap:8px;align-items:center}
-
-.small{font-size:13px;color:var(--muted)}
-.search{display:flex;gap:8px;align-items:center}
-.search input{padding:9px 12px;border-radius:8px;border:1px solid var(--border);min-width:220px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WapMarket — Marketplace GE</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* === Amazon-like base style === */
+    :root{
+      --amz-dark:#131921;
+      --amz-light:#232f3e;
+      --amz-yellow:#febd69;
+      --amz-link:#007185;
+      --amz-border:#e6e6e6;
+      --gap:16px;
+    }
+    body{margin:0;background:#eaeded;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial}
+    .header{position:sticky;top:0;z-index:50;background:var(--amz-dark);color:#fff}
+    .header .wrapper{display:flex;align-items:center;gap:12px;justify-content:space-between;max-width:1200px;margin:0 auto;padding:10px 12px}
+    .logo{font-weight:800;letter-spacing:.2px;font-size:1.5rem}
+    .search{flex:1;display:flex;max-width:700px}
+    .search input{flex:1;border:1px solid var(--amz-border);border-radius:4px 0 0 4px;padding:10px;color:#111}
+    #btnBuscar{background:var(--amz-yellow);border:1px solid #f0a947;border-radius:0 4px 4px 0;padding:0 16px;cursor:pointer;font-weight:700}
+    #btnOpenCart{background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:4px;color:#fff;height:40px;display:inline-flex;align-items:center;gap:4px;padding:0 12px}
+    #btnOpenCart:hover{background:rgba(255,255,255,.08)}
+    .layout{display:grid;grid-template-columns:280px 1fr;gap:var(--gap);max-width:1200px;margin:16px auto;padding:0 12px}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}aside{order:2}section{order:1}}
+    .card{background:#fff;border:1px solid var(--amz-border);padding:14px;border-radius:4px}
+    #bizList>div{border:1px solid var(--amz-border);padding:12px;border-radius:4px;margin-bottom:8px;cursor:pointer;transition:background .2s}
+    #bizList>div:hover{background:#f3f3f3}
+    #results.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--gap)}
+    .product-item{background:#fff;border:1px solid var(--amz-border);padding:8px;display:flex;flex-direction:column;gap:6px;transition:box-shadow .15s}
+    .product-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .product-item img.thumb{width:100%;aspect-ratio:4/3;object-fit:cover}
+    .price{color:#B12704;font-weight:800}
+    .wa-carousel-wrap{border:1px solid var(--amz-border);background:#fff;border-radius:4px;overflow:hidden;position:relative}
+    .wa-carousel{display:flex;transition:transform .4s ease}
+    .wa-slide{min-width:100%}
+    .wa-slide img{width:100%;height:220px;object-fit:cover}
+    .wa-nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .wa-btn{background:var(--amz-light);color:#fff;border:none;width:34px;height:34px;cursor:pointer}
+    .wa-dots{display:flex;gap:6px;flex:1;justify-content:center}
+    .wa-dot{width:8px;height:8px;border-radius:50%;background:#c7c7c7;border:none}
+    .wa-dot.active{background:#111}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:flex-end;z-index:9999}
+    .dialog{background:#fff;width:min(480px,100%);height:100%;overflow:auto;padding:16px}
+  </style>
 </head>
 <body>
-
-<header class="header" style="position:sticky;top:0;z-index:900">
-  <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--amz-dark);color:#fff">
-    <div class="brand" style="display:flex;align-items:center;gap:8px">
-      <div style="font-size:18px">Wap<span class="mark">Market</span></div>
-    </div>
-    <div style="flex:1"></div>
-    <div class="search" role="search">
-      <input id="q" placeholder="Buscar productos, por ejemplo: arroz, cargador..." aria-label="Buscar productos">
-      <button id="btnBuscar" class="btn">Buscar</button>
-    </div>
-    <div style="width:8px"></div>
-    <button id="btnOpenCart" class="btn ghost" style="margin-left:12px">Carrito <span id="cartCount" style="margin-left:6px">(0)</span></button>
+<header class="header">
+  <div class="wrapper">
+    <div class="logo">WapMarket</div>
+    <form id="searchForm" class="search" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos..." autocomplete="off" />
+      <button id="btnBuscar">Buscar</button>
+    </form>
+    <a href="#" id="btnOpenCart" data-has-items="false"><img src="/aset/icons8-buy-64.png" alt="Carrito" style="width:20px;height:20px">Carrito</a>
   </div>
 </header>
 
-<main class="app">
-  <aside class="aside">
-    <div class="card">
-      <h4 style="margin:0 0 8px 0">Negocios</h4>
-      <div id="bizList"></div>
-    </div>
-    <div style="height:18px"></div>
-    <div class="card small">
-      <div><strong id="bizTitle">—</strong></div>
-      <div id="bizLocation" class="small"></div>
-    </div>
+<main class="layout">
+  <aside>
+    <div class="card"><h3>Negocios disponibles</h3><div id="bizList"></div></div>
+    <div class="card" style="margin-top:16px"><h3>Filtros</h3><div class="chips" id="chips"></div><select id="category" style="display:none"></select></div>
   </aside>
-
-  <section class="main">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
-        <div>
-          <h3 style="margin:0">Productos disponibles</h3>
-          <div class="small">Selecciona un negocio a la izquierda para cargar sus productos</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <select id="sort" style="padding:8px;border-radius:8px;border:1px solid var(--border)">
-            <option value="">Orden: Relevancia</option>
-            <option value="price_asc">Precio: menor a mayor</option>
-            <option value="price_desc">Precio: mayor a menor</option>
-            <option value="newest">Más nuevos</option>
-          </select>
-        </div>
+  <section>
+    <div class="card"><h3 id="bizTitle">Selecciona un negocio</h3><div id="results" class="grid"></div><div style="text-align:center;margin-top:10px"><button id="nextBtn" class="btn" style="display:none">Ver más</button></div></div>
+    <section class="wa-ads"><h3>Publicidad</h3>
+      <div class="wa-carousel-wrap"><div class="wa-carousel" id="waCarousel"></div></div>
+      <div class="wa-nav">
+        <button class="wa-btn" data-dir="-1">‹</button>
+        <div class="wa-dots" id="waDots"></div>
+        <button class="wa-btn" data-dir="1">›</button>
       </div>
-
-      <div id="results" class="products-list"></div>
-
-      <div style="margin-top:12px;display:flex;justify-content:center;gap:8px" id="pagination"></div>
-    </div>
+    </section>
   </section>
 </main>
 
-<!-- Cart modal -->
-<div id="cartModal" class="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;align-items:flex-end;justify-content:flex-end">
-  <div style="width:min(520px,100%);background:#fff;padding:16px;height:100%;overflow:auto;border-left:1px solid var(--border)">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h3>Tu carrito</h3>
-      <button id="closeCartBtn" class="btn ghost">Cerrar</button>
-    </div>
-    <div id="cartItems"></div>
-    <div id="cartTotals" style="margin-top:12px;font-weight:800"></div>
-    <div style="margin-top:12px">
-      <button id="checkoutBtn" class="btn">Pagar</button>
-    </div>
-  </div>
-</div>
+<div class="modal" id="cartModal"><div class="dialog"><h3>Tu carrito</h3><div id="cartItems"></div><div id="totals" style="font-weight:800"></div></div></div>
 
-
+<script src="/api.js"></script>
 <script>
-const API = {
-  async get(path){
-    const res = await fetch('/api' + path, {credentials:'same-origin'});
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    try{ return await res.json(); } catch(e){ return {}; }
-  },
-  async post(path, body){
-    const res = await fetch('/api' + path, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'});
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    try{ return await res.json(); } catch(e){ return {}; }
-  }
-};
-
-let businesses = [];
-let selectedBusiness = null;
-let currentProducts = [];
-let currentPage = 1;
-const pageSize = 12;
-let cart = JSON.parse(localStorage.getItem('cart')||'[]');
-
-const bizList = document.getElementById('bizList');
-const results = document.getElementById('results');
-const bizTitle = document.getElementById('bizTitle');
-const bizLocation = document.getElementById('bizLocation');
-const q = document.getElementById('q');
-const cartCount = document.getElementById('cartCount');
-
-function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
-function updateCartCount(){ const count = cart.reduce((s,i)=>s+Number(i.qty||1),0); cartCount.textContent = '('+count+')'; }
-
-function setBusiness(b){
-  selectedBusiness = b;
-  bizTitle.textContent = b.name||b.title||'Negocio';
-  bizLocation.textContent = b.location||'';
-  Array.from(bizList.children).forEach(el=>el.classList.toggle('active', el.dataset.bizid==b.id));
-  loadProducts();
-}
-
-function renderBizList(data){
-  bizList.innerHTML = '';
-  (data.items||[]).forEach(b=>{
-    const el = document.createElement('div');
-    el.className = 'business-card';
-    el.dataset.bizid = b.id;
-    el.innerHTML = `
-      <img src="${b.logo_url||'https://placehold.co/80'}" alt="">
-      <div style="flex:1">
-        <div style="font-weight:700">${escapeHtml(b.name||b.title||'Negocio')}</div>
-        <div class="small">${b.location||''}</div>
-      </div>
-    `;
-    el.addEventListener('click', ()=> setBusiness(b) );
-    bizList.appendChild(el);
-  });
-  if(!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
-  businesses = data.items || [];
-}
-
-function renderProductsPage(){
-  results.innerHTML = '';
-  const start = (currentPage-1)*pageSize;
-  const items = currentProducts.slice(start, start+pageSize);
-  items.forEach(p=>{
-    const div = document.createElement('div');
-    div.className = 'product-item';
-    div.innerHTML = `
-      <img src="${p.image_url||'https://placehold.co/600x400?text=Producto'}" alt="">
-      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-        <div style="font-weight:700">${escapeHtml(p.title||p.name||'')}</div>
-        <div class="product-meta">
-          <div class="price">${Number(p.price_xaf||p.price||0).toLocaleString()} XAF</div>
-          <div class="small">${escapeHtml(p.category||'')}</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:auto">
-          <button class="btn add-btn" data-id="${p.id}">Añadir</button>
-          <button class="btn ghost quickview" data-id="${p.id}">Ver</button>
-        </div>
-      </div>
-    `;
-    results.appendChild(div);
-  });
-  renderPagination();
-}
-
-function renderPagination(){
-  const total = currentProducts.length;
-  const pages = Math.max(1, Math.ceil(total/pageSize));
-  const box = document.getElementById('pagination');
-  box.innerHTML = '';
-  for(let i=1;i<=pages;i++){
-    const b = document.createElement('button');
-    b.className = 'btn ghost';
-    b.textContent = i;
-    if (i===currentPage) b.style.fontWeight='800';
-    b.addEventListener('click', ()=>{ currentPage=i; renderProductsPage(); });
-    box.appendChild(b);
-  }
-}
-
-async function loadBusinesses(){
-  try{
-    const data = await API.get('/public/businesses');
-    renderBizList(data);
-  }catch(e){
-    bizList.innerHTML = '<div class="small">Error cargando negocios.</div>';
-    console.error(e);
-  }
-}
-
-async function loadProducts(){
-  if (!selectedBusiness) return;
-  try{
-    const term = q.value.trim();
-    const params = new URLSearchParams();
-    params.set('business_id', selectedBusiness.id);
-    if (term) params.set('q', term);
-    const data = await API.get('/public/products?'+params.toString());
-    currentProducts = data.items || [];
-    currentPage = 1;
-    renderProductsPage();
-  }catch(e){
-    results.innerHTML = '<div class="small">Error cargando productos.</div>';
-    console.error(e);
-  }
-}
-
-document.getElementById('btnBuscar').addEventListener('click', ()=> loadProducts());
-q.addEventListener('keyup', (e)=>{ if(e.key==='Enter') loadProducts(); });
-
-results.addEventListener('click', (e)=>{
-  const b = e.target.closest('.add-btn');
-  if(!b) return;
-  const id = b.dataset.id;
-  const p = currentProducts.find(x=>String(x.id)===String(id));
-  if(!p) return;
-  if(cart.length && cart[0].business_id && cart[0].business_id !== p.business_id){
-    if(!confirm('Tu carrito pertenece a otro negocio. Vaciar y añadir este producto?')) return;
-    cart = [];
-  }
-  const it = cart.find(x=>String(x.id)===String(p.id));
-  if(it) it.qty = Number(it.qty||1) + 1;
-  else cart.push({id:p.id, title:p.title, price_xaf:p.price_xaf||p.price||0, qty:1, business_id: p.business_id || selectedBusiness.id, image_url:p.image_url});
-  saveCart();
-  alert('Producto añadido al carrito');
-});
-
-results.addEventListener('click', (e)=>{
-  const b = e.target.closest('.quickview');
-  if(!b) return;
-  const id = b.dataset.id;
-  const p = currentProducts.find(x=>String(x.id)===String(id));
-  if(!p) return alert(p.title + '\n' + (p.description||'Sin descripción'));
-});
-
-document.getElementById('btnOpenCart').addEventListener('click', ()=>{
-  document.getElementById('cartModal').style.display='flex';
-  renderCart();
-});
-document.getElementById('closeCartBtn').addEventListener('click', ()=> document.getElementById('cartModal').style.display='none');
-
-function renderCart(){
-  const box = document.getElementById('cartItems');
-  box.innerHTML = '';
-  if(!cart.length){ box.innerHTML = '<div class="small">Tu carrito está vacío</div>'; document.getElementById('cartTotals').textContent=''; return; }
-  let subtotal=0;
-  cart.forEach((it, idx)=>{
-    subtotal += Number(it.price_xaf||0)*Number(it.qty||1);
-    const row = document.createElement('div');
-    row.style.display='flex';
-    row.style.gap='8px';
-    row.style.alignItems='center';
-    row.style.marginBottom='8px';
-    row.innerHTML = `
-      <img src="${it.image_url||'https://placehold.co/80'}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
-      <div style="flex:1">
-        <div style="font-weight:700">${escapeHtml(it.title||'')}</div>
-        <div class="small">${(it.price_xaf||0).toLocaleString()} XAF × ${it.qty}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn ghost" data-idx="${idx}" data-act="inc">+</button>
-        <button class="btn ghost" data-idx="${idx}" data-act="dec">-</button>
-        <button class="btn ghost" data-idx="${idx}" data-act="del">Quitar</button>
-      </div>
-    `;
-    box.appendChild(row);
-  });
-  document.getElementById('cartTotals').textContent = 'Total: ' + subtotal.toLocaleString() + ' XAF';
-  box.onclick = (e)=>{
-    const btn = e.target.closest('button[data-act]'); if(!btn) return;
-    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
-    if(act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
-    if(act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
-    if(act==='del') cart.splice(i,1);
-    saveCart(); renderCart();
-  }
-}
-
-document.getElementById('checkoutBtn').addEventListener('click', async ()=>{
-  if(!cart.length) return alert('Carrito vacío');
-  const payload = {
-    items: cart.map(c=>({product_id:c.id, qty:c.qty})),
-    customer_phone: prompt('Tu número de WhatsApp para confirmar pedido'),
-    customer_name: prompt('Tu nombre (opcional)')
-  };
-  try{
-    const res = await API.post('/public/cart/checkout', payload);
-    alert('Pedido enviado. Respuesta: ' + (res.message || JSON.stringify(res)));
-    cart = []; saveCart(); renderCart(); document.getElementById('cartModal').style.display='none';
-  }catch(e){
-    alert('Error al enviar pedido: ' + e.message);
-  }
-});
-
-function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-updateCartCount();
+// ========== JS original mejorado ==========
+let selectedBusiness=null,cart=JSON.parse(localStorage.getItem('cart')||'[]'),currentProducts=[],pageSize=20,currentPage=1;
+function saveCart(){localStorage.setItem('cart',JSON.stringify(cart));}
+async function loadBusinesses(){const data=await API.get('/public/businesses');const box=document.getElementById('bizList');box.innerHTML='';(data.items||[]).forEach(b=>{const el=document.createElement('div');el.innerHTML='<strong>'+b.name+'</strong><div class="small">'+(b.location||'')+'</div>';el.addEventListener('click',()=>setBusiness(b));box.appendChild(el)});if((data.items||[]).length) setBusiness(data.items[0]);}
+function setBusiness(b){selectedBusiness=b;document.getElementById('bizTitle').textContent='Productos de '+b.name;loadProducts();}
+async function loadProducts(){if(!selectedBusiness) return;const q=document.getElementById('q').value.trim();const params=new URLSearchParams();params.set('business_id',selectedBusiness.id);if(q) params.set('q',q);const data=await API.get('/public/products?'+params.toString());currentProducts=data.items||[];renderProductsPage();}
+function renderProductsPage(){const list=document.getElementById('results');list.innerHTML='';const start=(currentPage-1)*pageSize;currentProducts.slice(start,start+pageSize).forEach(p=>{const el=document.createElement('div');el.className='product-item';el.innerHTML='<img class="thumb" src="'+(p.image_url||'https://placehold.co/600x400?text=WapMarket')+'"><div><div class="price">'+(p.price_xaf?Number(p.price_xaf).toLocaleString()+' XAF':'')+'</div><button class="btn" data-id="'+p.id+'">Añadir</button></div>';list.appendChild(el)});}
+// WhatsApp carousel init
+(function(){const car=document.getElementById('waCarousel');const dots=document.getElementById('waDots');const slides=[{img:'/aset/Captura de pantalla 2025-07-07 a la(s) 19.02.16.png',txt:'Wap Tech & Services',link:'https://wa.me/240555218661'},{img:'/aset/app-check-hero_2x.png',txt:'CiberSeguridad Prisma',link:'https://wa.me/240555218661'}];car.innerHTML=slides.map(s=>'<div class="wa-slide"><a href="'+s.link+'" target="_blank"><img src="'+s.img+'"><p>'+s.txt+'</p></a></div>').join('');dots.innerHTML='';slides.forEach((_,i)=>{const d=document.createElement('button');d.className='wa-dot'+(i===0?' active':'');d.onclick=()=>go(i);dots.appendChild(d)});let idx=0;function go(i){idx=(i+slides.length)%slides.length;car.style.transform='translateX(-'+idx*100+'%)';[...dots.children].forEach((d,j)=>d.classList.toggle('active',j===idx));}document.querySelectorAll('.wa-btn').forEach(b=>b.onclick=()=>go(idx+Number(b.dataset.dir)));})();
 loadBusinesses();
 </script>
-
 </body>
 </html>
