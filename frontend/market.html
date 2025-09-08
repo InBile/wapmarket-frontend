@@ -15,10 +15,11 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#111;display:flex;flex-direction:column;min-height:100vh}
-.header{background:var(--amz-dark);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.header{background:var(--amz-dark);color:#fff;padding:12px 18px;position:sticky;top:0;z-index:100}
+.header-content{display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;margin:0 auto}
 .brand{font-weight:800;font-size:18px}
 .container{max-width:1100px;margin:20px auto;padding:0 16px;flex-grow:1}
-.grid{display:grid;grid-template-columns:320px 1fr;gap:16px}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:16px}
 .card{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.04)}
 .small{font-size:13px;color:var(--muted)}
 .btn{background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700;box-shadow:var(--btn-shadow)}
@@ -28,12 +29,9 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
 .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
 .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .input, textarea, select{padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
-.products-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
 .product-card{border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
 .product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
-
 .footer{margin-top:auto;text-align:center;color:var(--muted);font-size:13px;padding:12px 18px}
-
 /* Custom styles for the marketplace */
 .product-item {
   border: 1px solid #e6e6e6;
@@ -43,11 +41,13 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   display: flex;
   flex-direction: column;
   gap: 8px;
+  aspect-ratio: 1/1; /* Make cards square */
 }
 .product-item img {
   width: 100%;
-  height: 140px;
+  height: auto;
   object-fit: cover;
+  flex: 1; /* Allow image to fill available space */
   border-radius: 6px;
 }
 .product-item .meta {
@@ -73,26 +73,20 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   border-radius: 4px;
 }
 
-/* New grid layout */
+/* New responsive grid layout */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 12px;
 }
-@media (max-width: 1200px) {
-  .products-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+@media (min-width: 600px) {
+  .products-grid { grid-template-columns: repeat(3, 1fr); }
 }
-@media (max-width: 900px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+@media (min-width: 900px) {
+  .products-grid { grid-template-columns: repeat(4, 1fr); }
 }
-@media (max-width: 600px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (min-width: 1200px) {
+  .products-grid { grid-template-columns: repeat(5, 1fr); }
 }
 
 .modal {
@@ -169,11 +163,6 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
 }
 
 /* Sidebar changes */
-.grid {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 16px;
-}
 .sidebar {
   position: sticky;
   top: 80px; /* Adjust top to be below header */
@@ -241,22 +230,40 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   font-size: 11px;
   font-weight: bold;
 }
+
+/* Responsive grid for the main layout */
+@media (max-width: 768px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+    padding-right: 0;
+  }
+}
 </style>
 </head>
 <body>
 <header class="header">
-  <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
-  <form id="searchForm" class="search" onsubmit="return false;">
-    <input id="q" placeholder="Buscar productos..." autocomplete="off" />
-    <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
-    <ul id="suggBox" class="sugg" role="listbox" style="display:none"></ul>
-  </form>
-  <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
-    <!-- Icono profesional de carrito de compras -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
-    </svg>
-  </button>
+  <div class="header-content">
+    <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
+    <form id="searchForm" class="search" onsubmit="return false;">
+      <input id="q" placeholder="Buscar productos..." autocomplete="off" />
+      <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
+      <ul id="suggBox" class="sugg" role="listbox" style="display:none"></ul>
+    </form>
+    <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
+      <!-- Icono profesional de carrito de compras -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
+      </svg>
+    </button>
+  </div>
 </header>
 <div class="container">
   <div class="grid">
