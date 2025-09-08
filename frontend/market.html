@@ -860,30 +860,46 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
 }
 
-// Lógica para enviar el mensaje a la IA
+// **NUEVO CÓDIGO DE INTEGRACIÓN CON GEMINI**
 async function sendToAI(query) {
     addMessage(query, 'user');
-    chatInput.value = ''; // Limpiar el input
+    chatInput.value = '';
 
-    // **¡IMPORTANTE!**
-    // Aquí es donde deberías integrar tu llamada a una API de IA real,
-    // como la API de Gemini, Dialogflow, etc.
-    // La API debe recibir el texto de 'query' y devolver una respuesta.
-    // El código a continuación es solo un ejemplo de cómo se vería.
-
-    // const aiResponse = await fetch('URL_DE_TU_API_DE_IA', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ message: query })
-    // }).then(res => res.json()).then(data => data.response);
-
-    // Placeholder de respuesta de la IA
-    const aiResponse = `Gracias por tu pregunta. Aunque soy un asistente de IA, mi función principal es ayudarte a encontrar productos. Intenta buscar por "zapatos" o "camiseta".`;
+    const API_KEY = 'TU_API_KEY_AQUI'; // ¡REEMPLAZA ESTO CON TU CLAVE REAL!
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
     
-    // Simular un retraso para que parezca que la IA está pensando
-    setTimeout(() => {
+    // Aquí puedes definir el "prompt del sistema" para guiar a la IA
+    const systemPrompt = "Eres un asistente de compras para WapMarket. Tu principal objetivo es ayudar a los usuarios a encontrar productos disponibles en el sitio y responder preguntas relacionadas con el carrito de compras. Si el usuario pregunta por un producto, puedes sugerir que use la barra de búsqueda o que explore las categorías. Responde de forma amigable y concisa.";
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    {
+                        parts: [{ text: query }]
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error.message || 'Error de la API de Gemini');
+        }
+
+        const data = await response.json();
+        const aiResponse = data.candidates[0].content.parts[0].text;
+        
         addMessage(aiResponse, 'ai');
-    }, 1000);
+    } catch (error) {
+        console.error('Error al comunicarse con la API:', error);
+        addMessage("Lo siento, no puedo conectarme con el asistente en este momento. Por favor, inténtalo de nuevo más tarde.", 'ai');
+    }
 }
 
 sendChatBtn.addEventListener('click', () => {
