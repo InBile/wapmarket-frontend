@@ -865,43 +865,18 @@ async function sendToAI(query) {
     addMessage(query, 'user');
     chatInput.value = '';
 
-    const API_KEY = 'AIzaSyDWP1AIDDWaieN3jrsrewOF1AOVp_1SJD4'; 
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
-    
-    // Aquí puedes definir el "prompt del sistema" para guiar a la IA
-    const systemPrompt = "Eres un asistente de compras para WapMarket. Tu principal objetivo es ayudar a los usuarios a encontrar productos disponibles en el sitio y responder preguntas relacionadas con el carrito de compras. Si el usuario pregunta por un producto, puedes sugerir que use la barra de búsqueda o que explore las categorías. Responde de forma amigable y concisa.";
-
     try {
-        const response = await fetch(API_URL, {
+        // Llamamos a tu endpoint backend
+        const res = await fetch('/api/ai', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-goog-api-key': API_KEY // ¡LA CLAVE DEBE IR AQUÍ!
-            },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        parts: [{ text: systemPrompt }]
-                    },
-                    {
-                        parts: [{ text: query }]
-                    }
-                ]
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
         });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error.message || 'Error de la API de Gemini');
-        }
-
-        const data = await response.json();
-        const aiResponse = data.candidates[0].content.parts[0].text;
-        
-        addMessage(aiResponse, 'ai');
+        const data = await res.json();
+        addMessage(data.message, 'ai');
     } catch (error) {
-        console.error('Error al comunicarse con la API:', error);
-        addMessage("Lo siento, no puedo conectarme con el asistente en este momento. Por favor, inténtalo de nuevo más tarde.", 'ai');
+        console.error('Error al comunicarse con el asistente:', error);
+        addMessage("Lo siento, no puedo conectarme con el asistente en este momento.", 'ai');
     }
 }
 
