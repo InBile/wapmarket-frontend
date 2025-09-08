@@ -264,6 +264,28 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   }
 }
 
+/* New pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+.pagination button.active {
+  background-color: var(--amz-yellow);
+  color: #fff;
+  border-color: var(--amz-yellow);
+}
+
 </style>
 </head>
 <body>
@@ -301,9 +323,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
       </div>
       <div class="card">
         <div id="results" class="products-grid"></div>
-        <div style="display:flex;justify-content:center;margin-top:12px">
-          <button id="nextBtn" class="btn" style="display:none">Ver más</button>
-        </div>
+        <div id="pagination" class="pagination" style="display:none"></div>
       </div>
     </main>
   </div>
@@ -460,13 +480,16 @@ async function loadBusinesses(){
 
 function renderProductsPage(){
   const list = document.getElementById('results');
+  const pagination = document.getElementById('pagination');
   list.innerHTML = '';
+  pagination.innerHTML = '';
+
   const start = (currentPage-1)*pageSize;
   const pageItems = currentProducts.slice(start, start+pageSize);
 
   if (pageItems.length === 0) {
     list.innerHTML = '<p class="small" style="padding:0 14px">No hay productos disponibles para este negocio.</p>';
-    document.getElementById('nextBtn').style.display = 'none';
+    pagination.style.display = 'none';
     return;
   }
 
@@ -482,27 +505,55 @@ function renderProductsPage(){
     <span class="badge">${p.category || ''}</span>
   </div>
   <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:6px">
-    <button class="btn" data-id="${p.id}" title="Añadir al carrito" style="width:100%">Añadir</button>
+    <button class="btn ghost" data-id="${p.id}" data-action="view" style="width:100%">Ver</button>
+    <button class="btn" data-id="${p.id}" data-action="add" title="Añadir al carrito" style="width:100%">Añadir</button>
   </div>
 </div>
 `;
     list.appendChild(el);
   });
 
-  const nextBtn = document.getElementById('nextBtn');
-  if (currentProducts.length > currentPage * pageSize){
-    nextBtn.style.display = 'inline-block';
+  const totalPages = Math.ceil(currentProducts.length / pageSize);
+  if (totalPages > 1) {
+    pagination.style.display = 'flex';
+    if (currentPage > 1) {
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = '«';
+      prevBtn.onclick = () => { currentPage--; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(prevBtn);
+    }
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i;
+      pageBtn.className = i === currentPage ? 'active' : '';
+      pageBtn.onclick = () => { currentPage = i; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(pageBtn);
+    }
+    if (currentPage < totalPages) {
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = '»';
+      nextBtn.onclick = () => { currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(nextBtn);
+    }
   } else {
-    nextBtn.style.display = 'none';
+    pagination.style.display = 'none';
   }
 
   list.onclick = async (e)=>{
-    const addBtn = e.target.closest('button[data-id]');
-    if(addBtn){
-      const id = addBtn.dataset.id;
-      const p = currentProducts.find(x=>x.id == id);
-      if (!p) return;
+    const btn = e.target.closest('button[data-id]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const p = currentProducts.find(x=>x.id == id);
+    if (!p) return;
 
+    if (action === 'view') {
+      // Redirigir a la página de detalles del producto
+      window.location.href = `product_detail.html?product_id=${p.id}&business_id=${p.business_id}`;
+      return;
+    }
+    
+    if (action === 'add') {
       if (cart.length && cart[0].business_id !== p.business_id){
         const confirmed = await showModal('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?', true);
         if(!confirmed) return;
@@ -513,8 +564,8 @@ function renderProductsPage(){
       else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
       saveCart();
 
-      addBtn.style.transform='scale(0.96)';
-      setTimeout(()=>addBtn.style.transform='',120);
+      btn.style.transform='scale(0.96)';
+      setTimeout(()=>btn.style.transform='',120);
     }
   };
 }
@@ -584,11 +635,6 @@ document.getElementById('deliveryChk').addEventListener('change', (e)=>{
 
 document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
 document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); qInput.focus(); } });
-
-document.getElementById('nextBtn').addEventListener('click', ()=>{
-  const maxPages = Math.ceil(currentProducts.length / pageSize);
-  if (currentPage < maxPages){ currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); }
-});
 
 let typingTimer;
 qInput.addEventListener('input', ()=>{
