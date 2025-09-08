@@ -99,11 +99,24 @@ textarea{height:88px;resize:vertical}
     <!-- Pedidos -->
     <div class="card" style="padding:16px;max-width:1100px">
       <h3>Pedidos</h3>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <label style="margin:0">Estado:
+          <select id="orderFilterStatus" style="height:34px;padding:6px;border-radius:6px;border:1px solid #ddd"><option value="">Todos</option><option>pending</option><option>accepted</option><option>rejected</option><option>fulfilled</option></select>
+        </label>
+        <label style="margin:0">Agrupar por:
+          <select id="orderGroupBy" style="height:34px;padding:6px;border-radius:6px;border:1px solid #ddd"><option value="none">Ninguno</option><option value="group">Grupo</option></select>
+        </label>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <span class="small">Mostrar por página</span>
+          <select id="ordersPerPage" style="height:34px;padding:6px;border-radius:6px;border:1px solid #ddd"><option>10</option><option>20</option><option>50</option></select>
+        </div>
+      </div>
       <div class="table-wrap"><table class="table" id="ordersTable">
         <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
         <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody></tbody>
       </table></div>
+      <div id="ordersPager" style="display:flex;gap:6px;justify-content:center;margin-top:8px"></div>
     </div>
 
     <!-- Productos -->
@@ -117,6 +130,7 @@ textarea{height:88px;resize:vertical}
         </thead>
         <tbody></tbody>
       </table></div>
+      <div id="ordersPager" style="display:flex;gap:6px;justify-content:center;margin-top:8px"></div>
     </div>
   </div>
 </main>
@@ -290,5 +304,107 @@ document.getElementById('logoutBtn').addEventListener('click', ()=>{
   document.getElementById('panel').style.display = 'none';
   });
 </script>
+
+// === Enhancements: pagination, grouping, filters and invoice printing ===
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if (document.getElementById('orderFilterStatus')){
+      document.getElementById('orderFilterStatus').addEventListener('change', ()=> loadOrdersEnhanced());
+      document.getElementById('orderGroupBy').addEventListener('change', ()=> loadOrdersEnhanced());
+      document.getElementById('ordersPerPage').addEventListener('change', ()=> loadOrdersEnhanced());
+    }
+  }catch(e){}
+});
+
+let ordersCache = [];
+let ordersCurrentPage = 1;
+
+async function loadOrdersEnhanced(){
+  if (!token) return;
+  const data = await API.get('/business/orders', { headers: authHeaders() });
+  ordersCache = data.items || [];
+  const status = document.getElementById('orderFilterStatus') ? document.getElementById('orderFilterStatus').value : '';
+  let filtered = ordersCache.filter(x => status ? (x.status === status) : true);
+  const groupBy = document.getElementById('orderGroupBy') ? document.getElementById('orderGroupBy').value : 'none';
+  let flat = [];
+  if (groupBy === 'group'){
+    const grouped = {};
+    filtered.forEach(o=>{
+      const gid = o.group_id || ('G_'+o.id);
+      grouped[gid] = grouped[gid] || [];
+      grouped[gid].push(o);
+    });
+    Object.keys(grouped).forEach(gid=>{
+      flat.push({ __group:true, group_id: gid, count: grouped[gid].length });
+      grouped[gid].forEach(o=> flat.push(o));
+    });
+  } else {
+    flat = filtered.slice();
+  }
+  const perPage = Number(document.getElementById('ordersPerPage') ? document.getElementById('ordersPerPage').value : 10);
+  const totalPages = Math.max(1, Math.ceil(flat.length / perPage));
+  if (ordersCurrentPage > totalPages) ordersCurrentPage = 1;
+  const start = (ordersCurrentPage-1)*perPage;
+  const pageSlice = flat.slice(start, start+perPage);
+  const tb = document.querySelector('#ordersTable tbody');
+  tb.innerHTML='';
+  pageSlice.forEach(o=>{
+    const tr = document.createElement('tr');
+    if (o.__group){
+      tr.innerHTML = `<td colspan="11" style="background:#f6f7f9"><strong>Grupo: ${o.group_id}</strong> — ${o.count} pedidos</td>`;
+    } else {
+      const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
+      tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
+                      <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
+                      <td><span class="small">${o.status}</span></td>
+                      <td class="table-actions">
+                        <button class="btn small" data-id="${o.id}" data-s="accepted">Aceptar</button>
+                        <button class="btn small ghost" data-id="${o.id}" data-s="rejected">Rechazar</button>
+                        <button class="btn small" data-id="${o.id}" data-s="fulfilled">Entregado</button>
+                        <button class="btn small ghost" data-invoice="${o.id}">Ver factura</button>
+                      </td>`;
+    }
+    tb.appendChild(tr);
+    ordersMap[o.id] = o;
+  });
+  // pager
+  const pager = document.getElementById('ordersPager');
+  if (pager){
+    pager.innerHTML='';
+    for (let i=1;i<=totalPages;i++){
+      const b = document.createElement('button');
+      b.textContent = i;
+      b.className = i===ordersCurrentPage ? 'btn small' : 'btn small ghost';
+      b.onclick = ()=>{ ordersCurrentPage = i; loadOrdersEnhanced(); };
+      pager.appendChild(b);
+    }
+  }
+  // attach handlers
+  tb.onclick = async (e)=>{
+    const btn = e.target.closest('button.btn'); if(!btn) return;
+    if (btn.dataset.s){
+      const id = btn.getAttribute('data-id'); 
+      const s = btn.getAttribute('data-s');
+      const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
+      if (r.error) return alert(r.error);
+      try{ sendWhatsAppForOrder(ordersMap[id], s); }catch(_){}
+      loadOrdersEnhanced();
+      return;
+    }
+    if (btn.dataset.invoice){
+      const id = btn.getAttribute('data-invoice');
+      const o = ordersMap[id];
+      if(!o) return alert('Orden no encontrada');
+      const code = 'WAP-' + (o.group_id || 'G') + '-' + o.id;
+      const itemsHtml = `<tr><td>${o.title}</td><td class="center">${o.qty}</td><td>${Number(o.price_xaf||0).toLocaleString()}</td><td>${(Number(o.qty)*Number(o.price_xaf||0)).toLocaleString()}</td></tr>`;
+      const total = (Number(o.price_xaf||0) * Number(o.qty||1)) + (o.delivery ? Number(o.delivery_fee_xaf||0) : 0);
+      const invoiceHtml = `<html><head><title>Factura ${code}</title><style>body{font-family:Arial;padding:18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #e6e6e6;padding:8px;text-align:left}.center{text-align:center}.small{font-size:12px;color:#666}</style></head><body onload="window.print()"><h2>Factura WapMarket</h2><div class="small">Código: ${code}</div><div class="small">Fecha: ${new Date(o.created_at||Date.now()).toLocaleString()}</div><div class="small">Cliente: ${o.customer_name||''} • ${o.customer_phone||''}</div><table><thead><tr><th>Producto</th><th class="center">Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>${itemsHtml}</tbody><tfoot><tr><td colspan="3">Total</td><td>${total.toLocaleString()}</td></tr></tfoot></table><p class="small">Dirección: ${o.address||''}</p><p class="small">Nota: ${o.note||''}</p></body></html>`;
+      const w = window.open('', '_blank');
+      if (w){ w.document.write(invoiceHtml); w.document.close(); }
+      return;
+    }
+  };
+}
+
 </body>
 </html>
