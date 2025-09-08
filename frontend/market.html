@@ -548,8 +548,7 @@ function renderProductsPage(){
     if (!p) return;
 
     if (action === 'view') {
-      // Redirigir a la página de detalles del producto
-      window.location.href = `product_detail.html?product_id=${p.id}&business_id=${p.business_id}`;
+      // No hacer nada al pulsar "Ver"
       return;
     }
     
