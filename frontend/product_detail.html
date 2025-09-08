@@ -296,13 +296,15 @@ function showModal(message, isConfirm = false, onConfirm = null) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Obtiene los parámetros de la URL. Esta es la clave para que la página funcione.
   const urlParams = new URLSearchParams(window.location.search);
   const productId = urlParams.get('product_id');
   const businessId = urlParams.get('business_id');
 
+  // 2. Si falta alguno de los parámetros, no se puede cargar el producto.
   if (!productId || !businessId) {
     document.getElementById('productTitle').textContent = 'Producto no encontrado';
-    document.getElementById('productDescription').textContent = 'No se encontraron los datos del producto.';
+    document.getElementById('productDescription').textContent = 'No se encontraron los datos del producto. Por favor, asegúrate de que el enlace en la página anterior incluya el ID del producto y del negocio.';
     document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Producto+No+Encontrado';
     return;
   }
