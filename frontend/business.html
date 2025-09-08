@@ -1,18 +1,19 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Vendedor — WapMarket</title>
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vendedor — WapMarket</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root{
-  --amz-dark:#131921;
-  --amz-light:#232f3e;
-  --amz-yellow:#febd69;
-  --amz-border:#e6e6e6;
-  --link:#007185;
+  --amz-dark:#131921;
+  --amz-light:#232f3e;
+  --amz-yellow:#febd69;
+  --amz-border:#e6e6e6;
+  --link:#007185;
 }
 *{box-sizing:border-box}
 body{margin:0;background:#eaeded;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111}
@@ -48,77 +49,77 @@ textarea{height:88px;resize:vertical}
 /* Responsive: make tables scroll on small screens */
 .table-wrap{overflow:auto}
 @media (max-width: 900px){
-  .row.wrap{flex-wrap:wrap}
-  .biz-head{order:3;width:100%;justify-content:flex-start;margin:6px 0 0}
+  .row.wrap{flex-wrap:wrap}
+  .biz-head{order:3;width:100%;justify-content:flex-start;margin:6px 0 0}
 }
 @media (max-width: 640px){
-  .wrapper{padding:0 10px}
-  .table th,.table td{padding:8px}
+  .wrapper{padding:0 10px}
+  .table th,.table td{padding:8px}
 }
 </style>
 
 </head>
 <body>
 <header class="header">
-  <div class="row wrapper">
-    <div class="logo">WapMarket</div><div class="biz-head"><span id="bizName">Mi negocio</span><span id="bizVerified" class="biz-badge" style="display:none"><span class="v">✓</span> Verificado</span></div><button id="logoutBtn" class="btn logout-btn">Cerrar sesión</button>
-  </div>
+  <div class="row wrapper">
+    <div class="logo">WapMarket</div><div class="biz-head"><span id="bizName">Mi negocio</span><span id="bizVerified" class="biz-badge" style="display:none"><span class="v">✓</span> Verificado</span></div><button id="logoutBtn" class="btn logout-btn">Cerrar sesión</button>
+  </div>
 </header>
 
 <main class="wrapper">
-  <!-- Login -->
-  <div class="card" style="padding:16px;max-width:800px" id="loginBox">
-    <h3>Login de Negocio</h3>
-    <form onsubmit="return false;">
-      <label>Email <input id="lemail" type="email" required></label>
-      <label>Contraseña <input id="lpass" type="password" required></label>
-      <button class="btn" id="btnLogin">Entrar</button>
-    </form>
-  </div>
+  <!-- Login -->
+  <div class="card" style="padding:16px;max-width:800px" id="loginBox">
+    <h3>Login de Negocio</h3>
+    <form onsubmit="return false;">
+      <label>Email <input id="lemail" type="email" required></label>
+      <label>Contraseña <input id="lpass" type="password" required></label>
+      <button class="btn" id="btnLogin">Entrar</button>
+    </form>
+  </div>
 
-  <!-- Panel negocio -->
-  <div id="panel" style="display:none">
-    <!-- Publicar producto -->
-    <div class="card" style="padding:16px;max-width:800px">
-      <h3>Publicar producto</h3>
-      <form id="prodForm" onsubmit="return false;">
-        <label>Título <input id="title" required></label>
-        <label>Descripción <textarea id="description"></textarea></label>
-        <label>Categoría
-          <select id="category">
-            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
-            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
-          </select>
-        </label>
-        <label>Precio (XAF) <input id="price" type="number" min="0"></label>
-        <label>Imagen (archivo) <input id="image" type="file" accept="image/*"></label>
-        <button class="btn" id="btnPublicar">Publicar</button>
-      </form>
-    </div>
+  <!-- Panel negocio -->
+  <div id="panel" style="display:none">
+    <!-- Publicar producto -->
+    <div class="card" style="padding:16px;max-width:800px">
+      <h3>Publicar producto</h3>
+      <form id="prodForm" onsubmit="return false;">
+        <label>Título <input id="title" required></label>
+        <label>Descripción <textarea id="description"></textarea></label>
+        <label>Categoría
+          <select id="category">
+            <option>Servicios</option><option>Comida</option><option>Tiendas</option>
+            <option>Salud</option><option>Transporte</option><option>Tecnología</option>
+          </select>
+        </label>
+        <label>Precio (XAF) <input id="price" type="number" min="0"></label>
+        <label>Imagen (archivo) <input id="image" type="file" accept="image/*"></label>
+        <button class="btn" id="btnPublicar">Publicar</button>
+      </form>
+    </div>
 
-    <!-- Pedidos -->
-    <div class="card" style="padding:16px;max-width:1100px">
-      <h3>Pedidos</h3>
-      <div class="table-wrap"><table class="table" id="ordersTable">
-        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
-        <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
+    <!-- Pedidos -->
+    <div class="card" style="padding:16px;max-width:1100px">
+      <h3>Pedidos</h3>
+      <div class="table-wrap"><table class="table" id="ordersTable">
+        <thead><tr><th>ID</th><th>Grupo</th><th>Producto</th><th>Precio</th><th>Cant.</th>
+        <th>Cliente</th><th>Teléfono</th><th>Envío</th><th>Dirección</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
 
-    <!-- Productos -->
-    <div class="card" style="padding:16px;max-width:1100px">
-      <h3>Mis Productos</h3>
-      <div class="table-wrap"><table class="table" id="productsTable">
-        <thead>
-          <tr>
-            <th>ID</th><th>Título</th><th>Categoría</th><th>Precio</th><th>Imagen</th><th>Creado</th><th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table></div>
-    </div>
-  </div>
+    <!-- Productos -->
+    <div class="card" style="padding:16px;max-width:1100px">
+      <h3>Mis Productos</h3>
+      <div class="table-wrap"><table class="table" id="productsTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Título</th><th>Categoría</th><th>Precio</th><th>Imagen</th><th>Creado</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </div>
 </main>
 
 <script src="/api.js"></script>
@@ -126,25 +127,25 @@ textarea{height:88px;resize:vertical}
 
 // API DELETE polyfill si no existe
 if (!API.delete){
-  API.delete = function(url, opts){ opts = opts||{}; opts.method='DELETE'; return API.request(url, null, opts); };
+  API.delete = function(url, opts){ opts = opts||{}; opts.method='DELETE'; return API.request(url, null, opts); };
 }
 
-let token = null; 
+let token = null; 
 let business_id = null;
 function authHeaders(){ return token ? { 'Authorization':'Bearer '+token } : {}; }
 
 
 // ============= PERFIL DEL NEGOCIO (nombre e insignia) =============
 async function loadProfile(){
-  try{
-    let me = await API.get('/business/me', { headers: authHeaders() });
-    if (me && me.name){ document.getElementById('bizName').textContent = me.name; }
-    if (me && (me.verified || me.is_verified)){ document.getElementById('bizVerified').style.display='inline-flex'; }
-    if (me && me.info){ document.getElementById('bizName').title = me.info; }
-  }catch(e){
-    // fallback silencioso si el endpoint no existe
-    console.warn('No se pudo cargar el perfil del negocio', e);
-  }
+  try{
+    let me = await API.get('/business/me', { headers: authHeaders() });
+    if (me && me.name){ document.getElementById('bizName').textContent = me.name; }
+    if (me && (me.verified || me.is_verified)){ document.getElementById('bizVerified').style.display='inline-flex'; }
+    if (me && me.info){ document.getElementById('bizName').title = me.info; }
+  }catch(e){
+    // fallback silencioso si el endpoint no existe
+    console.warn('No se pudo cargar el perfil del negocio', e);
+  }
 }
 
 // ============= UTIL: mapa de pedidos para acciones rápidas =============
@@ -152,143 +153,204 @@ const ordersMap = {};
 
 // ============= ENVIAR WHATSAPP AL CLIENTE =============
 function sendWhatsAppForOrder(order, newStatus){
-  try{
-    if(!order) return;
-    const phone = String(order.customer_phone||'').replace(/[^0-9]/g,'');
-    if(!phone) return;
-    const delivery = order.delivery ? `Sí (+${Number(order.delivery_fee_xaf||0).toLocaleString()} XAF)` : 'No';
-    const total = (Number(order.price_xaf||0) * Number(order.qty||1)) + Number(order.delivery ? (order.delivery_fee_xaf||0):0);
-    const text = [
-      'WapMarket — Confirmación de pedido',
-      `Negocio: ${document.getElementById('bizName').textContent}`,
-      `Pedido #${order.id} (grupo ${order.group_id||'-'})`,
-      `Producto: ${order.title}`,
-      `Cantidad: ${order.qty}`,
-      `Envío: ${delivery}`,
-      `Total: ${total.toLocaleString()} XAF`,
-      `Estado: ${newStatus}`,
-      '',
-      'Gracias por su compra.'
-    ].join('\n');
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  }catch(err){ console.warn('WhatsApp falló', err); }
+  try{
+    if(!order) return;
+    const phone = String(order.customer_phone||'').replace(/[^0-9]/g,'');
+    if(!phone) return;
+    const delivery = order.delivery ? `Sí (+${Number(order.delivery_fee_xaf||0).toLocaleString()} XAF)` : 'No';
+    const total = (Number(order.price_xaf||0) * Number(order.qty||1)) + Number(order.delivery ? (order.delivery_fee_xaf||0):0);
+    const text = [
+      'WapMarket — Confirmación de pedido',
+      `Negocio: ${document.getElementById('bizName').textContent}`,
+      `Pedido #${order.id} (grupo ${order.group_id||'-'})`,
+      `Producto: ${order.title}`,
+      `Cantidad: ${order.qty}`,
+      `Envío: ${delivery}`,
+      `Total: ${total.toLocaleString()} XAF`,
+      `Estado: ${newStatus}`,
+      '',
+      'Gracias por su compra.'
+    ].join('\n');
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }catch(err){ console.warn('WhatsApp falló', err); }
+}
+
+// ================== GENERACIÓN DE FACTURAS (PDF) ==================
+function generateInvoice(order) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    const margin = 10;
+    const lineHeight = 7;
+    const productsList = Array.isArray(order.products) ? order.products : [{ product: { title: order.title, price_xaf: order.price_xaf }, quantity: order.qty }];
+
+    doc.setFontSize(16);
+    doc.text('Factura de Compra', margin, y);
+    y += lineHeight * 2;
+
+    doc.setFontSize(10);
+    doc.text(`Código de Pedido: ${order.id}`, margin, y);
+    y += lineHeight;
+    doc.text(`Cliente: ${order.customer_name || 'Anónimo'}`, margin, y);
+    y += lineHeight;
+    doc.text(`Teléfono: ${order.customer_phone || ''}`, margin, y);
+    y += lineHeight * 2;
+    
+    doc.setFontSize(12);
+    doc.text('Detalles del Pedido:', margin, y);
+    y += lineHeight;
+    
+    let total = 0;
+    productsList.forEach(item => {
+        const product = item.product || {};
+        const title = product.title || order.title;
+        const price = Number(product.price_xaf || order.price_xaf || 0);
+        const quantity = Number(item.quantity || order.qty || 1);
+        const itemTotal = price * quantity;
+        total += itemTotal;
+        doc.text(`- ${title} (x${quantity}) - ${price.toLocaleString()} XAF c/u`, margin, y);
+        y += lineHeight;
+    });
+
+    if (order.delivery) {
+        const deliveryFee = Number(order.delivery_fee_xaf || 0);
+        doc.text(`Envío: ${deliveryFee.toLocaleString()} XAF`, margin, y);
+        y += lineHeight;
+        total += deliveryFee;
+    }
+
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, 200, y);
+    y += lineHeight;
+    
+    doc.setFontSize(14);
+    doc.text(`TOTAL: ${total.toLocaleString()} XAF`, margin, y);
+
+    doc.save(`factura_${order.id.slice(-8)}.pdf`);
 }
 
 // ================== LOGIN ==================
 document.getElementById('btnLogin').addEventListener('click', async ()=>{
-  const res = await API.post('/business/login', { email: lemail.value, password: lpass.value });
-  if (res.error){ alert(res.error); return; }
-  token = res.token; business_id = res.business_id;
-  localStorage.setItem('bizToken', token);
-  localStorage.setItem('bizId', String(business_id));
-  document.getElementById('loginBox').style.display='none';
-  document.getElementById('panel').style.display='block';
-  loadOrders();
-  loadProducts(); // ✅ cargar productos al entrar
-  loadProfile();
+  const res = await API.post('/business/login', { email: lemail.value, password: lpass.value });
+  if (res.error){ alert(res.error); return; }
+  token = res.token; business_id = res.business_id;
+  localStorage.setItem('bizToken', token);
+  localStorage.setItem('bizId', String(business_id));
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('panel').style.display='block';
+  loadOrders();
+  loadProducts();
+  loadProfile();
 });
 
 // Autologin si ya hay token guardado
-token = localStorage.getItem('bizToken'); 
+token = localStorage.getItem('bizToken'); 
 business_id = Number(localStorage.getItem('bizId')||0);
-if (token && business_id){ 
-  document.getElementById('loginBox').style.display='none'; 
-  document.getElementById('panel').style.display='block'; 
-  loadOrders(); 
-  loadProducts(); // ✅ también aquí
-  loadProfile();
+if (token && business_id){ 
+  document.getElementById('loginBox').style.display='none'; 
+  document.getElementById('panel').style.display='block'; 
+  loadOrders(); 
+  loadProducts();
+  loadProfile();
 }
 
 // ================== PUBLICAR PRODUCTO ==================
 document.getElementById('btnPublicar').addEventListener('click', async ()=>{
-  if (!token) return alert('Primero inicia sesión');
-  let imageUrl = '';
-  const file = document.getElementById('image').files[0];
-  if (file){
-    const fd = new FormData(); 
-    fd.append('image', file);
-    const up = await API.upload('/business/upload-image', fd, { headers: authHeaders() });
-    if (up.error) return alert(up.error);
-    imageUrl = up.url;
-  }
-  const payload = {
-    title: title.value, 
-    description: description.value, 
-    category: category.value,
-    price_xaf: Number(price.value || 0), 
-    image_url: imageUrl
-  };
-  const res = await API.post('/business/products', payload, { headers: authHeaders() });
-  if (res.error){ alert(res.error); return; }
-  alert('Producto publicado');
-  document.getElementById('prodForm').reset();
-  loadProducts(); // ✅ refrescar lista tras publicar
+  if (!token) return alert('Primero inicia sesión');
+  let imageUrl = '';
+  const file = document.getElementById('image').files[0];
+  if (file){
+    const fd = new FormData(); 
+    fd.append('image', file);
+    const up = await API.upload('/business/upload-image', fd, { headers: authHeaders() });
+    if (up.error) return alert(up.error);
+    imageUrl = up.url;
+  }
+  const payload = {
+    title: title.value, 
+    description: description.value, 
+    category: category.value,
+    price_xaf: Number(price.value || 0), 
+    image_url: imageUrl
+  };
+  const res = await API.post('/business/products', payload, { headers: authHeaders() });
+  if (res.error){ alert(res.error); return; }
+  alert('Producto publicado');
+  document.getElementById('prodForm').reset();
+  loadProducts();
 });
 
 // ================== CARGAR PEDIDOS ==================
 async function loadOrders(){
-  if (!token) return;
-  const data = await API.get('/business/orders', { headers: authHeaders() });
-  const tb = document.querySelector('#ordersTable tbody'); 
-  tb.innerHTML='';
-  
+  if (!token) return;
+  const data = await API.get('/business/orders', { headers: authHeaders() });
+  const tb = document.querySelector('#ordersTable tbody'); 
+  tb.innerHTML='';
+  
 (data.items||[]).forEach(o=>{
-  const tr = document.createElement('tr');
-  const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
-  tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
-                  <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
-                  <td><span class="small">${o.status}</span></td>
-                  <td class="table-actions">
-                    <button class="btn small" data-id="${o.id}" data-s="accepted">Aceptar</button>
-                    <button class="btn small ghost" data-id="${o.id}" data-s="rejected">Rechazar</button>
-                    <button class="btn small" data-id="${o.id}" data-s="fulfilled">Entregado</button>
-                  </td>`;
-  tb.appendChild(tr);
-  ordersMap[o.id] = o;
+  const tr = document.createElement('tr');
+  const deliveryTxt = o.delivery ? ('Sí (+'+Number(o.delivery_fee_xaf||0).toLocaleString()+' XAF)') : 'No';
+  tr.innerHTML = `<td>${o.id}</td><td>${o.group_id||''}</td><td>${o.title}</td><td>${Number(o.price_xaf||0).toLocaleString()} XAF</td><td>${o.qty}</td>
+                  <td>${o.customer_name||''}</td><td>${o.customer_phone||''}</td><td>${deliveryTxt}</td><td>${o.address||''}</td>
+                  <td><span class="small">${o.status}</span></td>
+                  <td class="table-actions">
+                    <button class="btn small" data-id="${o.id}" data-s="accepted">Aceptar</button>
+                    <button class="btn small ghost" data-id="${o.id}" data-s="rejected">Rechazar</button>
+                    <button class="btn small" data-id="${o.id}" data-s="fulfilled">Entregado</button>
+                    <button class="btn small ghost" data-id="${o.id}" data-action="invoice">Factura</button>
+                  </td>`;
+  tb.appendChild(tr);
+  ordersMap[o.id] = o;
 });
 
-  tb.onclick = async (e)=>{
-    const btn = e.target.closest('button.btn'); if (!btn) return;
-    const id = btn.getAttribute('data-id'); 
-    const s = btn.getAttribute('data-s');
-    const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
-    if (r.error) return alert(r.error);
-    try{ sendWhatsAppForOrder(ordersMap[id], s); }catch(_){}
-    loadOrders();
-  };
+  tb.onclick = async (e)=>{
+    const btn = e.target.closest('button.btn'); if (!btn) return;
+    const id = btn.getAttribute('data-id'); 
+    const action = btn.getAttribute('data-action');
+    if (action === 'invoice') {
+        generateInvoice(ordersMap[id]);
+    } else {
+        const s = btn.getAttribute('data-s');
+        const r = await API.put('/business/orders/'+id, { status:s }, { headers: authHeaders() });
+        if (r.error) return alert(r.error);
+        try{ sendWhatsAppForOrder(ordersMap[id], s); }catch(_){}
+    }
+    loadOrders();
+  };
 }
 
 // ================== CARGAR PRODUCTOS ==================
 async function loadProducts(){
-  if (!token) return;
-  const data = await API.get('/business/products', { headers: authHeaders() });
-  console.log("Productos del negocio:", data); // 🔎 debug
-  const tb = document.querySelector('#productsTable tbody');
-  tb.innerHTML='';
-  (data.items||[]).forEach(p=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.id}</td>
-      <td>${p.title}</td>
-      <td>${p.category||''}</td>
-      <td>${Number(p.price_xaf||0).toLocaleString()} XAF</td>
-      <td>${p.image_url ? `<img src="${p.image_url}" style="max-height:50px">` : ''}</td>
-      <td>${new Date(p.created_at).toLocaleString()}</td>
-    `;
-    tb.appendChild(tr);
-  });
+  if (!token) return;
+  const data = await API.get('/business/products', { headers: authHeaders() });
+  console.log("Productos del negocio:", data); // 🔎 debug
+  const tb = document.querySelector('#productsTable tbody');
+  tb.innerHTML='';
+  (data.items||[]).forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.id}</td>
+      <td>${p.title}</td>
+      <td>${p.category||''}</td>
+      <td>${Number(p.price_xaf||0).toLocaleString()} XAF</td>
+      <td>${p.image_url ? `<img src="${p.image_url}" style="max-height:50px">` : ''}</td>
+      <td>${new Date(p.created_at).toLocaleString()}</td>
+    `;
+    tb.appendChild(tr);
+  });
 }
-  // ================== CERRAR SESIÓN ==================
+  // ================== CERRAR SESIÓN ==================
 document.getElementById('logoutBtn').addEventListener('click', ()=>{
-  localStorage.removeItem('bizToken');
-  localStorage.removeItem('bizId');
-  token = null;
-  business_id = null;
-  // Mostrar login otra vez y ocultar el panel
-  document.getElementById('loginBox').style.display = 'block';
-  document.getElementById('panel').style.display = 'none';
-  });
+  localStorage.removeItem('bizToken');
+  localStorage.removeItem('bizId');
+  token = null;
+  business_id = null;
+  // Mostrar login otra vez y ocultar el panel
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('panel').style.display = 'none';
+  });
 </script>
 </body>
 </html>
