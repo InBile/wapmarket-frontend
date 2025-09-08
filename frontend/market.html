@@ -863,16 +863,10 @@ function addMessage(text, sender) {
 
 // **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO PARA VERCEL**
   async function sendToAI(query) {
-    // ... tu código ...
-  const response = await fetch('/frontend/api/gemini-proxy', { // <-- Ruta modificada
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query })
-    });
 
     try {
         // Haremos la llamada a una función proxy local, no a la API de Google directamente
-        const response = await fetch('/api/gemini-proxy', {
+        const response = await fetch('./api/gemini-proxy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: query })
