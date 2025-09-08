@@ -17,6 +17,7 @@
       --muted:#6b7280;
       --brand:#ff7a00;
       --brand-2:#ffb43a;
+      --brand-ink:#2b1600;
       --ok:#00b894;
       --warn:#ffb300;
       --ring: 0 10px 30px rgba(0,0,0,.05);
@@ -242,6 +243,7 @@
   </div>
 
   <script type="module">
+    // La lógica de conexión con el backend se mantiene intacta
     let token = localStorage.getItem('bizToken');
     let businessId = localStorage.getItem('bizId');
     const API_BASE = 'https://wap-market-backend.web.app';
@@ -315,8 +317,6 @@
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-
-      // Usar un endpoint de autenticación con email/password
       try {
         const data = await API.post('/business/login', { email, password });
         token = data.token;
