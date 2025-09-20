@@ -229,6 +229,7 @@
       line-height: 1.4;
       font-family: monospace;
       color: var(--ink);
+      min-height: 50px;
     }
     .loading-indicator {
       text-align: center;
@@ -286,7 +287,6 @@
 </head>
 <body>
 
-  <!-- NAV -->
   <header class="header">
     <div class="header-content">
       <div class="brand">Wap<span style="color:var(--brand)">Market</span></div>
@@ -304,7 +304,6 @@
     </div>
   </header>
 
-  <!-- HERO -->
   <header class="hero" id="top">
     <div class="container hero__wrap">
       <h1 class="hero__title">Conecta. Compra. <span>Crece</span>.</h1>
@@ -318,7 +317,6 @@
     </div>
   </header>
 
-  <!-- STRIP STATS -->
   <section>
     <div class="container">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;text-align:center;">
@@ -330,7 +328,6 @@
     </div>
   </section>
 
-  <!-- FEATURES -->
   <section id="features">
     <div class="container">
       <div class="section__head">
@@ -373,7 +370,6 @@
     </div>
   </section>
 
-  <!-- SHOWCASE -->
   <section id="showcase">
     <div class="container">
       <div class="section__head">
@@ -408,7 +404,6 @@
     </div>
   </section>
 
-  <!-- PRICING -->
   <section id="pricing">
     <div class="container">
       <div class="section__head">
@@ -454,7 +449,6 @@
     </div>
   </section>
 
-  <!-- FAQ -->
   <section id="faq">
     <div class="container">
       <div class="section__head">
@@ -483,7 +477,6 @@
     </div>
   </section>
 
-  <!-- CTA FINAL -->
   <section>
     <div class="container">
       <div class="cta">
@@ -499,7 +492,6 @@
     </div>
   </section>
 
-  <!-- AI TOOLS SECTION -->
   <section id="ai-tools">
     <div class="container">
       <div class="section__head">
@@ -508,7 +500,6 @@
         <p class="section__lead">Usa el poder de la inteligencia artificial para generar ideas y textos que atraigan a tus clientes.</p>
       </div>
       <div class="ai-tools">
-        <!-- AI Tool 1: Business Name Generator -->
         <div class="ai-tool">
           <h3>Generador de Nombres de Negocio ✨</h3>
           <p>Describe tu tipo de negocio y obtén nombres creativos para tu marca.</p>
@@ -521,7 +512,6 @@
           <div class="result-box" id="business-result"></div>
         </div>
 
-        <!-- AI Tool 2: Product Description Generator -->
         <div class="ai-tool">
           <h3>Generador de Descripciones de Producto ✨</h3>
           <p>Ingresa el nombre de tu producto y sus características para crear una descripción atractiva.</p>
@@ -538,7 +528,6 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-links">
       <a href="#" data-message="Me interesa hacer un pedido.">Hacer pedido</a>
@@ -549,7 +538,6 @@
     <span>© Wap Tech & Services Development - WapMarket | Bata(GQ) | CEO Roman Salvador Ona | TEL: 555-558-213 | 2025</span>
   </footer>
 
-  <!-- Modal de confirmación -->
   <div id="customModal" class="modal">
     <div class="dialog">
       <p id="modalMessage"></p>
@@ -612,43 +600,49 @@
       });
     });
 
-    // === Gemini API Integrations ===
-    const apiKey = "";
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    // ===================================
+    // === Integración de IA (CORREGIDO) ===
+    // ===================================
 
-    // Helper function to handle API calls with exponential backoff
-    async function callGeminiApi(prompt, retries = 3, delay = 1000) {
-      const payload = {
-          contents: [{ parts: [{ text: prompt }] }],
-      };
+    /**
+     * ✅ Esta función ahora llama a NUESTRO backend de forma segura.
+     * No expone ninguna clave de API en el navegador.
+     * @param {string} prompt - La instrucción completa para la IA.
+     * @returns {Promise<string>} - La respuesta de texto de la IA.
+     */
+    async function callBackendAI(prompt) {
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch('/api/public/ai/ask', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: prompt }),
         });
 
         if (!response.ok) {
-          throw new Error(`API error: ${response.statusText}`);
+          const errorData = await response.json();
+          // Usamos el mensaje de error del servidor si está disponible
+          throw new Error(errorData.error || `Error del servidor: ${response.statusText}`);
         }
 
         const result = await response.json();
-        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-          throw new Error("Respuesta de la API inesperada.");
+        
+        if (!result.text) {
+          throw new Error("La respuesta del servidor no contenía el texto esperado.");
         }
-        return text;
+        
+        return result.text;
+        
       } catch (error) {
-        if (retries > 0) {
-          await new Promise(res => setTimeout(res, delay));
-          return callGeminiApi(prompt, retries - 1, delay * 2);
-        } else {
-          throw error;
-        }
+        console.error("Error al llamar al backend AI:", error);
+        // Propagamos el error para que el llamador pueda manejarlo
+        throw error;
       }
     }
 
-    // Business Name Generator
+
+    // --- Generador de Nombres de Negocio ---
     const businessInput = document.getElementById('business-input');
     const generateBusinessBtn = document.getElementById('generate-business-btn');
     const loadingNames = document.getElementById('loading-names');
@@ -667,18 +661,17 @@
 
       try {
         const prompt = `Genera 5 nombres de negocio creativos para el siguiente tipo de negocio, en español. Formatea la respuesta como una lista numerada. Tipo de negocio: ${businessType}`;
-        const generatedNames = await callGeminiApi(prompt);
+        const generatedNames = await callBackendAI(prompt);
         businessResult.textContent = generatedNames;
       } catch (error) {
-        console.error("Error al generar nombres:", error);
-        businessResult.textContent = "Hubo un error al generar los nombres. Por favor, inténtalo de nuevo.";
+        businessResult.textContent = `Hubo un error al generar los nombres: ${error.message}. Por favor, inténtalo de nuevo.`;
       } finally {
         loadingNames.style.display = 'none';
         generateBusinessBtn.disabled = false;
       }
     });
 
-    // Product Description Generator
+    // --- Generador de Descripciones de Producto ---
     const productNameInput = document.getElementById('product-name-input');
     const productFeaturesInput = document.getElementById('product-features-input');
     const generateProductBtn = document.getElementById('generate-product-btn');
@@ -699,11 +692,10 @@
 
       try {
         const prompt = `Genera una descripción de producto atractiva y concisa para un marketplace. Incluye el nombre del producto y sus características en la descripción. Nombre: ${productName}. Características: ${productFeatures}. El tono debe ser directo y amigable.`;
-        const generatedDescription = await callGeminiApi(prompt);
+        const generatedDescription = await callBackendAI(prompt);
         productResult.textContent = generatedDescription;
       } catch (error) {
-        console.error("Error al generar descripción:", error);
-        productResult.textContent = "Hubo un error al generar la descripción. Por favor, inténtalo de nuevo.";
+        productResult.textContent = `Hubo un error al generar la descripción: ${error.message}. Por favor, inténtalo de nuevo.`;
       } finally {
         loadingDesc.style.display = 'none';
         generateProductBtn.disabled = false;
