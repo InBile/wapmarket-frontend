@@ -185,6 +185,9 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   padding: 0;
 }
 .biz-item {
+  display: flex; /* Para alinear el texto y el icono */
+  align-items: center;
+  gap: 8px;
   padding: 12px 14px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
@@ -251,6 +254,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
     overflow-y: visible;
     border-right: none;
     padding-right: 0;
+    top: auto; /* Reset sticky position on mobile */
   }
 }
 
@@ -289,7 +293,7 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   border-color: var(--amz-yellow);
 }
 
-/* AI Assistant styles - NEW */
+/* AI Assistant styles */
 .chat-modal {
   position: fixed;
   inset: 0;
@@ -381,6 +385,103 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
   to { transform: translateY(0); opacity: 1; }
 }
 /* End of AI Assistant styles */
+
+/* == NUEVOS ESTILOS AÑADIDOS == */
+
+/* Estilos para el Banner */
+.image-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+.banner-slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+.banner-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+}
+.banner-slide img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 300px; /* Altura máxima para el banner */
+}
+.banner-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    pointer-events: none; /* Permite click-through */
+}
+.banner-nav button {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    pointer-events: all; /* Hace los botones clickeables */
+    transition: background-color 0.2s;
+}
+.banner-nav button:hover {
+    background-color: white;
+}
+
+/* Estilos para Sidebar Search y Filtros */
+.sidebar-section {
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: var(--card);
+  margin-bottom: 16px;
+}
+.sidebar-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+.filter-group {
+  margin-top: 16px;
+}
+.filter-group h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 6px;
+}
+.filter-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-group a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.filter-group a:hover {
+  color: var(--amz-yellow);
+}
+.verified-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+/* == FIN DE NUEVOS ESTILOS == */
+
 </style>
 </head>
 <body>
@@ -409,17 +510,55 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
 <div class="container">
   <div class="grid">
     <aside class="sidebar">
+      <div class="sidebar-section">
+          <h3>Buscar Negocio</h3>
+          <input type="search" id="bizSearch" class="input" placeholder="Nombre del negocio...">
+      </div>
       <div class="card">
         <h3>Negocios disponibles</h3>
         <p class="small">Selecciona un negocio para ver sus productos.</p>
         <div id="bizList"></div>
       </div>
-    </aside>
+      <div class="sidebar-section">
+        <h3>Filtrar Productos</h3>
+        <div class="filter-group">
+          <h4>Categoría</h4>
+          <ul>
+            <li><a href="#">Electrónica</a></li>
+            <li><a href="#">Hogar y Cocina</a></li>
+            <li><a href="#">Moda</a></li>
+            <li><a href="#">Alimentos</a></li>
+            <li><a href="#">Salud y Belleza</a></li>
+          </ul>
+        </div>
+        <div class="filter-group">
+          <h4>Rango de Precio</h4>
+          <ul>
+            <li><a href="#">Menos de 10.000 XAF</a></li>
+            <li><a href="#">10.000 a 50.000 XAF</a></li>
+            <li><a href="#">50.000 a 100.000 XAF</a></li>
+            <li><a href="#">Más de 100.000 XAF</a></li>
+          </ul>
+        </div>
+      </div>
+      </aside>
     <main class="main">
       <div class="topbar">
         <div style="display:flex;flex-direction:column">
           <strong id="bizTitle">Selecciona un negocio</strong>
           <span class="small">Lista de productos disponibles.</span>
+        </div>
+      </div>
+      
+      <div class="image-banner" id="imageBanner">
+        <div class="banner-slides">
+          <div class="banner-slide"><img src="frontend/aset/image1.jpg" alt="Banner 1"></div>
+          <div class="banner-slide"><img src="frontend/aset/image2.jpg" alt="Banner 2"></div>
+          <div class="banner-slide"><img src="frontend/aset/image3.jpg" alt="Banner 3"></div>
+        </div>
+        <div class="banner-nav">
+          <button id="prevBtn">‹</button>
+          <button id="nextBtn">›</button>
         </div>
       </div>
       <div class="card">
@@ -505,7 +644,6 @@ body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);
     </div>
   </div>
 </div>
-
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9EEQZSC4X3"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -526,7 +664,6 @@ function showModal(message, isConfirm = false, onConfirm = null) {
   msgEl.textContent = message;
   modal.style.display = 'flex';
   
-  // Limpia los listeners anteriores para evitar múltiples llamadas
   confirmBtn.onclick = null;
   cancelBtn.onclick = null;
 
@@ -552,7 +689,6 @@ function showModal(message, isConfirm = false, onConfirm = null) {
   });
 }
 
-// Keeping the original JS logic, adapted to the new HTML
 const DELIVERY_FEE = 2000;
 let selectedBusiness = null;
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -578,10 +714,12 @@ document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preven
 
 async function setBusiness(b){
   selectedBusiness = b;
-  document.getElementById('bizTitle').innerHTML =
-    'Productos de ' + b.name + (b.business_type==='verified'
-      ? '<span class="small" style="margin-left:8px;color:var(--amz-yellow)">✔ Verificado</span>'
-      : '');
+  // MODIFICADO: Uso del icono para negocio verificado
+  const verifiedBadge = b.business_type === 'verified'
+    ? `<img src="frontend/aset/icons8-verified-50.png" alt="Verificado" class="verified-icon" style="margin-left:8px;">`
+    : '';
+  document.getElementById('bizTitle').innerHTML = 'Productos de ' + b.name + verifiedBadge;
+
   if (cart.length && cart[0].business_id !== b.id){
     const confirmed = await showModal('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?', true);
     if(confirmed) {
@@ -599,10 +737,16 @@ async function loadBusinesses(){
   (data.items||[]).forEach(b=>{
     const el = document.createElement('div');
     el.className = 'biz-item';
+    // MODIFICADO: Uso del icono para negocio verificado
+    const verifiedBadge = b.business_type === 'verified'
+      ? `<img src="frontend/aset/icons8-verified-50.png" alt="Verificado" class="verified-icon">`
+      : '';
     el.innerHTML = `
-      <strong style="font-size:1.02rem">${b.name}</strong>
-      ${b.business_type==='verified' ? '<span class="small" style="margin-left:4px;color:var(--amz-yellow)">✔</span>' : ''}
-      <div class="small">${b.location||''}</div>`;
+      <div>
+        <strong style="font-size:1.02rem">${b.name}</strong>
+        <div class="small">${b.location||''}</div>
+      </div>
+      ${verifiedBadge}`;
     el.addEventListener('click', ()=> setBusiness(b));
     box.appendChild(el);
   });
@@ -681,7 +825,6 @@ function renderProductsPage(){
     if (!p) return;
 
     if (action === 'view') {
-      // No hacer nada al pulsar "Ver"
       return;
     }
     
@@ -839,22 +982,18 @@ document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
   cart = []; saveCart(); closeCart();
 });
 
-// Listener para los enlaces del footer
 document.querySelector('.footer-links').addEventListener('click', e => {
   const link = e.target.closest('a');
   if (!link) return;
-
   e.preventDefault();
   const href = link.href;
   const message = link.dataset.message;
-
   showModal(`¿Deseas enviar el siguiente mensaje a WhatsApp?\n\n"${message}"`, true, () => {
-    // Si el usuario confirma, abrimos el enlace
     window.open(href, '_blank');
   });
 });
 
-// AI ASSISTANT LOGIC - NEW
+// AI ASSISTANT LOGIC (sin cambios)
 const chatModal = document.getElementById('chatModal');
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
@@ -865,34 +1004,27 @@ function openChat() { chatModal.style.display = 'flex'; }
 function closeChat() { chatModal.style.display = 'none'; }
 document.getElementById('btnOpenChat').addEventListener('click', openChat);
 
-// Agrega un mensaje al chat
 function addMessage(text, sender) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `message-bubble ${sender}`;
     msgDiv.textContent = text;
     chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// **CÓDIGO DE INTEGRACIÓN CON GEMINI ACTUALIZADO PARA VERCEL**
-  async function sendToAI(query) {
-
+async function sendToAI(query) {
     try {
-        // Haremos la llamada a una función proxy local, no a la API de Google directamente
         const response = await fetch('./api/gemini-proxy', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: query })
         });
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error de la API de Gemini');
         }
-
         const data = await response.json();
         const aiResponse = data.text;
-        
         addMessage(aiResponse, 'ai');
     } catch (error) {
         console.error('Error al comunicarse con la API:', error);
@@ -906,7 +1038,6 @@ sendChatBtn.addEventListener('click', () => {
         sendToAI(text);
     }
 });
-
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const text = chatInput.value.trim();
@@ -916,40 +1047,33 @@ chatInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Lógica de reconocimiento de voz
 let recognition = null;
 const isSpeechRecognitionAvailable = 'webkitSpeechRecognition' in window;
-
 if (isSpeechRecognitionAvailable) {
     recognition = new webkitSpeechRecognition();
-    recognition.lang = 'es-ES'; // Establecer idioma
+    recognition.lang = 'es-ES';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-
     recognition.onstart = () => {
         micBtn.classList.add('active');
         chatInput.placeholder = 'Hablando...';
         chatInput.value = '';
     };
-
     recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         chatInput.value = transcript;
-        sendToAI(transcript); // Enviar la transcripción a la IA
+        sendToAI(transcript);
     };
-
     recognition.onerror = (event) => {
         console.error('Error de reconocimiento de voz:', event.error);
         showModal('Error al iniciar el reconocimiento de voz. Asegúrate de que tu navegador lo soporte y de haber dado permiso.');
         micBtn.classList.remove('active');
         chatInput.placeholder = 'Escribe tu mensaje...';
     };
-
     recognition.onend = () => {
         micBtn.classList.remove('active');
         chatInput.placeholder = 'Escribe tu mensaje...';
     };
-
     micBtn.addEventListener('click', () => {
         if (micBtn.classList.contains('active')) {
             recognition.stop();
@@ -958,10 +1082,48 @@ if (isSpeechRecognitionAvailable) {
         }
     });
 } else {
-    micBtn.style.display = 'none'; // Ocultar el botón si la API no está disponible
+    micBtn.style.display = 'none';
     console.warn('Web Speech API no está disponible en este navegador.');
 }
 
+// == NUEVO JAVASCRIPT AÑADIDO ==
+
+// Lógica para el banner de imágenes
+document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelector('.banner-slides');
+    const totalSlides = document.querySelectorAll('.banner-slide').length;
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        const newTransform = -index * 100;
+        slides.style.transform = `translateX(${newTransform}%)`;
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        showSlide(currentIndex);
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        showSlide(currentIndex);
+    });
+});
+
+// Lógica para el buscador de negocios
+document.getElementById('bizSearch').addEventListener('keyup', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const businesses = document.querySelectorAll('#bizList .biz-item');
+    
+    businesses.forEach(biz => {
+        const name = biz.querySelector('strong').textContent.toLowerCase();
+        if (name.includes(searchTerm)) {
+            biz.style.display = 'flex';
+        } else {
+            biz.style.display = 'none';
+        }
+    });
+});
 </script>
 </body>
 </html>
