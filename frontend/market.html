@@ -716,7 +716,7 @@ async function setBusiness(b){
   selectedBusiness = b;
   // MODIFICADO: Uso del icono para negocio verificado
   const verifiedBadge = b.business_type === 'verified'
-    ? `<img src="frontend/aset/icons8-verified-50.png" alt="Verificado" class="verified-icon" style="margin-left:8px;">`
+    ? `<img src="aset/icons8-verified-50.png" alt="Verificado" class="verified-icon" style="margin-left:8px;">`
     : '';
   document.getElementById('bizTitle').innerHTML = 'Productos de ' + b.name + verifiedBadge;
 
