@@ -1,123 +1,487 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Detalle del producto — WapMarket</title>
-  <link rel="stylesheet" href="/styles.css">
-  <style>
-    body{background:#eaeded;font-family:Arial,sans-serif;margin:0;padding:0;color:#111;}
-    header{background:#131921;color:#fff;padding:12px;display:flex;align-items:center;justify-content:space-between}
-    header .logo{font-weight:900;font-size:1.4rem}
-    main{max-width:1200px;margin:20px auto;padding:16px;display:flex;flex-direction:column;gap:20px}
-    .detail{display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:16px}
-    .img-wrap img{width:100%;border:1px solid #ddd;object-fit:contain;border-radius:6px}
-    .meta h1{margin-top:0;font-size:1.6rem}
-    .price{color:#B12704;font-size:1.3rem;font-weight:800;margin:10px 0}
-    .badge{display:inline-flex;align-items:center;gap:6px;background:#f3f3f3;padding:6px 10px;border-radius:999px;font-size:.9rem}
-    .verified-badge img{width:20px;height:20px;object-fit:contain}
-    .btn{background:#febd69;color:#111;border:1px solid #f0a947;padding:10px 16px;border-radius:20px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.1);margin-top:12px}
-    .btn:hover{background:#f3a847}
-    .desc{margin-top:16px;font-size:1rem;line-height:1.4}
-    @media(max-width:768px){.detail{grid-template-columns:1fr}}
-    .related{background:#fff;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-    .related h2{margin-top:0}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:12px}
-    .product{background:#fafafa;border-radius:6px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-    .product img{width:100%;aspect-ratio:4/3;object-fit:cover}
-    .product .info{padding:8px}
-    .product h4{margin:6px 0;font-size:1rem}
-    .price-sm{color:#B12704;font-weight:700;font-size:.95rem}
-  </style>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WapMarket · Detalles del Producto</title>
 <style>
-  body{font-family:"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#111;}
-  header{width:100%;left:0;right:0;}
-</style>
+:root{
+  --amz-dark:#131921;
+  --amz-yellow:#FF9900;
+  --bg:#f6f7f9;
+  --card:#fff;
+  --muted:#6b7280;
+  --btn-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#111;display:flex;flex-direction:column;min-height:100vh}
+.header{background:var(--amz-dark);color:#fff;padding:12px 18px;position:sticky;top:0;z-index:100}
+.header-content{display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.brand{font-weight:800;font-size:18px}
+.container{max-width:1100px;margin:20px auto;padding:0 16px;flex-grow:1}
+.card{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.04)}
+.small{font-size:13px;color:var(--muted)}
+.btn{background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700;box-shadow:var(--btn-shadow)}
+.btn.ghost{background:transparent;border:1px solid #ddd;color:#111;box-shadow:none}
 
+/* Custom styles for product detail page */
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 800px;
+  margin: 20px auto;
+}
+@media (min-width: 768px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.image-gallery {
+  position: relative;
+}
+.gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+.gallery-nav-btn.prev { left: 8px; }
+.gallery-nav-btn.next { right: 8px; }
+.thumbnails-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: center;
+}
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.thumbnail.active { border-color: var(--amz-yellow); }
+
+.product-info h1 {
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+}
+.product-info .price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 16px;
+}
+.product-info .description {
+  margin-top: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+.product-info .add-to-cart-btn {
+  margin-top: 24px;
+  width: 100%;
+}
+.product-info .badge {
+  display: inline-block;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.back-btn-container {
+  margin-bottom: 20px;
+}
+.footer{margin-top:auto;text-align:center;color:var(--muted);font-size:13px;padding:12px 18px; display: flex; flex-direction: column; align-items: center; }
+.footer-links{display:flex;justify-content:center;gap:20px;margin-top:10px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s}
+.footer-links a:hover{color:#FF9900}
+
+/* Styles for related products section */
+.related-products-section {
+  margin-top: 40px;
+  border-top: 1px solid #e6e6e6;
+  padding-top: 20px;
+}
+.related-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+@media (min-width: 600px) {
+  .related-products-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 900px) {
+  .related-products-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1200px) {
+  .related-products-grid { grid-template-columns: repeat(5, 1fr); }
+}
+.product-item {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  aspect-ratio: 1/1; /* Make cards square */
+}
+.product-item img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  flex: 1; /* Allow image to fill available space */
+  border-radius: 6px;
+}
+.product-item .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+.product-item .meta h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.product-item .price {
+  font-size: 1.06rem;
+  font-weight: 800;
+}
+.product-item .badge {
+  font-size: 0.88rem;
+  padding: 4px 6px;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 99999;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.dialog{
+  background:var(--card);
+  width: min(480px, 100%);
+  max-width: 90%;
+  border-radius:8px;
+  box-shadow:0 18px 50px rgba(17,24,39,0.12);
+  padding:1rem;
+  animation:fadeIn 0.25s ease both;
+}
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+</style>
 </head>
 <body>
-<header>
-  <div class="logo">WapMarket</div>
-  <button class="btn" onclick="openCart()">Carrito</button>
+<header class="header">
+  <div class="header-content">
+    <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
+  </div>
 </header>
-
-<main>
-  <div class="detail">
-    <div class="img-wrap">
-      <img id="prodImg" src="https://placehold.co/600x600?text=Producto" alt="Producto">
+<div class="container">
+  <div class="back-btn-container">
+    <button class="btn ghost" onclick="history.back()">← Volver al Marketplace</button>
+  </div>
+  <div class="product-detail-grid" id="productDetail">
+    <div class="image-gallery">
+      <img id="productImage" src="https://placehold.co/400x400?text=Cargando..." class="product-image" alt="Producto">
+      <div class="thumbnails-container" id="thumbnailsContainer"></div>
+      <button class="gallery-nav-btn prev" id="prevBtn" style="display:none">‹</button>
+      <button class="gallery-nav-btn next" id="nextBtn" style="display:none">›</button>
     </div>
-    <div class="meta">
-      <h1 id="prodTitle">Producto</h1>
-      <div class="badge"><span id="prodCat">Categoría</span> <span id="bizBadge"></span></div>
-      <div class="price" id="prodPrice">0 XAF</div>
-      <button class="btn" id="addBtn">Añadir al carrito</button>
-      <div class="desc" id="prodDesc">Descripción del producto...</div>
+    <div class="product-info">
+      <h1 id="productTitle">Cargando...</h1>
+      <div class="badge-container">
+        <span class="badge" id="productCategory"></span>
+      </div>
+      <div class="price" id="productPrice"></div>
+      <p id="productDescription" class="description"></p>
+      <button class="btn add-to-cart-btn" id="addToCartBtn" style="display:none;">Añadir al carrito</button>
     </div>
   </div>
-
-  <div class="related">
-    <h2>Productos relacionados</h2>
-    <div class="grid" id="relatedGrid"></div>
+  <div class="related-products-section" id="relatedProductsSection" style="display:none;">
+    <h3>Productos relacionados</h3>
+    <div class="related-products-grid" id="relatedProductsGrid"></div>
   </div>
-</main>
+</div>
+<footer class="footer">
+  <div class="footer-links">
+    <a href="https://wa.me/240555218661?text=Me%20interesa%20hacer%20un%20pedido." target="_blank" data-message="Me interesa hacer un pedido.">Hacer pedido</a>
+    <a href="https://wa.me/240555218661?text=Me%20interesa%20gestionar%20un%20viaje." target="_blank" data-message="Me interesa gestionar un viaje.">Gestionar viajes</a>
+    <a href="https://wa.me/240555218661?text=Quiero%20reservar%20un%20hotel." target="_blank" data-message="Quiero reservar un hotel.">Reservar hotel</a>
+    <a href="https://wa.me/240555218661?text=Necesito%20asistencia%20para%20negocios." target="_blank" data-message="Necesito asistencia para negocios.">Asistencia negocios</a>
+  </div>
+  <span>© 2025 WapMarket</span>
+</footer>
+
+<!-- Modales de confirmación y alerta personalizados -->
+<div id="customModal" class="modal">
+  <div class="dialog">
+    <p id="modalMessage"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1rem">
+      <button class="btn" id="modalConfirmBtn" style="display:none">OK</button>
+      <button class="btn ghost" id="modalCancelBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <script src="/api.js"></script>
 <script>
-let cart = JSON.parse(localStorage.getItem('cart')||'[]');
-function saveCart(){localStorage.setItem('cart',JSON.stringify(cart));}
-function openCart(){window.location.href='market_amazon_v3_modified.html#cart';}
+// Custom modal functions to replace alert() and confirm()
+function showModal(message, isConfirm = false, onConfirm = null) {
+  const modal = document.getElementById('customModal');
+  const msgEl = document.getElementById('modalMessage');
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+  const cancelBtn = document.getElementById('modalCancelBtn');
 
-async function loadProduct(){
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  if(!id) return;
-  const data = await API.get('/public/products/'+id);
-  if(!data) return;
+  msgEl.textContent = message;
+  modal.style.display = 'flex';
+  
+  // Limpia los listeners anteriores para evitar múltiples llamadas
+  confirmBtn.onclick = null;
+  cancelBtn.onclick = null;
 
-  document.getElementById('prodImg').src = data.image_url||'https://placehold.co/600x600?text=WapMarket';
-  document.getElementById('prodTitle').textContent = data.title;
-  document.getElementById('prodCat').textContent = data.category||'';
-  document.getElementById('prodPrice').textContent = (data.price_xaf?Number(data.price_xaf).toLocaleString():'0')+' XAF';
-  document.getElementById('prodDesc').textContent = data.description||'Sin descripción';
+  return new Promise(resolve => {
+    if (isConfirm) {
+      confirmBtn.style.display = 'inline-block';
+      confirmBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(true);
+        if (onConfirm) onConfirm();
+      };
+      cancelBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(false);
+      };
+    } else {
+      confirmBtn.style.display = 'none';
+      cancelBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(true);
+      };
+    }
+  });
+}
 
-  if(data.business && data.business.business_type==='verified'){
-    document.getElementById('bizBadge').innerHTML='<img src="/aset/icons8-verified-50.png" alt="Verificado">';
+document.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('product_id');
+  const businessId = urlParams.get('business_id');
+
+  if (!productId || !businessId) {
+    document.getElementById('productTitle').textContent = 'Producto no encontrado';
+    document.getElementById('productDescription').textContent = 'No se encontraron los datos del producto.';
+    document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Producto+No+Encontrado';
+    return;
   }
 
-  document.getElementById('addBtn').onclick=()=>{
-    if(cart.length && cart[0].business_id!==data.business_id){
-      if(!confirm('Tu carrito es de otro negocio. ¿Vaciar carrito?')) return;
-      cart=[];
+  try {
+    const data = await API.get(`/public/products/${productId}?business_id=${businessId}`);
+    const product = data.item;
+
+    if (!product) {
+      document.getElementById('productTitle').textContent = 'Producto no encontrado';
+      document.getElementById('productDescription').textContent = 'El producto que buscas no existe o fue eliminado.';
+      document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Producto+No+Encontrado';
+      return;
     }
-    const exists = cart.find(x=>x.id==data.id);
-    if(exists) exists.qty=Number(exists.qty||1)+1;
-    else cart.push({id:data.id,title:data.title,price_xaf:data.price_xaf,image_url:data.image_url,category:data.category,qty:1,business_id:data.business_id});
-    saveCart();
-    alert('Producto añadido al carrito');
-  };
 
-  loadRelated(data.business_id, data.id);
+    // Rellenar los detalles del producto
+    document.getElementById('productTitle').textContent = product.title || 'Sin título';
+    const mainImage = document.getElementById('productImage');
+    const thumbsContainer = document.getElementById('thumbnailsContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // Simular imágenes adicionales si no existen
+    const images = product.image_url ? [product.image_url] : [];
+    if (images.length === 0) {
+      images.push('https://placehold.co/400x400?text=WapMarket');
+    }
+    // Añadir algunas imágenes de ejemplo si solo hay una
+    if (images.length === 1) {
+      images.push('https://placehold.co/400x400?text=Imagen+2');
+      images.push('https://placehold.co/400x400?text=Imagen+3');
+    }
+    
+    mainImage.src = images[0];
+    let currentImageIndex = 0;
+
+    images.forEach((url, index) => {
+      const thumb = document.createElement('img');
+      thumb.src = url;
+      thumb.className = 'thumbnail';
+      thumb.alt = `Miniatura ${index + 1}`;
+      thumb.onclick = () => {
+        mainImage.src = url;
+        currentImageIndex = index;
+        updateThumbnails();
+      };
+      thumbsContainer.appendChild(thumb);
+    });
+
+    if (images.length > 1) {
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+    }
+
+    const updateThumbnails = () => {
+      document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentImageIndex);
+      });
+    };
+    updateThumbnails();
+
+    prevBtn.onclick = () => {
+      currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+      mainImage.src = images[currentImageIndex];
+      updateThumbnails();
+    };
+    nextBtn.onclick = () => {
+      currentImageIndex = (currentImageIndex + 1) % images.length;
+      mainImage.src = images[currentImageIndex];
+      updateThumbnails();
+    };
+
+
+    document.getElementById('productCategory').textContent = product.category || 'Sin categoría';
+    document.getElementById('productPrice').textContent = product.price_xaf ? `${Number(product.price_xaf).toLocaleString()} XAF` : '';
+    document.getElementById('productDescription').textContent = product.description || 'Este producto no tiene una descripción disponible.';
+
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    addToCartBtn.style.display = 'block';
+    addToCartBtn.addEventListener('click', () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const exists = cart.find(x => x.id === product.id);
+      if (exists) {
+        exists.qty = Number(exists.qty || 1) + 1;
+      } else {
+        cart.push({
+          id: product.id,
+          title: product.title,
+          price_xaf: product.price_xaf,
+          image_url: product.image_url,
+          category: product.category,
+          qty: 1,
+          business_id: product.business_id
+        });
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      showModal(`"${product.title}" añadido al carrito!`);
+    });
+
+    // Cargar productos relacionados
+    await loadRelatedProducts(product);
+
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    document.getElementById('productTitle').textContent = 'Error';
+    document.getElementById('productDescription').textContent = 'Hubo un error al cargar los detalles del producto.';
+    document.getElementById('productImage').src = 'https://placehold.co/400x400?text=Error';
+  }
+});
+
+async function loadRelatedProducts(currentProduct) {
+  try {
+    const params = new URLSearchParams();
+    params.set('business_id', currentProduct.business_id);
+    const data = await API.get('/public/products?' + params.toString());
+    const allProducts = data.items || [];
+    
+    // Primero, busca productos de la misma categoría.
+    let relatedProducts = allProducts.filter(p => 
+      p.id !== currentProduct.id && p.category === currentProduct.category
+    ).slice(0, 8); // Toma un máximo de 8.
+    
+    // Si no hay productos de la misma categoría, busca otros productos del mismo negocio.
+    if (relatedProducts.length === 0) {
+      relatedProducts = allProducts.filter(p => p.id !== currentProduct.id).slice(0, 8);
+    }
+    
+    renderRelatedProducts(relatedProducts);
+  } catch (error) {
+    console.error("Error cargando productos relacionados:", error);
+    document.getElementById('relatedProductsSection').style.display = 'none';
+  }
 }
 
-async function loadRelated(businessId, excludeId){
-  const data = await API.get('/public/products?business_id='+businessId);
-  const items = (data.items||[]).filter(p=>p.id!=excludeId).slice(0,6);
-  const grid = document.getElementById('relatedGrid');
-  grid.innerHTML = items.map(p=>`
-    <div class="product">
-      <a href="product_detail_clean.html?id=${p.id}" style="text-decoration:none;color:inherit">
-        <img src="${p.image_url||'https://placehold.co/400x300'}" alt="${p.title}">
-        <div class="info">
-          <h4>${p.title}</h4>
-          <div class="price-sm">${p.price_xaf?Number(p.price_xaf).toLocaleString()+' XAF':''}</div>
-        </div>
+function renderRelatedProducts(products) {
+  const grid = document.getElementById('relatedProductsGrid');
+  if (!products.length) {
+    document.getElementById('relatedProductsSection').style.display = 'none';
+    return;
+  }
+  document.getElementById('relatedProductsSection').style.display = 'block';
+  grid.innerHTML = '';
+  products.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'product-item';
+    el.innerHTML = `
+      <a href="product_detail.html?product_id=${p.id}&business_id=${p.business_id}">
+        <img class="thumb" src="${p.image_url || 'https://placehold.co/240x180?text=WapMarket'}" alt="">
       </a>
-    </div>`).join('');
+      <div class="meta">
+        <h4 style="margin:0 0 4px; font-size:1rem">${p.title}</h4>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString() + ' XAF' : ''}</span>
+          <span class="badge">${p.category || ''}</span>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:6px">
+          <a class="btn" href="product_detail.html?product_id=${p.id}&business_id=${p.business_id}" style="width:100%">Ver</a>
+        </div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
 }
 
-loadProduct();
+// Listener para los enlaces del footer
+document.querySelector('.footer-links').addEventListener('click', e => {
+  const link = e.target.closest('a');
+  if (!link) return;
+
+  e.preventDefault();
+  const href = link.href;
+  const message = link.dataset.message;
+
+  showModal(`¿Deseas enviar el siguiente mensaje a WhatsApp?\n\n"${message}"`, true, () => {
+    // Si el usuario confirma, abrimos el enlace
+    window.open(href, '_blank');
+  });
+});
+
 </script>
 </body>
 </html>
