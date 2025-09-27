@@ -1,19 +1,9 @@
-Perfecto, te hago una versión **corregida y optimizada** de tu código HTML + CSS + JS que soluciona los problemas que mencionaste:
 
-* Grid de productos ajustado a **5 columnas en laptops/desktops** y responsivo en móviles/tablets.
-* Logo “WapMarket” con **Wap naranja y Market blanco** en la misma línea.
-* Modal, sidebar y carrito funcionan correctamente.
-* Optimización de estilos repetidos y redundantes.
-* Mejora de accesibilidad en botones y enlaces.
-
-Aquí está el código completo y limpio:
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>WapMarket · Marketplace</title>
 <style>
 :root{
@@ -24,91 +14,506 @@ Aquí está el código completo y limpio:
   --muted:#6b7280;
   --btn-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
-
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:#111;display:flex;flex-direction:column;min-height:100vh}
-
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:#111;display:flex;flex-direction:column;min-height:100vh}
 .header{background:var(--amz-dark);color:#fff;padding:12px 18px;position:sticky;top:0;z-index:100}
 .header-content{display:flex;align-items:center;gap:16px;flex-wrap:nowrap;width:100%;margin:0 auto}
 .brand{font-weight:800;font-size:18px}
-.brand span{color:var(--amz-yellow)}
-
 .container{max-width:1100px;margin:20px auto;padding:0 16px;flex-grow:1}
 .grid{display:grid;grid-template-columns:280px 1fr;gap:16px}
-
-.sidebar{position:sticky;top:80px;height:calc(100vh - 100px);overflow-y:auto;border-right:1px solid #e6e6e6;padding-right:16px;background:var(--bg);align-self:flex-start}
-.sidebar .card,.sidebar-section{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:12px;margin-bottom:16px}
-.biz-item{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f0f0f0}
-.biz-item:hover{background:#eee}
-.biz-item:last-child{border-bottom:none}
-.verified-icon{width:18px;height:18px;vertical-align:middle;margin-left:8px}
-
-.main .card{padding:0;box-shadow:none;border:none;background:transparent}
-
-.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-@media(min-width:768px){.products-grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1024px){.products-grid{grid-template-columns:repeat(5,1fr);gap:16px}}
-
-.product-item{border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
-.product-item img{width:100%;height:180px;object-fit:cover;border-radius:6px}
-.product-item .meta{display:flex;flex-direction:column;gap:6px;justify-content:space-between}
-.product-item .meta h4{margin:0;font-size:1rem;font-weight:600;line-height:1.2}
-.product-item .price{font-size:1.06rem;font-weight:800}
-.product-item .badge{font-size:0.88rem;padding:4px 6px;background:#f0f0f0;border-radius:4px}
-
+.card{background:var(--card);border:1px solid #e6e6e6;border-radius:8px;padding:14px;box-shadow:0 6px 18px rgba(17,24,39,0.04)}
+.small{font-size:13px;color:var(--muted)}
 .btn{background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-weight:700;box-shadow:var(--btn-shadow)}
 .btn.ghost{background:transparent;border:1px solid #ddd;color:#111;box-shadow:none}
 
-.footer{margin-top:auto;text-align:center;color:var(--muted);font-size:13px;padding:12px 18px;display:flex;flex-direction:column;align-items:center}
+/* Main */
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.input, textarea, select{padding:8px;border-radius:6px;border:1px solid #ddd;width:100%}
+.product-card{border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.product-card img{width:100%;height:140px;object-fit:cover;border-radius:6px}
+.footer{margin-top:auto;text-align:center;color:var(--muted);font-size:13px;padding:12px 18px; display: flex; flex-direction: column; align-items: center; }
 .footer-links{display:flex;justify-content:center;gap:20px;margin-top:10px;flex-wrap:wrap}
 .footer-links a{color:var(--muted);text-decoration:none;font-size:14px;transition:color 0.2s}
-.footer-links a:hover{color:var(--amz-yellow)}
+.footer-links a:hover{color:#FF9900}
+/* Custom styles for the marketplace */
+.product-item {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.product-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.product-item .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+.product-item .meta h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.product-item .price {
+  font-size: 1.06rem;
+  font-weight: 800;
+}
+.product-item .badge {
+  font-size: 0.88rem;
+  padding: 4px 6px;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
 
-.cart-btn-icon{position:relative;display:flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:6px;background:var(--amz-yellow);box-shadow:var(--btn-shadow);cursor:pointer;border:none}
-.cart-btn-icon svg{width:24px;height:24px;fill:#fff;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cart-btn-icon[data-has-items="true"]::after{content:attr(data-item-count);position:absolute;top:-8px;right:-8px;background:red;color:white;border-radius:50%;padding:2px 6px;font-size:11px;font-weight:bold}
+/* FIX: Adjusted grid for 5 columns on large screens */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Base for mobile */
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr); /* For tablets */
+  }
+}
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr); /* 5 columns for laptops/desktops */
+    gap: 16px;
+  }
+}
 
-/* Modales y chat */
-.modal,.chat-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px)}
-.modal.right{align-items:stretch;justify-content:flex-end;padding:0}
-.dialog,.chat-dialog{background:var(--card);width:min(480px,100%);max-width:90%;border-radius:8px;padding:1rem;animation:fadeIn 0.25s ease both;box-shadow:0 18px 50px rgba(17,24,39,0.12)}
-@keyframes fadeIn{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
 
-.image-banner{position:relative;width:100%;overflow:hidden;border-radius:8px;margin-bottom:16px}
-.banner-slides{display:flex;transition:transform 0.5s ease-in-out}
-.banner-slide{min-width:100%}
-.banner-slide img{width:100%;display:block;object-fit:cover;max-height:300px}
-.banner-nav{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 1rem;pointer-events:none}
-.banner-nav button{background-color:rgba(255,255,255,0.7);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:24px;font-weight:bold;pointer-events:all;transition:background-color 0.2s}
-.banner-nav button:hover{background-color:white}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 99999;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal.right{
+  align-items:stretch;
+  justify-content:flex-end;
+  padding:0
+}
+.modal.right .dialog{
+  height:100%;
+  border-radius:0;
+  border-left:1px solid #e6e6e6;
+  padding:1rem;
+  animation:slideIn 0.25s ease both;
+  width: min(480px, 100%);
+}
+.dialog{
+  background:var(--card);
+  width: min(480px, 100%);
+  max-width: 90%;
+  border-radius:8px;
+  box-shadow:0 18px 50px rgba(17,24,39,0.12);
+  padding:1rem;
+  animation:fadeIn 0.25s ease both;
+}
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes slideIn {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.product-card{
+  border:1px solid #e6e6e6;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px
+}
+.product-card img{
+  width:100%;height:140px;object-fit:cover;border-radius:6px
+}
+.product-card .meta>div:last-child{
+  display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:6px
+}
+.product-card .btn,.product-card .btn.ghost{
+  flex:1 1 auto;min-width:0;padding:8px 10px
+}
+.search{
+  display:flex;flex:1;max-width:720px;position:relative;gap:0
+}
+.search input{
+  flex:1;padding:8px;border-radius:6px 0 0 6px;border:1px solid #ddd;outline:none;height:auto
+}
+#btnBuscar{
+  background:var(--amz-yellow);border:none;padding:8px 10px;border-radius:0 6px 6px 0;cursor:pointer;font-weight:700
+}
+.search .sugg{
+  position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e6e6e6;border-radius:8px;box-shadow:0 6px 18px rgba(17,24,39,0.04);z-index:10;margin-top:4px
+}
+.sugg li{
+  list-style:none;padding:8px;display:flex;gap:8px;align-items:center;cursor:pointer
+}
+.sugg li:hover{
+  background:#f6f7f9
+}
 
-/* Responsive */
-@media(max-width:768px){.grid{display:flex;flex-direction:column;gap:0}.sidebar{position:static;height:auto;overflow-y:visible;border-right:none;padding-right:0;top:auto}}
-@media(max-width:600px){.header-content{flex-direction:column;align-items:center;gap:8px;padding-bottom:8px}.header-content .search{width:100%}}
+/* Sidebar changes */
+.sidebar {
+  position: sticky;
+  top: 80px; /* Adjust top to be below header */
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  border-right: 1px solid #e6e6e6;
+  padding-right: 16px;
+  background: var(--bg);
+  align-self: flex-start; /* Aligns to the left */
+}
+.sidebar .card {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+.biz-item {
+  display: flex; /* Para alinear el texto y el icono */
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+.biz-item:hover {
+  background: #eee;
+}
+.biz-item:last-child {
+  border-bottom: none;
+}
+/* Main section changes to remove card border */
+.main .card{
+  padding:0;
+  box-shadow:none;
+  border:none;
+  background:transparent;
+}
+
+/* New Cart Icon */
+.cart-btn-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--amz-yellow);
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  border: none;
+}
+.cart-btn-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cart-btn-icon[data-has-items="true"]::after {
+  content: attr(data-item-count);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Responsive grid for the main layout */
+@media (max-width: 768px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+    padding-right: 0;
+    top: auto; /* Reset sticky position on mobile */
+  }
+}
+
+/* Mobile-first header layout */
+@media (max-width: 600px) {
+  .header-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  .header-content .search {
+    width: 100%;
+  }
+}
+
+/* New pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+.pagination button.active {
+  background-color: var(--amz-yellow);
+  color: #fff;
+  border-color: var(--amz-yellow);
+}
+
+/* AI Assistant styles */
+.chat-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.chat-dialog {
+  background: var(--card);
+  border-radius: 8px 8px 0 0;
+  width: min(400px, 100%);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-shadow: 0 -8px 20px rgba(17, 24, 39, 0.1);
+  animation: slideUp 0.3s ease both;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+}
+.message-bubble {
+  padding: 10px;
+  border-radius: 18px;
+  max-width: 85%;
+}
+.message-bubble.user {
+  background: var(--amz-yellow);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.message-bubble.ai {
+  background: #f0f0f0;
+  color: #111;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-input-area {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.chat-input-area input {
+  flex-grow: 1;
+}
+.mic-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.mic-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #111;
+  transition: fill 0.2s;
+}
+.mic-btn.active svg {
+  fill: red;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* End of AI Assistant styles */
+
+/* == NUEVOS ESTILOS AÑADIDOS == */
+
+/* Estilos para el Banner */
+.image-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+.banner-slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+.banner-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+}
+.banner-slide img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 300px; /* Altura máxima para el banner */
+}
+.banner-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    pointer-events: none; /* Permite click-through */
+}
+.banner-nav button {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    pointer-events: all; /* Hace los botones clickeables */
+    transition: background-color 0.2s;
+}
+.banner-nav button:hover {
+    background-color: white;
+}
+
+/* Estilos para Sidebar Search y Filtros */
+.sidebar-section {
+  padding: 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: var(--card);
+  margin-bottom: 16px;
+}
+.sidebar-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+}
+.filter-group {
+  margin-top: 16px;
+}
+.filter-group h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 6px;
+}
+.filter-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-group a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+.filter-group a:hover {
+  color: var(--amz-yellow);
+}
+.verified-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+/* == FIN DE NUEVOS ESTILOS == */
+
 </style>
 </head>
 <body>
 <header class="header">
   <div class="header-content">
-    <div class="brand">Wap<span>Market</span></div>
+    <div class="brand">Wap<span style="color:var(--amz-yellow)">Market</span></div>
     <form id="searchForm" class="search" onsubmit="return false;">
-      <input id="q" placeholder="Buscar productos..." autocomplete="off">
+      <input id="q" placeholder="Buscar productos..." autocomplete="off" />
       <button class="btn" id="btnBuscar" aria-label="Buscar">Buscar</button>
       <ul id="suggBox" class="sugg" role="listbox" style="display:none"></ul>
     </form>
-    <div style="display:flex;gap:12px;align-items:center">
-      <button class="cart-btn-icon" id="btnOpenChat" title="Asistente de IA">🛈</button>
-      <button class="cart-btn-icon" id="btnOpenCart" title="Carrito" data-has-items="false" data-item-count="0">🛒</button>
+    <div style="display:flex; gap: 12px; align-items: center;">
+      <button class="cart-btn-icon" id="btnOpenChat" aria-label="Abrir asistente de IA" title="Asistente de IA">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-zap">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </button>
+      <button class="cart-btn-icon" id="btnOpenCart" aria-label="Abrir carrito" title="Carrito" data-has-items="false" data-item-count="0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6zM3.86 6l2.14-4h12l2.14 4H3.86zM5 10h14M5 14h14M5 18h14"></path>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
-
 <div class="container">
   <div class="grid">
     <aside class="sidebar">
       <div class="sidebar-section">
-        <h3>Buscar Negocio</h3>
-        <input type="search" id="bizSearch" class="input" placeholder="Nombre del negocio...">
+          <h3>Buscar Negocio</h3>
+          <input type="search" id="bizSearch" class="input" placeholder="Nombre del negocio...">
       </div>
       <div class="card">
         <h3>Negocios disponibles</h3>
@@ -123,107 +528,603 @@ body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:#111;display:
             <li><a href="#">Electrónica</a></li>
             <li><a href="#">Hogar y Cocina</a></li>
             <li><a href="#">Moda</a></li>
-                        <li><a href="#">Deportes</a></li>
-            <li><a href="#">Juguetes</a></li>
+            <li><a href="#">Alimentos</a></li>
+            <li><a href="#">Salud y Belleza</a></li>
+          </ul>
+        </div>
+        <div class="filter-group">
+          <h4>Rango de Precio</h4>
+          <ul>
+            <li><a href="#">Menos de 10.000 XAF</a></li>
+            <li><a href="#">10.000 a 50.000 XAF</a></li>
+            <li><a href="#">50.000 a 100.000 XAF</a></li>
+            <li><a href="#">Más de 100.000 XAF</a></li>
           </ul>
         </div>
       </div>
-    </aside>
-
+      </aside>
     <main class="main">
-      <!-- Banner rotativo -->
-      <div class="image-banner">
-        <div class="banner-slides" id="bannerSlides">
-          <div class="banner-slide"><img src="https://via.placeholder.com/800x300?text=Promoción+1" alt="Promoción 1"></div>
-          <div class="banner-slide"><img src="https://via.placeholder.com/800x300?text=Promoción+2" alt="Promoción 2"></div>
-          <div class="banner-slide"><img src="https://via.placeholder.com/800x300?text=Promoción+3" alt="Promoción 3"></div>
-        </div>
-        <div class="banner-nav">
-          <button id="prevSlide" aria-label="Anterior">‹</button>
-          <button id="nextSlide" aria-label="Siguiente">›</button>
+      <div class="topbar">
+        <div style="display:flex;flex-direction:column">
+          <strong id="bizTitle">Selecciona un negocio</strong>
+          <span class="small">Lista de productos disponibles.</span>
         </div>
       </div>
-
-      <!-- Productos -->
-      <div class="products-grid" id="productGrid">
-        <!-- Productos generados dinámicamente con JS -->
+      
+      <div class="image-banner" id="imageBanner">
+        <div class="banner-slides">
+          <div class="banner-slide"><img src="aset/image1.jpg" alt="Banner 1"></div>
+          <div class="banner-slide"><img src="aset/image2.jpg" alt="Banner 2"></div>
+          <div class="banner-slide"><img src="aset/image3.jpg" alt="Banner 3"></div>
+        </div>
+        <div class="banner-nav">
+          <button id="prevBtn">‹</button>
+          <button id="nextBtn">›</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="results" class="products-grid"></div>
+        <div id="pagination" class="pagination" style="display:none"></div>
       </div>
     </main>
   </div>
 </div>
-
 <footer class="footer">
-  <span>&copy; 2025 WapMarket. Todos los derechos reservados.</span>
   <div class="footer-links">
-    <a href="#">Privacidad</a>
-    <a href="#">Términos</a>
-    <a href="#">Ayuda</a>
+    <a href="https://wa.me/240555218661?text=Me%20interesa%20hacer%20un%20pedido." target="_blank" data-message="Me interesa hacer un pedido.">Hacer pedido</a>
+    <a href="https://wa.me/240555218661?text=Me%20interesa%20gestionar%20un%20viaje." target="_blank" data-message="Me interesa gestionar un viaje.">Gestionar viajes</a>
+    <a href="https://wa.me/240555218661?text=Quiero%20reservar%20un%20hotel." target="_blank" data-message="Quiero reservar un hotel.">Reservar hotel</a>
+    <a href="https://wa.me/240555218661?text=Necesito%20asistencia%20para%20negocios." target="_blank" data-message="Necesito asistencia para negocios.">Asistencia negocios</a>
   </div>
+  <span>© 2025 WapMarket</span>
 </footer>
 
-<!-- Modal Carrito -->
+<div id="customModal" class="modal">
+  <div class="dialog">
+    <p id="modalMessage"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1rem">
+      <button class="btn" id="modalConfirmBtn" style="display:none">OK</button>
+      <button class="btn ghost" id="modalCancelBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal right" id="cartModal">
   <div class="dialog">
-    <h3>Tu Carrito</h3>
-    <div id="cartItems"></div>
-    <button class="btn" id="checkoutBtn">Finalizar Compra</button>
-    <button class="btn ghost" id="closeCart">Cerrar</button>
-  </div>
-</div>
-
-<!-- Modal Chat -->
-<div class="chat-modal" id="chatModal">
-  <div class="chat-dialog">
-    <h3>Asistente de IA</h3>
-    <div id="chatMessages" style="height:200px;overflow-y:auto;margin-bottom:10px;"></div>
-    <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc">
-    <button class="btn" id="sendChat">Enviar</button>
-    <button class="btn ghost" id="closeChat">Cerrar</button>
-  </div>
-</div>
-
-<script>
-// Simulación de productos
-const products = Array.from({length:20}, (_,i)=>({
-  name:`Producto ${i+1}`,
-  price:(Math.random()*100+1).toFixed(2),
-  img:`https://via.placeholder.com/300x180?text=Producto+${i+1}`
-}));
-
-const productGrid = document.getElementById('productGrid');
-products.forEach(p=>{
-  const div = document.createElement('div');
-  div.className='product-item';
-  div.innerHTML=`
-    <img src="${p.img}" alt="${p.name}">
-    <div class="meta">
-      <h4>${p.name}</h4>
-      <span class="price">$${p.price}</span>
-      <button class="btn">Añadir al carrito</button>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h3 style="margin:6px 0">Tu carrito</h3>
+      <button class="btn ghost" type="button" onclick="closeCart()">✕</button>
     </div>
-  `;
-  productGrid.appendChild(div);
+    <div id="cartInfo" class="small" style="margin-bottom:8px"></div>
+    <div id="cartItems"></div>
+    <div style="margin:12px 0">
+      <label style="display:flex;gap:8px;align-items:center">
+        <input type="checkbox" id="deliveryChk"> <span>Envío a domicilio (+2000 XAF)</span>
+      </label>
+    </div>
+    <div id="addressBox" style="display:none">
+      <label style="display:block;margin-bottom:10px">Dirección exacta
+        <input id="address" placeholder="Ej: Malabo, Semu, casa azul" class="input">
+      </label>
+    </div>
+    <div id="totals" style="margin:12px 0;font-weight:900"></div>
+    <form id="checkoutForm" style="display:grid;gap:10px">
+      <label>Tu nombre (opcional)
+        <input id="cname" class="input">
+      </label>
+      <label>Teléfono (WhatsApp) <input id="cphone" required class="input"></label>
+      <label>Nota <textarea id="cnote" placeholder="Ej: Entrega 18:00" class="input"></textarea></label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+        <button class="btn" type="submit">Confirmar pedido</button>
+        <button class="btn ghost" type="button" onclick="closeCart()">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="chatModal" class="chat-modal">
+  <div class="chat-dialog">
+    <div class="chat-header">
+      <strong style="margin:0">Asistente de WapMarket</strong>
+      <button class="btn ghost" type="button" onclick="closeChat()">✕</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+      <div class="message-bubble ai">Hola, soy tu asistente de compras. ¿Cómo puedo ayudarte hoy?</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Escribe tu mensaje..." class="input">
+      <button class="mic-btn" id="micBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="18" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+      </button>
+      <button class="btn" id="sendChatBtn">Enviar</button>
+    </div>
+  </div>
+</div>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EEQZSC4X3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9EEQZSC4X3');
+</script>
+
+<script src="/api.js"></script>
+<script>
+// Custom modal functions to replace alert() and confirm()
+function showModal(message, isConfirm = false, onConfirm = null) {
+  const modal = document.getElementById('customModal');
+  const msgEl = document.getElementById('modalMessage');
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+  const cancelBtn = document.getElementById('modalCancelBtn');
+
+  msgEl.textContent = message;
+  modal.style.display = 'flex';
+  
+  confirmBtn.onclick = null;
+  cancelBtn.onclick = null;
+
+  return new Promise(resolve => {
+    if (isConfirm) {
+      confirmBtn.style.display = 'inline-block';
+      confirmBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(true);
+        if (onConfirm) onConfirm();
+      };
+      cancelBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(false);
+      };
+    } else {
+      confirmBtn.style.display = 'none';
+      cancelBtn.onclick = () => {
+        modal.style.display = 'none';
+        resolve(true);
+      };
+    }
+  });
+}
+
+const DELIVERY_FEE = 2000;
+let selectedBusiness = null;
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let currentProducts = [];
+
+let pageSize = 20;
+let currentPage = 1;
+
+const qInput = document.getElementById('q');
+const suggBox = document.getElementById('suggBox');
+
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(cart)); updateCartCount(); }
+function updateCartCount(){
+  const count = cart.reduce((a,c)=>a+Number(c.qty||1),0);
+  const btn = document.getElementById('btnOpenCart');
+  btn.setAttribute('data-has-items', count > 0 ? 'true' : 'false');
+  btn.setAttribute('data-item-count', count);
+}
+function closeCart(){ document.getElementById('cartModal').style.display='none'; }
+function openCart(){ document.getElementById('cartModal').style.display='flex'; renderCart(); }
+
+document.getElementById('btnOpenCart').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+
+async function setBusiness(b){
+  selectedBusiness = b;
+  // MODIFICADO: Uso del icono para negocio verificado
+  const verifiedBadge = b.business_type === 'verified'
+    ? `<img src="aset/icons8-verified-50.png" alt="Verificado" class="verified-icon" style="margin-left:8px;">`
+    : '';
+  document.getElementById('bizTitle').innerHTML = 'Productos de ' + b.name + verifiedBadge;
+
+  if (cart.length && cart[0].business_id !== b.id){
+    const confirmed = await showModal('Tu carrito pertenece a otro negocio. ¿Vaciar carrito para continuar con ' + b.name + '?', true);
+    if(confirmed) {
+      cart = []; saveCart();
+    }
+  }
+  currentPage = 1;
+  loadProducts();
+}
+
+async function loadBusinesses(){
+  const data = await API.get('/public/businesses');
+  const box = document.getElementById('bizList');
+  box.innerHTML = '';
+  (data.items||[]).forEach(b=>{
+    const el = document.createElement('div');
+    el.className = 'biz-item';
+    // MODIFICADO: Uso del icono para negocio verificado
+    const verifiedBadge = b.business_type === 'verified'
+      ? `<img src="aset/icons8-verified-50.png" alt="Verificado" class="verified-icon">`
+      : '';
+    el.innerHTML = `
+      <div>
+        <strong style="font-size:1.02rem">${b.name}</strong>
+        <div class="small">${b.location||''}</div>
+      </div>
+      ${verifiedBadge}`;
+    el.addEventListener('click', ()=> setBusiness(b));
+    box.appendChild(el);
+  });
+  if (!selectedBusiness && (data.items||[]).length) setBusiness(data.items[0]);
+}
+
+function renderProductsPage(){
+  const list = document.getElementById('results');
+  const pagination = document.getElementById('pagination');
+  list.innerHTML = '';
+  pagination.innerHTML = '';
+
+  const start = (currentPage-1)*pageSize;
+  const pageItems = currentProducts.slice(start, start+pageSize);
+
+  if (pageItems.length === 0) {
+    list.innerHTML = '<p class="small" style="padding:0 14px">No hay productos disponibles para este negocio.</p>';
+    pagination.style.display = 'none';
+    return;
+  }
+
+  pageItems.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'product-item';
+    el.innerHTML = `
+<img class="thumb" src="${p.image_url || 'https://placehold.co/240x180?text=WapMarket'}" alt="${p.title}">
+<div class="meta">
+  <div>
+    <h4 style="margin:0 0 4px; font-size:1rem">${p.title}</h4>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <span class="price">${p.price_xaf ? Number(p.price_xaf).toLocaleString() + ' XAF' : ''}</span>
+      <span class="badge">${p.category || ''}</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:6px">
+    <button class="btn ghost" data-id="${p.id}" name="detalles" data-action="view" style="width:100%"><a href="product_detail.html"> Ver</a></button>
+    <button class="btn" data-id="${p.id}" data-action="add" title="Añadir al carrito" style="width:100%">Añadir</button>
+  </div>
+</div>
+`;
+    list.appendChild(el);
+  });
+
+  const totalPages = Math.ceil(currentProducts.length / pageSize);
+  if (totalPages > 1) {
+    pagination.style.display = 'flex';
+    if (currentPage > 1) {
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = '«';
+      prevBtn.onclick = () => { currentPage--; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(prevBtn);
+    }
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i;
+      pageBtn.className = i === currentPage ? 'active' : '';
+      pageBtn.onclick = () => { currentPage = i; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(pageBtn);
+    }
+    if (currentPage < totalPages) {
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = '»';
+      nextBtn.onclick = () => { currentPage++; renderProductsPage(); window.scrollTo({top:0,behavior:'smooth'}); };
+      pagination.appendChild(nextBtn);
+    }
+  } else {
+    pagination.style.display = 'none';
+  }
+
+  list.onclick = async (e)=>{
+    const btn = e.target.closest('button[data-id]');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const p = currentProducts.find(x=>x.id == id);
+    if (!p) return;
+
+    if (action === 'view') {
+      return;
+    }
+    
+    if (action === 'add') {
+      if (cart.length && cart[0].business_id !== p.business_id){
+        const confirmed = await showModal('Tu carrito es de otro negocio. ¿Vaciar y cambiar a ' + (selectedBusiness?.name||'este negocio') + '?', true);
+        if(!confirmed) return;
+        cart = [];
+      }
+      const exists = cart.find(x=>x.id===p.id);
+      if (exists) exists.qty = Number(exists.qty||1)+1;
+      else cart.push({ id:p.id, title:p.title, price_xaf:p.price_xaf, image_url:p.image_url, category:p.category, qty:1, business_id: p.business_id });
+      saveCart();
+
+      btn.style.transform='scale(0.96)';
+      setTimeout(()=>btn.style.transform='',120);
+    }
+  };
+}
+
+async function loadProducts(){
+  if (!selectedBusiness) return;
+  const q = document.getElementById('q').value.trim();
+  const params = new URLSearchParams();
+  params.set('business_id', selectedBusiness.id);
+  if (q) params.set('q', q);
+  const data = await API.get('/public/products?' + params.toString());
+  currentProducts = data.items || [];
+  currentPage = 1;
+  renderProductsPage();
+  renderSuggestions();
+}
+
+function renderCart(){
+  const box = document.getElementById('cartItems');
+  const info = document.getElementById('cartInfo');
+  if (!cart.length){
+    box.innerHTML = '<p class="small">Tu carrito está vacío.</p>';
+    info.textContent=''; document.getElementById('totals').textContent=''; return;
+  }
+  info.textContent = 'Negocio: ' + (selectedBusiness && cart[0].business_id===selectedBusiness.id ? selectedBusiness.name : ('#' + cart[0].business_id));
+  box.innerHTML = '';
+  let subtotal = 0;
+  cart.forEach((item, idx)=>{
+    const div = document.createElement('div');
+    div.style.margin='8px 0';
+    div.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="${item.image_url || 'https://placehold.co/80'}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #e6e6e6">
+        <div style="flex:1">
+          <div><strong>${item.title}</strong></div>
+          <div class="small">${(item.price_xaf||0).toLocaleString()} XAF • <span>${item.category||''}</span></div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+            <button class="btn ghost" data-idx="${idx}" data-act="dec">-</button>
+            <span style="min-width:24px;text-align:center">${item.qty}</span>
+            <button class="btn" data-idx="${idx}" data-act="inc">+</button>
+            <button class="btn ghost" data-idx="${idx}" data-act="del">Quitar</button>
+          </div>
+        </div>
+      </div>
+    `;
+    subtotal += (Number(item.price_xaf||0) * Number(item.qty||1));
+    box.appendChild(div);
+  });
+  const delivery = document.getElementById('deliveryChk').checked;
+  const total = subtotal + (delivery ? DELIVERY_FEE : 0);
+  document.getElementById('totals').textContent =
+    `Subtotal: ${subtotal.toLocaleString()} XAF` + (delivery ? ` + Envío: 2.000 XAF = Total: ${total.toLocaleString()} XAF` : ` = Total: ${total.toLocaleString()} XAF`);
+  box.onclick = (e)=>{
+    const btn = e.target.closest('button.btn,button.btn.ghost'); if(!btn) return;
+    const i = Number(btn.dataset.idx); const act = btn.dataset.act;
+    if (act==='inc') cart[i].qty = Number(cart[i].qty||1) + 1;
+    if (act==='dec') cart[i].qty = Math.max(1, Number(cart[i].qty||1) - 1);
+    if (act==='del') cart.splice(i,1);
+    saveCart(); renderCart();
+  }
+}
+
+document.getElementById('deliveryChk').addEventListener('change', (e)=>{
+  document.getElementById('addressBox').style.display = e.target.checked ? 'block' : 'none';
+  renderCart();
 });
 
-// Banner rotativo simple
-let slideIndex=0;
-const slides=document.getElementById('bannerSlides');
-document.getElementById('prevSlide').onclick=()=>{slideIndex=(slideIndex-1+3)%3;updateSlide();}
-document.getElementById('nextSlide').onclick=()=>{slideIndex=(slideIndex+1)%3;updateSlide();}
-function updateSlide(){slides.style.transform=`translateX(-${slideIndex*100}%)`}
+document.getElementById('btnBuscar').addEventListener('click', ()=>{ if (selectedBusiness) loadProducts(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='/'){ e.preventDefault(); qInput.focus(); } });
 
-// Modales
-const cartModal=document.getElementById('cartModal');
-const chatModal=document.getElementById('chatModal');
-document.getElementById('btnOpenCart').onclick=()=>cartModal.style.display='flex';
-document.getElementById('closeCart').onclick=()=>cartModal.style.display='none';
-document.getElementById('btnOpenChat').onclick=()=>chatModal.style.display='flex';
-document.getElementById('closeChat').onclick=()=>chatModal.style.display='none';
-document.getElementById('sendChat').onclick=()=>{
-  const msg=document.getElementById('chatInput').value;
-  if(msg){const div=document.createElement('div');div.textContent=`Tú: ${msg}`;document.getElementById('chatMessages').appendChild(div);document.getElementById('chatInput').value='';document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight;}
-};
+let typingTimer;
+qInput.addEventListener('input', ()=>{
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(()=>{ if(selectedBusiness) loadProducts(); }, 250);
+  renderSuggestions();
+});
+qInput.addEventListener('focus', ()=>renderSuggestions());
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search')) suggBox.style.display='none';
+});
+
+function renderSuggestions(){
+  const term = qInput.value.trim().toLowerCase();
+  if(!term || !currentProducts.length){ suggBox.style.display='none'; return; }
+  const matches = currentProducts
+    .filter(p => (p.title||'').toLowerCase().includes(term))
+    .slice(0,8);
+  if(!matches.length){ suggBox.style.display='none'; return; }
+  suggBox.innerHTML = matches.map(m=>`
+    <li role="option" data-id="${m.id}">
+      <img src="${m.image_url || 'https://placehold.co/80'}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e6e6e6" alt="">
+      <div style="display:flex;flex-direction:column">
+        <strong style="line-height:1.1">${m.title}</strong>
+        <span class="small">${m.category||''} ${m.price_xaf? '• '+Number(m.price_xaf).toLocaleString()+' XAF':''}</span>
+      </div>
+    </li>`).join('');
+  suggBox.style.display='block';
+
+  suggBox.querySelectorAll('li').forEach(li=>{
+    li.onclick=()=>{
+      const id = li.dataset.id;
+      const p = currentProducts.find(x=>''+x.id === ''+id);
+      if (p){
+        qInput.value = p.title;
+        suggBox.style.display='none';
+        const idx = currentProducts.findIndex(x=>x.id===p.id);
+        currentPage = Math.floor(idx / pageSize) + 1;
+        renderProductsPage();
+        const itemEl = [...document.querySelectorAll('.product-item')][idx % pageSize];
+        if (itemEl) itemEl.scroll
+        View({behavior:'smooth', block:'center'});
+      }
+    };
+  });
+}
+
+function init(){
+  updateCartCount();
+  loadBusinesses();
+}
+init();
+
+document.getElementById('checkoutForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (!cart.length) { showModal('Tu carrito está vacío'); return; }
+  const items = cart.map(c => ({ product_id: c.id, qty: c.qty }));
+  const delivery = document.getElementById('deliveryChk').checked;
+  const payload = {
+    items,
+    customer_name: document.getElementById('cname').value,
+    customer_phone: document.getElementById('cphone').value,
+    address: delivery ? document.getElementById('address').value : undefined,
+    note: document.getElementById('cnote').value,
+    delivery
+  };
+  const res = await API.post('/public/cart/checkout', payload);
+  if (res.error){ showModal(res.error); return; }
+  showModal('Pedido confirmado. Código de grupo: ' + res.group_id + '\nTotal: ' + (res.total_xaf||0).toLocaleString() + ' XAF');
+  cart = []; saveCart(); closeCart();
+});
+
+document.querySelector('.footer-links').addEventListener('click', e => {
+  const link = e.target.closest('a');
+  if (!link) return;
+  e.preventDefault();
+  const href = link.href;
+  const message = link.dataset.message;
+  showModal(`¿Deseas enviar el siguiente mensaje a WhatsApp?\n\n"${message}"`, true, () => {
+    window.open(href, '_blank');
+  });
+});
+
+// AI ASSISTANT LOGIC (sin cambios)
+const chatModal = document.getElementById('chatModal');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const micBtn = document.getElementById('micBtn');
+const sendChatBtn = document.getElementById('sendChatBtn');
+
+function openChat() { chatModal.style.display = 'flex'; }
+function closeChat() { chatModal.style.display = 'none'; }
+document.getElementById('btnOpenChat').addEventListener('click', openChat);
+
+function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message-bubble ${sender}`;
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendToAI(query) {
+    try {
+        const response = await fetch('./api/gemini-proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query })
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error de la API de Gemini');
+        }
+        const data = await response.json();
+        const aiResponse = data.text;
+        addMessage(aiResponse, 'ai');
+    } catch (error) {
+        console.error('Error al comunicarse con la API:', error);
+        addMessage("Lo siento, no puedo conectarme con el asistente en este momento. Por favor, inténtalo de nuevo más tarde.", 'ai');
+    }
+}
+
+sendChatBtn.addEventListener('click', () => {
+    const text = chatInput.value.trim();
+    if (text) {
+        sendToAI(text);
+    }
+});
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const text = chatInput.value.trim();
+        if (text) {
+            sendToAI(text);
+        }
+    }
+});
+
+let recognition = null;
+const isSpeechRecognitionAvailable = 'webkitSpeechRecognition' in window;
+if (isSpeechRecognitionAvailable) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => {
+        micBtn.classList.add('active');
+        chatInput.placeholder = 'Hablando...';
+        chatInput.value = '';
+    };
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+        sendToAI(transcript);
+    };
+    recognition.onerror = (event) => {
+        console.error('Error de reconocimiento de voz:', event.error);
+        showModal('Error al iniciar el reconocimiento de voz. Asegúrate de que tu navegador lo soporte y de haber dado permiso.');
+        micBtn.classList.remove('active');
+        chatInput.placeholder = 'Escribe tu mensaje...';
+    };
+    recognition.onend = () => {
+        micBtn.classList.remove('active');
+        chatInput.placeholder = 'Escribe tu mensaje...';
+    };
+    micBtn.addEventListener('click', () => {
+        if (micBtn.classList.contains('active')) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+} else {
+    micBtn.style.display = 'none';
+    console.warn('Web Speech API no está disponible en este navegador.');
+}
+
+// == NUEVO JAVASCRIPT AÑADIDO ==
+
+// Lógica para el banner de imágenes
+document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelector('.banner-slides');
+    const totalSlides = document.querySelectorAll('.banner-slide').length;
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        const newTransform = -index * 100;
+        slides.style.transform = `translateX(${newTransform}%)`;
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        showSlide(currentIndex);
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        showSlide(currentIndex);
+    });
+});
+
+// Lógica para el buscador de negocios
+document.getElementById('bizSearch').addEventListener('keyup', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const businesses = document.querySelectorAll('#bizList .biz-item');
+    
+    businesses.forEach(biz => {
+        const name = biz.querySelector('strong').textContent.toLowerCase();
+        if (name.includes(searchTerm)) {
+            biz.style.display = 'flex';
+        } else {
+            biz.style.display = 'none';
+        }
+    });
+});
 </script>
 </body>
 </html>
-
